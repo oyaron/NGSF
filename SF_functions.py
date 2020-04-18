@@ -177,6 +177,9 @@ templates_sn = np.array(templates_sn)
 
 templates_sn_trunc = select_templates(templates_sn, ['/Ia/','/Ib/','/Ic/','/II/','/Others/'])
 
+#templates_sn_trunc = select_templates(templates_sn, ['/Ic/'])
+
+
 templates_gal_trunc = select_templates(templates_gal,['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc'])
 
 
@@ -195,9 +198,9 @@ lam        =     np.linspace(lower, upper, interval)
 # In[14]:
 
 
-object_name = 'ZTF18abktmfz'
+object_name = 'ZTF18aaqkoyr'
 
-object_spec =  np.loadtxt("/Users/user/Dropbox/superfit/Superfit_tests/ZTF/Ib/ZTF18abktmfz/ZTF18abktmfz_binned")
+object_spec =  np.loadtxt("/Users/user/Dropbox/superfit/Superfit_tests/ZTF/II/ZTF18aaqkoyr/ZTF18aaqkoyr_binned")
 
 objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
     
@@ -388,7 +391,7 @@ def core(z,extcon):
 
     # Reduced chi2
 
-    reduchi2 = chi2/(times-2)
+    reduchi2 = chi2/(times-2)**2
     
     #reduchi2 = reduchi2 * len(object_spec[:,1])
     
@@ -521,7 +524,7 @@ def core_total(z,extcon):
 
     chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2) 
     
-    reduchi2 = chi2/(times-2)
+    reduchi2 = chi2/(times-2)**2
     
     #reduchi2 = reduchi2 * len(object_spec[:,1])
     
@@ -711,7 +714,7 @@ def core_loop(z,extcon):
 
     chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2) 
     
-    reduchi2 = chi2/(times-2)
+    reduchi2 = chi2/(times-2)**2
     
     #reduchi2 = reduchi2 * len(object_spec[:,1])
     
