@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[6]:
+# In[1]:
 
 
 import glob
@@ -20,11 +20,12 @@ from astropy import table
 from astropy.io import ascii
 from scipy.optimize import least_squares
 import scipy.signal as mf 
+from matplotlib.pyplot import show, plot
 
 
 # ## Linear Error
 
-# In[7]:
+# In[2]:
 
 
 def error_spectra(spec_object): 
@@ -89,7 +90,7 @@ def error_spectra(spec_object):
 
 # ## Savitzky-Golay error
 
-# In[8]:
+# In[3]:
 
 
 def savitzky_golay(data):
@@ -98,15 +99,24 @@ def savitzky_golay(data):
     x  = data[:,0] 
     y = data[:,1] / data[:,1].mean()
     
-    # find residuals from smooth line
+    
+    
+    # Find residuals from smooth line
+
+    
     smooth = mf.savgol_filter(y, 31, 3 )
     resid = y - smooth
     
-    # calculate the variance 
+    
+    # Calculate the variance 
+    
+    
     def moving_average(a, n=3) :
         ret = np.cumsum(a, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
         return ret[n - 1:] / n
+    
+    
     
     mov_var = moving_average(resid**2, n=100)
     mov_var = np.concatenate((mov_var, [mov_var[-1]]* (resid.size-mov_var.size)))
@@ -117,7 +127,7 @@ def savitzky_golay(data):
 
 # ## Extinction law
 
-# In[9]:
+# In[4]:
 
 
 A_v = 1 
@@ -135,19 +145,32 @@ def Alam(lamin, A_v):
 
 # ## Truncate templates
 
-# In[10]:
+# In[ ]:
+
+
+
+
+
+# In[5]:
 
 
 def select_templates(DATABASE, TYPES):
 
-       
-#    Selects templates of a given type(s) from a template database
     
-#    Input: DATEBASE   list of templates
-#           TYPES      which types should be selected
+    '''
     
-#    Output: array of templates of given type(s)
-       
+    
+    Selects templates of a given type(s) from a template database
+   
+    Input: DATEBASE   list of templates
+           TYPES      which types should be selected
+  
+    Output: array of templates of given type(s)
+    
+    
+    '''     
+    
+    
     database_trunc = list([])
     
     for type in TYPES:
@@ -158,7 +181,7 @@ def select_templates(DATABASE, TYPES):
 
 # ## Select templates and lam and object (User inputs)
 
-# In[11]:
+# In[6]:
 
 
 templates_gal = glob.glob('binnings/20A/gal/*')
@@ -171,19 +194,30 @@ templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
 templates_sn = np.array(templates_sn)
 
 
-# In[12]:
+# In[7]:
 
 
 
 templates_sn_trunc = select_templates(templates_sn, ['/Ia/','/Ib/','/Ic/','/II/','/Others/'])
 
-#templates_sn_trunc = select_templates(templates_sn, ['/Ic/'])
-
 
 templates_gal_trunc = select_templates(templates_gal,['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc'])
 
 
-# In[13]:
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[8]:
+
 
 resolution = 20 #Angstrom
 upper      = 10500
@@ -195,21 +229,24 @@ interval   = (upper - lower)/resolution
 lam        =     np.linspace(lower, upper, interval)
 
 
-# In[14]:
+# In[9]:
 
 
-object_name = 'ZTF18aaqkoyr'
+object_name = '14flu_KECK1'
 
-object_spec =  np.loadtxt("/Users/user/Dropbox/superfit/Superfit_tests/ZTF/II/ZTF18aaqkoyr/ZTF18aaqkoyr_binned")
+object_spec =  np.loadtxt("/home/sam/Dropbox/superfit/Superfit_tests/PTF/14flu/14flu_20141119_Keck1_v1_binned.txt")
 
 objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
     
 objecto = objecto(lam)
 
+#len(objecto)
+#np.count_nonzero(~np.isnan(objecto))
+
 
 # ## Error
 
-# In[15]:
+# In[10]:
 
 
 
@@ -272,7 +309,7 @@ def error_obj(kind, lam, object_spec):
 
 # ## User input
 
-# In[16]:
+# In[11]:
 
 
 sigma = error_obj('SG',lam, object_spec)
@@ -280,151 +317,32 @@ sigma = error_obj('SG',lam, object_spec)
 
 # # Core functions
 
-# In[17]:
-
-
-def core(z,extcon):
-    
-    
-    """
-    Core function takes as an input a redshift (z) and a constant of proportionality for the extinction 
-    law (extcon)
-    
-    The function only returns the corresponding chi2 value
-    
-    
-    """
-
-    spec_gal = []
-    spec_sn  = []
-    
-    
-    
-    #Obtain arrays of interpolated SN and host galaxies
-        
-    for i in range(0, len(templates_sn_trunc)): 
-        
-        one_sn           =  np.loadtxt(templates_sn_trunc[i])
-        
-        sn_interp        =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0],1 )),    bounds_error=False, fill_value='nan')
-        
-        spec_sn.append(sn_interp)
-      
-
-    
-    for i in range(0, len(templates_gal_trunc)): 
-        
-        one_gal           =  np.loadtxt(templates_gal_trunc[i])
-        
-        gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1],    bounds_error=False, fill_value='nan')
-        
-        spec_gal.append(gal_interp)
-        
-        
-        
-        
-
-
-    # Obtain all spectra and make them a function of lam, then add a new axis
-    
-    gal = []
-    sn  = []
-    
-    
-    for i in spec_gal: 
-        
-        gal.append(i(lam))
-    
-   
-    for i in spec_sn:    
-    
-        sn.append(i(lam))
-
-    
-    
-    
-    
-    
-    # Redefine sn and gal by adding a new axis
-    sn  = np.array(sn)
-    gal = np.array(gal)
-    
-    
-    gal = gal[:, np.newaxis,:]
-    sn  = sn[np.newaxis,:,:]
-
-
-    
-    # Apply linear algebra witchcraft
-    
-    c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
-
-    b = c * (np.nansum(gal**2,2)*np.nansum(sn*objecto,2) - np.nansum(gal*sn,2)*np.nansum(gal*objecto,2))
-    
-    d = c * (np.nansum(sn**2,2)*np.nansum(gal*objecto,2) - np.nansum(gal*sn,2)*np.nansum(sn*objecto,2))
-    
-
-    
-    
-    sn_b = b[:, :, np.newaxis]
-    gal_d = d[:, :, np.newaxis]
-
-    
-    
-    
-    
-    # How many degrees of freedom? 
-    
-    a = (  (objecto - (sn_b * sn + gal_d * gal))/(sigma) )**2
-    
-    a = np.isnan(a)
-    
-    times = np.nansum(a,2)
-    times = len(lam) - times
-    
-    
-  
-    # Define chi2
-    
-    chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2) 
-
-
-    # Reduced chi2
-
-    reduchi2 = chi2/(times-2)**2
-    
-    #reduchi2 = reduchi2 * len(object_spec[:,1])
-    
-    # Flatten the matrix out and obtain from those indices the corresponding values of b and d 
-    
-    
-    
-    reduchi2_1d = reduchi2.ravel()
-    
-    index = np.argsort(reduchi2_1d)
-    
-    idx = np.unravel_index(index[0], reduchi2.shape)
-    
-    
-
-    
-    return reduchi2[idx]
-    
-    
-    
-    
-
-
-# In[31]:
+# In[12]:
 
 
 def core_total(z,extcon):
 
     """
-    Function which takes as inputs a redshift value (z) and a value for the constant of extinction (extcon).
     
-    This function computes chi2 and returns a table with the constants of proportionality for the 
-    supernova and host galaxy, the z, extcon and name of the object we are interested in   
+    Inputs: 
+    ------
+    
+    z - an array of redshifts
+    
+    extcon - array of values of A_v
+    
+    
+    Outputs:
+    --------
+    
+    
+    Astropy table with the names for the best fit supernova and host galaxy,
+    
+    constants of proportionality for both the host galaxy and supernova templates,
+    
+    the value of chi2, the corresponding redshift and A_v.
+    
+    
     
     """
     
@@ -435,8 +353,7 @@ def core_total(z,extcon):
     
     
     
-    #Obtain arrays of interpolated supernovae and hosts
-        
+
     for i in range(0, len(templates_sn_trunc)): 
         
         one_sn           =  np.loadtxt(templates_sn_trunc[i])
@@ -445,7 +362,7 @@ def core_total(z,extcon):
         
         spec_sn.append(sn_interp)
       
-
+    
     
     
     for i in range(0, len(templates_gal_trunc)): 
@@ -463,6 +380,8 @@ def core_total(z,extcon):
 
     # Obtain all spectra and make them a function of lam, then add a new axis
     
+    
+    
     gal = []
     sn  = []
     
@@ -473,7 +392,7 @@ def core_total(z,extcon):
     
    
     for i in spec_sn:    
-    
+        
         sn.append(i(lam))
 
     
@@ -484,10 +403,12 @@ def core_total(z,extcon):
     gal = np.array(gal)
     
     
+   
+    
     gal = gal[:, np.newaxis,:]
     sn  = sn[np.newaxis,:,:]
 
-
+    
     
     # Apply linear algebra witchcraft
     
@@ -526,7 +447,8 @@ def core_total(z,extcon):
     
     reduchi2 = chi2/(times-2)**2
     
-    #reduchi2 = reduchi2 * len(object_spec[:,1])
+
+    
     
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
     
@@ -546,20 +468,6 @@ def core_total(z,extcon):
     host_galaxy_file = templates_gal_trunc[idx[0]]
     
     
-    
-    nova   = np.loadtxt('/Users/user/Dropbox/superfit/' + supernova_file)
-    host   = np.loadtxt('/Users/user/Dropbox/superfit/' + host_galaxy_file)
-    
-    
-    
-    #Interpolate supernova and host galaxy 
-    
-    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0],1 )),   bounds_error=False, fill_value='nan')
-
-    host_int = interpolate.interp1d(host[:,0]*(z+1), host[:,1],   bounds_error=False, fill_value='nan')
-
-
-    # Combination of the data  
 
     
     bb = b[idx[0]][idx[1]]
@@ -567,217 +475,158 @@ def core_total(z,extcon):
     
     
     
-    host_nova = bb*nova_int(lam) + dd*host_int(lam)
-    
-    
-    
     
     output = table.Table(np.array([object_name, host_galaxy_file, supernova_file, bb , dd, z, extcon ,reduchi2[idx]]), 
-                     
-                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','CONST_Alam','CHI2'), 
-                     
-                     dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f'))
+                    
+                    names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2'), 
+                    
+                    dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f'))
+       
         
     
-    
-    plt.figure(figsize=(7*np.sqrt(2), 7))
-   
-    plt.plot(lam, objecto,'r', label = 'Original')
-    plt.plot(lam, host_nova,'g', label = 'Combined Template')
+    return output, reduchi2[idx]
 
-    #plt.rc('xtick', labelsize = 10) 
-    #plt.rc('ytick', labelsize = 10)
     
-    plt.xlabel('xlabel', fontsize = 13)
-    plt.ylabel('ylabel', fontsize = 13)
+    
+    
+
+
+# ## Plotting
+
+# In[25]:
+
+
+def plotting(core):
+
+    """
+    
+    Inputs: 
+    ------
+    
+    Core function at a specific z and A_v. 
+    
+    
+    Outputs:
+    --------
+    
+    Plot of the object in interest and its corresponding best fit. 
+    
+    
+    
+    """
+
+    
+    values, reducedchi  = core
+   
+   
+   
+    
+    
+    obj_name = values[0][0]
+    
+    hg_name  = values[0][1]
+    
+    sn_name  = values[0][2]
+    
+    bb       = values[0][3]
+    
+    dd       = values[0][4]
+    
+    z        = values[0][5]
+   
+    extcon   = values[0][6]
+    
+   
+    z = z
+    
+    extcon = extcon
+    
+ 
+
+
+
+    
+    
+    
+    nova   = np.loadtxt('/home/sam/Dropbox/superfit/' + sn_name)
+    host   = np.loadtxt('/home/sam/Dropbox/superfit/' + hg_name)
+    
+    
+    
+    
+    
+    
+    #Interpolate supernova and host galaxy 
+    
+    
+    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0],1 )),   bounds_error=False, fill_value='nan')
+
+    host_int = interpolate.interp1d(host[:,0]*(z+1), host[:,1],   bounds_error=False, fill_value='nan')
+
+    host_nova = bb*nova_int(lam) + dd*host_int(lam)
+    
+ 
+
+
+
+
+    #Plot 
+
+    plt.figure(figsize=(7*np.sqrt(2), 7))
+    
+    plt.plot(lam, objecto,'r', label = obj_name)
+    plt.plot(lam, host_nova,'g', label = sn_name +' & '+ hg_name)
+    
+    plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
+    
+    #plt.xlabel('xlabel', fontsize = 13)
+    #plt.ylabel('ylabel', fontsize = 13)
     
     plt.legend(framealpha=1, frameon=True);
+    
+    plt.ylabel('Flux arbitrary',fontsize = 14)
+    plt.xlabel('Lamda',fontsize = 14)
+    plt.title(z, fontsize = 15, fontweight='bold')
+    
+    
+    #sn_name = sn_name.replace('dat', '')
+    
+    #plt.savefig(obj_name)
+    
+    plt.show()
+    
 
-    plt.ylabel('Flux arbitrary')
-    plt.xlabel('Lamda')
-    plt.title('Best fit', fontsize = 15)
-    plt.show()   
-    
-    return output
-    
-    
-    
-    
-
-
-# In[19]:
-
-
-def core_loop(z,extcon):
-
-    """
-    Function which takes as inputs a redshift value (z) and a value for the constant of extinction (extcon).
-    
-    This function computes chi2 and returns a table with the constants of proportionality for the 
-    supernova and host galaxy, the z, extcon and name of the object we are interested in   
-    
-    """
-    
-    
-    
-    spec_gal = []
-    spec_sn  = []
-    
-    
-    
-    #Obtain arrays of interpolated supernovae and hosts
         
-    for i in range(0, len(templates_sn_trunc)): 
-        
-        one_sn           =  np.loadtxt(templates_sn_trunc[i])
-       
-        sn_interp        =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0],1 )),    bounds_error=False, fill_value='nan')
-        
-        spec_sn.append(sn_interp)
-      
-
-    
-    
-    for i in range(0, len(templates_gal_trunc)): 
-        
-        one_gal           =  np.loadtxt(templates_gal_trunc[i])
-        
-        gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1],    bounds_error=False, fill_value='nan')
-        
-        spec_gal.append(gal_interp)
-        
-        
-        
-        
+    return 
 
 
-    # Obtain all spectra and make them a function of lam, then add a new axis
-    
-    gal = []
-    sn  = []
-    
-    
-    for i in spec_gal: 
-        
-        gal.append(i(lam))
-    
-   
-    for i in spec_sn:    
-    
-        sn.append(i(lam))
-
-    
-    
-    # Redefine sn and gal by adding a new axis
-    
-    sn  = np.array(sn)
-    gal = np.array(gal)
-    
-    
-    gal = gal[:, np.newaxis,:]
-    sn  = sn[np.newaxis,:,:]
+# In[ ]:
 
 
-    
-    # Apply linear algebra witchcraft
-    
-    c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
-
-    b = c * (np.nansum(gal**2,2)*np.nansum(sn*objecto,2) - np.nansum(gal*sn,2)*np.nansum(gal*objecto,2))
-    
-    d = c * (np.nansum(sn**2,2)*np.nansum(gal*objecto,2) - np.nansum(gal*sn,2)*np.nansum(sn*objecto,2))
-    
-
-    
-    #Add new axis in order to compute chi2
-    sn_b = b[:, :, np.newaxis]
-    gal_d = d[:, :, np.newaxis]
-
-    
-    
-    
-    
-    # Obtain number of degrees of freedom
-    
-    a = (  (objecto - (sn_b * sn + gal_d * gal))/(sigma) )**2
-    
-    a = np.isnan(a)
-    
-    times = np.nansum(a,2)
-    
-    times = len(lam) - times
-    
-    
-    
-  
-    # Obtain and reduce chi2
-
-    chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2) 
-    
-    reduchi2 = chi2/(times-2)**2
-    
-    #reduchi2 = reduchi2 * len(object_spec[:,1])
-    
-    # Flatten the matrix out and obtain indices corresponding values of proportionality constants
-    
-    reduchi2_1d = reduchi2.ravel()
-    
-    index = np.argsort(reduchi2_1d)
-    
-    idx = np.unravel_index(index[0], reduchi2.shape)
-    
-   
-    
-    
-    
-    # Load file, load plots and construct output table with all the values we care about 
-    
-    supernova_file  = templates_sn_trunc[idx[1]]
-    host_galaxy_file = templates_gal_trunc[idx[0]]
-    
-    
-    
-    nova   = np.loadtxt('/Users/user/Dropbox/superfit/' + supernova_file)
-    host   = np.loadtxt('/Users/user/Dropbox/superfit/' + host_galaxy_file)
-    
-    
-    
-    #Interpolate supernova and host galaxy 
-    
-    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0],1 )),   bounds_error=False, fill_value='nan')
-
-    host_int = interpolate.interp1d(host[:,0]*(z+1), host[:,1],   bounds_error=False, fill_value='nan')
 
 
-    # Combination of the data  
 
-    
-    bb = b[idx[0]][idx[1]]
-    dd = d[idx[0]][idx[1]]
-    
-    
-    
-    host_nova = bb*nova_int(lam) + dd*host_int(lam)
-    
-    
-    
-    
-    output = table.Table(np.array([object_name, host_galaxy_file, supernova_file, bb , dd, z, extcon ,reduchi2[idx]]), 
-                     
-                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','CONST_Alam','CHI2'), 
-                     
-                     dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f'))
-        
-    
-   
-        
-    
-    return output
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # ## Loop Method
 
-# In[20]:
+# In[15]:
 
 
 def all_parameter_space(redshift, extconstant):
@@ -789,23 +638,37 @@ def all_parameter_space(redshift, extconstant):
     
     the extinction constant, it then sorts all the chi2 values obtained and plots the curve that corresponds
     
-    to the smallest one.
+    to the smallest one. This is not the recommended method to use, since it takes the longest time, it is 
+    
+    rather a method to check results if there are any doubts with the two recommended methods.
     
     
     
-    parameters
+    Parameters
     ----------
     
     Extinction array and redshift array.
     
     
     
-    returns
+    Returns
     -------
     
     Best fit plot and astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
     
     constants, redshift, extinction law constant and chi2 value.
+    
+    In this version for the fit the same SN can appear with two different redshifts (since it is a brute-force
+    
+    method in which we go over the whole parameter space we don't want to eliminate any results). 
+    
+    
+    
+    
+    
+    For plotting: in order not to plot every single result the user can choose how many to plot, default 
+    
+    set to the first three. 
     
     
     '''
@@ -817,28 +680,50 @@ def all_parameter_space(redshift, extconstant):
         for j in extconstant:
             
     
-            a = core_loop(i,j)
+            a = core_total(i,j)[0]
                       
             results.append(a)
     
             result = table.vstack(results)
-          
     
     result.sort('CHI2')
+    
    
-    z_loop = result[0][5]
-    
-    extcon_loop = result[0][6]
-    
-    best = core_total(z_loop, extcon_loop)
-    
-    
-    return best
 
 
-# ## User enters extcons method
+    # From 0 to 3 in order to plot the first three results
+    
 
-# In[21]:
+    for i in range(0,3):
+
+
+        plotting(core_total(result[i][5], result[i][6]))
+    
+    
+    return result
+
+
+# ## User enters A_v
+
+# In[16]:
+
+
+def core_Av(z,extcon):
+       
+       
+       '''
+       
+       Takes the second output of the core_total function in order to do the minimization process for A_v
+       
+       '''
+   
+       output = core_total(z,extcon)[1]
+   
+       return output
+   
+
+
+# In[17]:
 
 
 def enter_extcon(extcon):
@@ -865,49 +750,96 @@ def enter_extcon(extcon):
     
     constants, redshift, extinction law constant and chi2 value.
     
+    Returns plots using plotting function, user can suppress output.
     
-    '''
-    
-    
-    
+     '''
     
     
-    zs = []
-    costs = []
+    init_guess_z = np.array([0.05])
+    
+    zs     = []
+    costs  = []
+    result = []
     
     
     for i in extcon:
         
-        init_guess_z = np.array([0.05])
     
-        best_fits = least_squares(core, init_guess_z, args = (i,), bounds = (0,0.12) )
+        best_fits = least_squares(core_Av, init_guess_z, args = (i,), bounds = (0,0.12) )
         
-        costs.append(float(best_fits['cost']))
+        costs.append(best_fits['cost'])
        
-        zs.append(float(best_fits['x']))
+        zs.append(best_fits['x'])
         
         
-    idx = np.argmin(costs)
+    idx = np.argsort(costs)
+    
+    
+    
+    
+    
         
-    best = core_total(zs[idx], extcon[idx])
+    for i in range(0,len(idx)): 
         
-    return best
+        
+ 
+        a = core_total(zs[idx[i]], extcon[idx[i]])[0]
+        
+        result.append(a)
+        
+        final = table.vstack(result)
+        
+            
+    final = table.unique(final,keys='SN',keep='first')
+    
+    final.sort('CHI2')
+    
+    
+    
+    
+    
+    
+    
+    for i in range(0,len(final)):
+        
+    
+        plotting(core_total(final[i][5], final[i][6]))
+    
+    
+    return final
 
 
-# In[22]:
+# In[ ]:
 
 
-def core_invert(extcon,z):
+
+
+
+# ## User enters z
+
+# In[18]:
+
+
+def core_z(extcon,z):
+       
+       '''
+       
+       Takes the second output of the core_total function in order to do the minimization process for z
+       
+       (it reverses the order of the inputs on purpose)
+       
+       
+       '''
    
-       output = core(z,extcon)
+   
+   
+       output = core_total(z,extcon)[1]
    
        return output
    
 
 
-# ## Users enters z
-
-# In[33]:
+# In[19]:
 
 
 def enter_z(z):
@@ -916,67 +848,80 @@ def enter_z(z):
     
     '''
     
-    This function uses the core function of superfit and a user given array for z to do a least squares fit on the
+    Uses core function and user given array for z to do a least squares fit on the
     
-    Alam constant. 
+    A_v constant. 
     
     
-    parameters
+    Parameters
     ----------
     
     Redshift array of values. Takes an array, it can be with beginning, end and step size.
     
     
     
-    returns
+    Returns
     -------
     
     Best fit plot and astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
     
-    constants, redshift, extinction law constant and chi2 value.
+    constants, redshift, extinction law constant and chi2 value. It does not allow for repeated SN fits,
     
+    rather it takes the SN and corresponding z with the smalles chi2 value.
+    
+    Returns plots using plotting function, user can suppress output.
     
     '''
+    
     
     
     init_guess_ext = np.array([0])
     
     extcons = []
-    costs = []
+    costs   = []
+    result  = []
     
     
     for i in z:
     
-        best_fits = least_squares(core_invert, init_guess_ext, args = (i,), bounds = (-2.2,2.0))
-        
-        costs.append(float(best_fits['cost']))
+        best_fits = least_squares(core_z, init_guess_ext, args = (i,), bounds = (-2.2,2.0))
+                
+        costs.append(best_fits['cost'])
        
-        extcons.append(float(best_fits['x']))
+        extcons.append(best_fits['x'])
         
-
     idx = np.argsort(costs)
-  
     
-    first  = core_total(z[idx[0]], extcons[idx[0]])
-    second = core_total(z[idx[1]], extcons[idx[1]])
-    third  = core_total(z[idx[2]], extcons[idx[2]])
-    fourth = core_total(z[idx[3]], extcons[idx[3]])
-    fifth  = core_total(z[idx[4]], extcons[idx[4]])
-
-    results = table.vstack([first,second,third,fourth,fifth])
-
-
-    return results
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+    
+    
+    
+    
+    
+    for i in range(0,len(idx)): 
+        
+        
+        a = core_total(z[idx[i]], extcons[idx[i]])[0]
+        
+        result.append(a)
+        
+        final = table.vstack(result)
+        
+    
+    final = table.unique(final,keys='SN',keep='first')
+    
+    final.sort('CHI2')
+    
+    
+    
+    
+    
+    
+    
+    for i in range(0,len(final)):
+        
+    
+        plotting(core_total(final[i][5], final[i][6]))
+    
+    return final
+    
 
