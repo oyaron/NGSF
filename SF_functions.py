@@ -130,26 +130,31 @@ def savitzky_golay(data):
 # In[4]:
 
 
-A_v = 1 
 
-def Alam(lamin, A_v):
+def Alam(lamin):
+    
+    A_v = 1 
+    
+    R_v = 3.1
     
     
-    #Add extinction with R_v = 3.1 and A_v = 1 
+    '''
+    
+    Add extinction with R_v = 3.1 and A_v = 1, A_v = 1 in order to find the constant of proportionality for
+    
+    the extinction law.
+    
+    '''
+    
     
     flux = np.ones(len(lamin))
-    redreturn = apply(ccm89(lamin, 1.0, 3.1), flux)
+    
+    redreturn = apply(ccm89(lamin, A_v, R_v), flux)
     
     return redreturn
 
 
 # ## Truncate templates
-
-# In[ ]:
-
-
-
-
 
 # In[5]:
 
@@ -179,74 +184,9 @@ def select_templates(DATABASE, TYPES):
     return np.array(database_trunc)
 
 
-# ## Select templates and lam and object (User inputs)
+# ## Error choice
 
 # In[6]:
-
-
-templates_gal = glob.glob('binnings/20A/gal/*')
-templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
-templates_gal = np.array(templates_gal)
-
-
-templates_sn = glob.glob('binnings/20A/sne/**/*')
-templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
-templates_sn = np.array(templates_sn)
-
-
-# In[7]:
-
-
-
-templates_sn_trunc = select_templates(templates_sn, ['/Ia/','/Ib/','/Ic/','/II/','/Others/'])
-
-
-templates_gal_trunc = select_templates(templates_gal,['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc'])
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[8]:
-
-
-resolution = 20 #Angstrom
-upper      = 10500
-lower      = 3000
-interval   = (upper - lower)/resolution
-
-#Making an arbitrary lambda, with upper, lower bounds and interval size
-
-lam        =     np.linspace(lower, upper, interval)
-
-
-# In[9]:
-
-
-object_name = '14flu_KECK1'
-
-object_spec =  np.loadtxt("/home/sam/Dropbox/superfit/Superfit_tests/PTF/14flu/14flu_20141119_Keck1_v1_binned.txt")
-
-objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
-    
-objecto = objecto(lam)
-
-#len(objecto)
-#np.count_nonzero(~np.isnan(objecto))
-
-
-# ## Error
-
-# In[10]:
 
 
 
@@ -307,17 +247,9 @@ def error_obj(kind, lam, object_spec):
     return sigma
 
 
-# ## User input
+# # Core function
 
-# In[11]:
-
-
-sigma = error_obj('SG',lam, object_spec)
-
-
-# # Core functions
-
-# In[12]:
+# In[7]:
 
 
 def core_total(z,extcon):
@@ -348,6 +280,7 @@ def core_total(z,extcon):
     
     
     
+
     spec_gal = []
     spec_sn  = []
     
@@ -358,11 +291,12 @@ def core_total(z,extcon):
         
         one_sn           =  np.loadtxt(templates_sn_trunc[i])
        
-        sn_interp        =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0],1 )),    bounds_error=False, fill_value='nan')
+        sn_interp        =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])),    bounds_error=False, fill_value='nan')
         
         spec_sn.append(sn_interp)
       
     
+
     
     
     for i in range(0, len(templates_gal_trunc)): 
@@ -493,7 +427,7 @@ def core_total(z,extcon):
 
 # ## Plotting
 
-# In[25]:
+# In[8]:
 
 
 def plotting(core):
@@ -559,7 +493,7 @@ def plotting(core):
     #Interpolate supernova and host galaxy 
     
     
-    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0],1 )),   bounds_error=False, fill_value='nan')
+    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0])),   bounds_error=False, fill_value='nan')
 
     host_int = interpolate.interp1d(host[:,0]*(z+1), host[:,1],   bounds_error=False, fill_value='nan')
 
@@ -571,6 +505,7 @@ def plotting(core):
 
 
     #Plot 
+    
 
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
@@ -600,33 +535,9 @@ def plotting(core):
     return 
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
 # ## Loop Method
 
-# In[15]:
+# In[9]:
 
 
 def all_parameter_space(redshift, extconstant):
@@ -686,8 +597,13 @@ def all_parameter_space(redshift, extconstant):
     
             result = table.vstack(results)
     
-    result.sort('CHI2')
+    #result.sort('CHI2')
     
+    
+    result = table.unique(result,keys='SN',keep='first')
+    
+    result.sort('CHI2')
+
    
 
 
@@ -697,7 +613,7 @@ def all_parameter_space(redshift, extconstant):
     for i in range(0,3):
 
 
-        plotting(core_total(result[i][5], result[i][6]))
+        plotting(core_total(result[i][5], result[i][6] ) )
     
     
     return result
@@ -705,7 +621,7 @@ def all_parameter_space(redshift, extconstant):
 
 # ## User enters A_v
 
-# In[16]:
+# In[10]:
 
 
 def core_Av(z,extcon):
@@ -716,6 +632,8 @@ def core_Av(z,extcon):
        Takes the second output of the core_total function in order to do the minimization process for A_v
        
        '''
+       
+      
    
        output = core_total(z,extcon)[1]
    
@@ -723,7 +641,7 @@ def core_Av(z,extcon):
    
 
 
-# In[17]:
+# In[11]:
 
 
 def enter_extcon(extcon):
@@ -754,6 +672,8 @@ def enter_extcon(extcon):
     
      '''
     
+    
+
     
     init_guess_z = np.array([0.05])
     
@@ -809,15 +729,9 @@ def enter_extcon(extcon):
     return final
 
 
-# In[ ]:
-
-
-
-
-
 # ## User enters z
 
-# In[18]:
+# In[12]:
 
 
 def core_z(extcon,z):
@@ -830,8 +744,7 @@ def core_z(extcon,z):
        
        
        '''
-   
-   
+       
    
        output = core_total(z,extcon)[1]
    
@@ -839,7 +752,7 @@ def core_z(extcon,z):
    
 
 
-# In[19]:
+# In[13]:
 
 
 def enter_z(z):
@@ -874,7 +787,6 @@ def enter_z(z):
     '''
     
     
-    
     init_guess_ext = np.array([0])
     
     extcons = []
@@ -885,7 +797,7 @@ def enter_z(z):
     for i in z:
     
         best_fits = least_squares(core_z, init_guess_ext, args = (i,), bounds = (-2.2,2.0))
-                
+        
         costs.append(best_fits['cost'])
        
         extcons.append(best_fits['x'])
@@ -905,7 +817,7 @@ def enter_z(z):
         result.append(a)
         
         final = table.vstack(result)
-        
+  
     
     final = table.unique(final,keys='SN',keep='first')
     
@@ -924,4 +836,115 @@ def enter_z(z):
     
     return final
     
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# # User Inputs
+
+# In[21]:
+
+
+
+number = 11
+
+redshift      =    np.linspace(0,0.1,number)
+
+extconstant  =    np.linspace(-2,2,number)
+          
+
+
+# ### Create an arbitrary lambda
+
+# In[22]:
+
+
+#Making an arbitrary lambda, with upper, lower bounds and interval size
+
+
+
+resolution = 20 #Angstrom
+upper      = 10500
+lower      = 3000
+interval   = (upper - lower)/resolution
+
+
+lam        =     np.linspace(lower, upper, interval)
+
+
+# ### Define and interpolate object of interest
+
+# In[23]:
+
+
+obj = "/home/sam/Dropbox/superfit/Superfit_tests/ZTF/Ib/ZTF18abktmfz_20181110_Keck1_v1_binned.ascii"
+
+object_spec =  np.loadtxt(obj)
+    
+index = obj.rfind("/")
+
+object_name = obj[index+1:]
+
+objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
+
+objecto = objecto(lam)
+
+
+# ### Truncate template library and chose error type
+
+# In[24]:
+
+
+templates_gal = glob.glob('binnings/20A/gal/*')
+templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
+templates_gal = np.array(templates_gal)
+
+
+templates_sn = glob.glob('binnings/20A/sne/**/*')
+templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
+templates_sn = np.array(templates_sn)
+
+
+# In[25]:
+
+
+
+temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
+
+temp_sn_tr  = ['/Ia/','/Ib/','/Ic/','/II/','/Others/']
+
+error = 'SG'
+
+sigma = error_obj(error,lam, object_spec)
+  
+
+
+# In[26]:
+
+
+
+templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
+
+templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
+
+
+# In[ ]:
+
+
+
+
+
+# In[27]:
+
+
+enter_z(redshift)
+
+
 
