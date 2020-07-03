@@ -21,6 +21,7 @@ from astropy.io import ascii
 from scipy.optimize import least_squares
 import scipy.signal as mf 
 from matplotlib.pyplot import show, plot
+import sys 
 
 
 # ## Linear Error
@@ -28,8 +29,34 @@ from matplotlib.pyplot import show, plot
 # In[2]:
 
 
-def error_spectra(spec_object): 
+def obj_name_int(obj, lam):
+    
+    # Obtain object name 
 
+    index = obj.rfind("/")
+
+    name = obj[index+1:]
+
+
+    #Interpolate
+
+    object_spec =  np.loadtxt(obj)
+
+    objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
+
+    objecto = objecto(lam)
+
+
+
+    return name, objecto
+
+
+
+
+
+def linear_error(spec_object): 
+
+    
     flux = spec_object[:,1]
     lam  = spec_object[:,0]
 
@@ -93,11 +120,11 @@ def error_spectra(spec_object):
 # In[3]:
 
 
-def savitzky_golay(data):
+def savitzky_golay(spec):
 
-    
-    x  = data[:,0] 
-    y = data[:,1] / data[:,1].mean()
+   
+    x  = spec[:,0] 
+    y = spec[:,1] / spec[:,1].mean()
     
     
     
@@ -190,7 +217,7 @@ def select_templates(DATABASE, TYPES):
 
 
 
-def error_obj(kind, lam, object_spec):
+def error_obj(kind, lam, obj):
     
     
     
@@ -215,6 +242,9 @@ def error_obj(kind, lam, object_spec):
     '''
     
     
+
+    object_spec = np.loadtxt(obj)
+    
     
     if kind == 'included' and len(object_spec[1,:]) > 2:
         
@@ -228,7 +258,7 @@ def error_obj(kind, lam, object_spec):
         
     if kind == 'linear':
     
-        error             =  error_spectra(object_spec)
+        error             = linear_error(object_spec)
         
         object_err_interp =  interpolate.interp1d(error[:,0],  error[:,1],  bounds_error=False, fill_value='nan')
                        
@@ -252,7 +282,7 @@ def error_obj(kind, lam, object_spec):
 # In[7]:
 
 
-def core_total(z,extcon):
+def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs):
 
     """
     
@@ -277,9 +307,20 @@ def core_total(z,extcon):
     
     
     """
+    templates_sn_trunc, templates_gal_trunc, lam = templates_sn_trunc, templates_gal_trunc, lam
+
+
+
+    kind = kwargs['kind']
+    obj  = kwargs['obj']
+
+    objecto = obj_name_int(obj, lam)[1]
     
+    name = obj_name_int(obj, lam)[0]
     
-    
+   
+    sigma = error_obj(kind, lam, obj)
+
 
     spec_gal = []
     spec_sn  = []
@@ -364,7 +405,7 @@ def core_total(z,extcon):
     
     # Obtain number of degrees of freedom
     
-    a = (  (objecto - (sn_b * sn + gal_d * gal))/(sigma) )**2
+    a = (  (objecto - (sn_b * sn + gal_d * gal))/sigma)**2
     
     a = np.isnan(a)
     
@@ -377,7 +418,7 @@ def core_total(z,extcon):
   
     # Obtain and reduce chi2
 
-    chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2) 
+    chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
     
     reduchi2 = chi2/(times-2)**2
     
@@ -410,7 +451,7 @@ def core_total(z,extcon):
     
     
     
-    output = table.Table(np.array([object_name, host_galaxy_file, supernova_file, bb , dd, z, extcon ,reduchi2[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon ,reduchi2[idx]]), 
                     
                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2'), 
                     
@@ -430,7 +471,7 @@ def core_total(z,extcon):
 # In[8]:
 
 
-def plotting(core):
+def plotting(core, lam, obj):
 
     """
     
@@ -453,9 +494,11 @@ def plotting(core):
     values, reducedchi  = core
    
    
+    lam = lam
    
+    obj = obj
     
-    
+
     obj_name = values[0][0]
     
     hg_name  = values[0][1]
@@ -476,14 +519,16 @@ def plotting(core):
     extcon = extcon
     
  
-
+   
+    objecto = obj_name_int(obj, lam)[1]
+    
 
 
     
     
     
-    nova   = np.loadtxt('/home/sam/Dropbox/superfit/' + sn_name)
-    host   = np.loadtxt('/home/sam/Dropbox/superfit/' + hg_name)
+    nova   = np.loadtxt('/home/sam/Dropbox (Weizmann Institute)/superfit/' + sn_name)
+    host   = np.loadtxt('/home/sam/Dropbox (Weizmann Institute)/superfit/' + hg_name)
     
     
     
@@ -540,7 +585,7 @@ def plotting(core):
 # In[9]:
 
 
-def all_parameter_space(redshift, extconstant):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, **kwargs):
 
     
     '''
@@ -583,21 +628,25 @@ def all_parameter_space(redshift, extconstant):
     
     
     '''
+
+    templates_sn_trunc, templates_gal_trunc, lam = templates_sn_trunc, templates_gal_trunc, lam
     
+
+    obj = kwargs['obj']
     
+
     results = []
     
     for i in redshift:
         for j in extconstant:
             
     
-            a = core_total(i,j)[0]
+            a = core_total(i,j, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)[0]
                       
             results.append(a)
     
             result = table.vstack(results)
     
-    #result.sort('CHI2')
     
     
     result = table.unique(result,keys='SN',keep='first')
@@ -607,13 +656,13 @@ def all_parameter_space(redshift, extconstant):
    
 
 
-    # From 0 to 3 in order to plot the first three results
+    # From 0 to 5 in order to plot the first 5 results
     
+    if plot: 
+        for i in range(0,5):
 
-    for i in range(0,3):
-
-
-        plotting(core_total(result[i][5], result[i][6] ) )
+ 
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, **kwargs), lam , obj)
     
     
     return result
@@ -836,115 +885,5 @@ def enter_z(z):
     
     return final
     
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# # User Inputs
-
-# In[21]:
-
-
-
-number = 11
-
-redshift      =    np.linspace(0,0.1,number)
-
-extconstant  =    np.linspace(-2,2,number)
-          
-
-
-# ### Create an arbitrary lambda
-
-# In[22]:
-
-
-#Making an arbitrary lambda, with upper, lower bounds and interval size
-
-
-
-resolution = 20 #Angstrom
-upper      = 10500
-lower      = 3000
-interval   = (upper - lower)/resolution
-
-
-lam        =     np.linspace(lower, upper, interval)
-
-
-# ### Define and interpolate object of interest
-
-# In[23]:
-
-
-obj = "/home/sam/Dropbox/superfit/Superfit_tests/ZTF/Ib/ZTF18abktmfz_20181110_Keck1_v1_binned.ascii"
-
-object_spec =  np.loadtxt(obj)
-    
-index = obj.rfind("/")
-
-object_name = obj[index+1:]
-
-objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
-
-objecto = objecto(lam)
-
-
-# ### Truncate template library and chose error type
-
-# In[24]:
-
-
-templates_gal = glob.glob('binnings/20A/gal/*')
-templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
-templates_gal = np.array(templates_gal)
-
-
-templates_sn = glob.glob('binnings/20A/sne/**/*')
-templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
-templates_sn = np.array(templates_sn)
-
-
-# In[25]:
-
-
-
-temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
-
-temp_sn_tr  = ['/Ia/','/Ib/','/Ic/','/II/','/Others/']
-
-error = 'SG'
-
-sigma = error_obj(error,lam, object_spec)
-  
-
-
-# In[26]:
-
-
-
-templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
-
-templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
-
-
-# In[ ]:
-
-
-
-
-
-# In[27]:
-
-
-enter_z(redshift)
-
 
 
