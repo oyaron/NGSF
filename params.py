@@ -15,9 +15,10 @@ from SF_functions import *
 z_num    = 11
 alam_num = 21
 
+
+
 obj = "/home/sam/Dropbox (Weizmann Institute)/superfit/Superfit_tests/ZTF/II/ZTF18aagpzjk_binned"
-
-
+path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
 
 
 
@@ -73,7 +74,7 @@ templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
 
 
 
-all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, lam, kind=kind, obj=obj)
+all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, lam, kind=kind, obj=obj, path=path)
 
 
 

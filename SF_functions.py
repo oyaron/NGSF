@@ -22,7 +22,7 @@ from scipy.optimize import least_squares
 import scipy.signal as mf 
 from matplotlib.pyplot import show, plot
 import sys 
-
+import itertools
 
 # ## Linear Error
 
@@ -471,7 +471,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
 # In[8]:
 
 
-def plotting(core, lam, obj):
+def plotting(core, lam, obj, number, **kwargs):
 
     """
     
@@ -516,19 +516,20 @@ def plotting(core, lam, obj):
    
     z = z
     
-    extcon = extcon
-    
- 
+    extcon = extcon 
    
     objecto = obj_name_int(obj, lam)[1]
     
 
 
+    path = kwargs['path']
+    number = number
+
     
     
     
-    nova   = np.loadtxt('/home/sam/Dropbox (Weizmann Institute)/superfit/' + sn_name)
-    host   = np.loadtxt('/home/sam/Dropbox (Weizmann Institute)/superfit/' + hg_name)
+    nova   = np.loadtxt(path + sn_name)
+    host   = np.loadtxt(path + hg_name)
     
     
     
@@ -562,17 +563,16 @@ def plotting(core, lam, obj):
     #plt.xlabel('xlabel', fontsize = 13)
     #plt.ylabel('ylabel', fontsize = 13)
     
-    plt.legend(framealpha=1, frameon=True);
+    plt.legend(framealpha=1, frameon=True)
     
     plt.ylabel('Flux arbitrary',fontsize = 14)
     plt.xlabel('Lamda',fontsize = 14)
     plt.title(z, fontsize = 15, fontweight='bold')
     
-    
+    #print(obj_name)
     #sn_name = sn_name.replace('dat', '')
     
-    #plt.savefig(obj_name)
-    
+    plt.savefig(path + obj_name + str(number))
     plt.show()
     
 
@@ -580,12 +580,12 @@ def plotting(core, lam, obj):
     return 
 
 
+
 # ## Loop Method
 
-# In[9]:
 
 
-def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, **kwargs):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, plot, **kwargs):
 
     
     '''
@@ -603,16 +603,16 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     Parameters
     ----------
     
-    Extinction array and redshift array.
+    Truncated SN and HG template libraries, extinction array and redshift array, lambda axis and **kwargs for the object path.
     
     
     
     Returns
     -------
     
-    Best fit plot and astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
+    Astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
     
-    constants, redshift, extinction law constant and chi2 value.
+    constants, redshift, extinction law constant and chi2 value, plots are optional.
     
     In this version for the fit the same SN can appear with two different redshifts (since it is a brute-force
     
@@ -629,48 +629,44 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     '''
 
-    templates_sn_trunc, templates_gal_trunc, lam = templates_sn_trunc, templates_gal_trunc, lam
+    templates_sn_trunc, templates_gal_trunc, lam, plot = templates_sn_trunc, templates_gal_trunc, lam, plot
     
 
-    obj = kwargs['obj']
+    obj  = kwargs['obj']
+    path = kwargs['path']
     
 
     results = []
     
-    for i in redshift:
-        for j in extconstant:
-            
+    for element in itertools.product(redshift,extconstant):
+         
     
-            a = core_total(i,j, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)[0]
+        a = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, **kwargs)[0]
                       
-            results.append(a)
+        results.append(a)
     
-            result = table.vstack(results)
-    
-    
-    
+        result = table.vstack(results)
+
     result = table.unique(result,keys='SN',keep='first')
     
     result.sort('CHI2')
 
    
+    
+    # Plot the first n results
 
-
-    # From 0 to 5 in order to plot the first 5 results
+    n = 3
     
     if plot: 
-        for i in range(0,5):
+        for i in range(0,n):
 
  
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, **kwargs), lam , obj)
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, **kwargs), lam , obj, i, path=path)
     
     
     return result
 
 
-# ## User enters A_v
-
-# In[10]:
 
 
 def core_Av(z,extcon):
