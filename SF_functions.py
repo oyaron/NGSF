@@ -585,7 +585,7 @@ def plotting(core, lam, obj, number, **kwargs):
 
 
 
-def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, plot, **kwargs):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, n=3, plot=False, **kwargs):
 
     
     '''
@@ -629,7 +629,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     '''
 
-    templates_sn_trunc, templates_gal_trunc, lam, plot = templates_sn_trunc, templates_gal_trunc, lam, plot
+    #templates_sn_trunc, templates_gal_trunc, lam, plot, n = templates_sn_trunc, templates_gal_trunc, lam, plot, n
     
 
     obj  = kwargs['obj']
@@ -651,11 +651,11 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     result.sort('CHI2')
 
-   
+    ascii.write(result, 'result.csv', format='csv', fast_writer=False)  
     
-    # Plot the first n results
+    # Plot the first n results (default set to 3)
 
-    n = 3
+    
     
     if plot: 
         for i in range(0,n):
