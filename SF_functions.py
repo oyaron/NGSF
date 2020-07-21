@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import glob
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,9 +18,7 @@ from matplotlib.pyplot import show, plot
 import sys 
 import itertools
 
-# ## Linear Error
-
-# In[2]:
+#Error spectrum
 
 
 def obj_name_int(obj, lam):
@@ -572,7 +564,7 @@ def plotting(core, lam, obj, number, **kwargs):
     #print(obj_name)
     #sn_name = sn_name.replace('dat', '')
     
-    plt.savefig(path + obj_name + str(number))
+    plt.savefig(path + obj_name + '_' + str(number))
     plt.show()
     
 
@@ -635,7 +627,9 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     obj  = kwargs['obj']
     path = kwargs['path']
     
-
+    
+    
+    
     results = []
     
     for element in itertools.product(redshift,extconstant):
@@ -651,7 +645,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     result.sort('CHI2')
 
-    ascii.write(result, 'result.csv', format='csv', fast_writer=False)  
+    ascii.write(result, obj+ '.csv', format='csv', fast_writer=False)  
     
     # Plot the first n results (default set to 3)
 
@@ -665,221 +659,5 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     
     return result
-
-
-
-
-def core_Av(z,extcon):
-       
-       
-       '''
-       
-       Takes the second output of the core_total function in order to do the minimization process for A_v
-       
-       '''
-       
-      
-   
-       output = core_total(z,extcon)[1]
-   
-       return output
-   
-
-
-# In[11]:
-
-
-def enter_extcon(extcon):
-
-        
-    '''
-    
-    This function uses the core function of superfit and a user Alam array to do a least squares fit 
-    
-    on the redshift z. 
-    
-    
-    parameters
-    ----------
-    
-    Extinction array. Takes an array, it can be one with beginning, end and step size.
-    
-    
-    
-    returns
-    -------
-    
-    Best fit plot and astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
-    
-    constants, redshift, extinction law constant and chi2 value.
-    
-    Returns plots using plotting function, user can suppress output.
-    
-     '''
-    
-    
-
-    
-    init_guess_z = np.array([0.05])
-    
-    zs     = []
-    costs  = []
-    result = []
-    
-    
-    for i in extcon:
-        
-    
-        best_fits = least_squares(core_Av, init_guess_z, args = (i,), bounds = (0,0.12) )
-        
-        costs.append(best_fits['cost'])
-       
-        zs.append(best_fits['x'])
-        
-        
-    idx = np.argsort(costs)
-    
-    
-    
-    
-    
-        
-    for i in range(0,len(idx)): 
-        
-        
- 
-        a = core_total(zs[idx[i]], extcon[idx[i]])[0]
-        
-        result.append(a)
-        
-        final = table.vstack(result)
-        
-            
-    final = table.unique(final,keys='SN',keep='first')
-    
-    final.sort('CHI2')
-    
-    
-    
-    
-    
-    
-    
-    for i in range(0,len(final)):
-        
-    
-        plotting(core_total(final[i][5], final[i][6]))
-    
-    
-    return final
-
-
-# ## User enters z
-
-# In[12]:
-
-
-def core_z(extcon,z):
-       
-       '''
-       
-       Takes the second output of the core_total function in order to do the minimization process for z
-       
-       (it reverses the order of the inputs on purpose)
-       
-       
-       '''
-       
-   
-       output = core_total(z,extcon)[1]
-   
-       return output
-   
-
-
-# In[13]:
-
-
-def enter_z(z):
-
-    
-    
-    '''
-    
-    Uses core function and user given array for z to do a least squares fit on the
-    
-    A_v constant. 
-    
-    
-    Parameters
-    ----------
-    
-    Redshift array of values. Takes an array, it can be with beginning, end and step size.
-    
-    
-    
-    Returns
-    -------
-    
-    Best fit plot and astropy table with the best fit parameters: Host Galaxy and Supernova proportionality 
-    
-    constants, redshift, extinction law constant and chi2 value. It does not allow for repeated SN fits,
-    
-    rather it takes the SN and corresponding z with the smalles chi2 value.
-    
-    Returns plots using plotting function, user can suppress output.
-    
-    '''
-    
-    
-    init_guess_ext = np.array([0])
-    
-    extcons = []
-    costs   = []
-    result  = []
-    
-    
-    for i in z:
-    
-        best_fits = least_squares(core_z, init_guess_ext, args = (i,), bounds = (-2.2,2.0))
-        
-        costs.append(best_fits['cost'])
-       
-        extcons.append(best_fits['x'])
-        
-    idx = np.argsort(costs)
-    
-    
-    
-    
-    
-    
-    for i in range(0,len(idx)): 
-        
-        
-        a = core_total(z[idx[i]], extcons[idx[i]])[0]
-        
-        result.append(a)
-        
-        final = table.vstack(result)
-  
-    
-    final = table.unique(final,keys='SN',keep='first')
-    
-    final.sort('CHI2')
-    
-    
-    
-    
-    
-    
-    
-    for i in range(0,len(final)):
-        
-    
-        plotting(core_total(final[i][5], final[i][6]))
-    
-    return final
-    
 
 

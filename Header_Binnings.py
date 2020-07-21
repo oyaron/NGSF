@@ -19,7 +19,7 @@ from astropy.io import ascii
 # In[2]:
 
 
-def kill_header(file_name, saving_place):
+def kill_header(file_name):
 
     '''
     This function removes all entries beginning with '#' from a file with a header, keeping only the column
@@ -30,15 +30,13 @@ def kill_header(file_name, saving_place):
     parameters
     ----------
     
-    It takes two locations in the form of "/home/user/Dropbox/something", one to pull the file from and one to
-    
-    save as.
+    It takes one path (in the form of "/home/user/Dropbox/something") to pull and eliminate its header
     
     
     returns
     -------
     
-    Saved file without header.
+    File without header.
     
     
     '''
@@ -63,7 +61,7 @@ def kill_header(file_name, saving_place):
         
     columns = np.array(columns)
     
-    np.savetxt(saving_place ,columns,fmt='%s')    
+      
 
     
     return columns
@@ -72,8 +70,11 @@ def kill_header(file_name, saving_place):
 # In[3]:
 
 
-def bin_spectrum(spectrum, resolution, saving_place):
+def bin_spectrum(spectrum, resolution):
+    
+    
     """
+
         Returns a median normalized flux, binned in a resolution given by the user.
         Parameters:
         -----------
@@ -82,7 +83,7 @@ def bin_spectrum(spectrum, resolution, saving_place):
         resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
     
     """    
-    spectrum = np.loadtxt(spectrum)
+    #spectrum = np.loadtxt(spectrum)
     
     lam = spectrum[:,0]
     flux = spectrum[:,1]
@@ -91,14 +92,17 @@ def bin_spectrum(spectrum, resolution, saving_place):
         fluxerror = spectrum[:,2]
     else:
         fluxerror = None
-    if lam[1]-lam[0] >= resolution:
+    if lam[1]- lam[0] >= resolution:
         bin_spectra = spectrum
     else:
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
         flux_bin, bin_edge, index = stats.binned_statistic(lam, flux, statistic = 'median', range=(lam.min(), lam.max()), bins = number_of_bins)
         bin_wavelength = [ (bin_edge[i] + bin_edge[i+1]) / 2 for i in range(len(bin_edge)-1) ]
+        
         # This is the condition I had to add to get rid of the NaNs, but I still don’t know why flux_bin has NaNs in the first place
         #flux_bin = np.nan_to_num(flux_bin)
+        
+        
         if fluxerror is not None:
             fluxerror_bin = []
             for i in range(len(bin_edge)-1):
@@ -131,10 +135,64 @@ def bin_spectrum(spectrum, resolution, saving_place):
             bin_spectra['bin_fluxerror'] = fluxerror_bin
         bin_spectra=bin_spectra[bin_spectra['bin_flux'] != np.nan]
         
-        np.savetxt(saving_place ,bin_spectra,fmt='%s')  
+        #np.savetxt(saving_place ,bin_spectra,fmt='%s')  
         
         return bin_spectra
 
 
+def kill_header_and_bin(original, resolution =20):
 
+
+    """
+
+    Takes a path (in the form of "/home/user/Dropbox/something"), pulls a spectrum file that should consist of 2 or 3 columns (wavelength, flux and error) 
+
+    eliminates the header, bins the spectrum to a specific resolution and saves the file in the same directory from the original path, it adds "_binned.ascii"
+
+    to the end of the file name
+
+
+    ----------
+
+    Outputs: astropy table with binned data, and saves file in the same path as the original with "_binned.ascii" in the name
+
+    
+    
+    """
+
+
+    
+
+
+    index1 = original.rfind("/")
+    index2 = original.rfind(".")
+
+    name = original[index1+1:index2]
+    path = original[0:index1+1]
+
+    name = name + '_' + str(resolution) + 'A'
+    saving_path = path + name
+
+
+
+
+    noheader = kill_header(original)
+
+
+    lam  = [float(item) for item in noheader[:,0]]
+    flux = [float(item) for item in noheader[:,1]]
+
+
+
+    spectrum = np.array([lam,flux]).T
+
+    bin_spec = bin_spectrum(spectrum, resolution)
+
+
+
+
+
+    np.savetxt(saving_path ,bin_spec, fmt='%s')
+
+    return bin_spec, saving_path
 

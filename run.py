@@ -14,7 +14,7 @@ path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
 
 
 
-#Obtaining the binned file name
+#Obtaining the binned file name (obj to be analyzed)
 
 index1 = original.rfind("/")
 index2 = original.rfind(".")
@@ -22,16 +22,16 @@ index2 = original.rfind(".")
 name = original[index1+1:index2]
 location = original[0:index1+1]
 
-name = name + '_binned'
+name = name + '_' + str(resolution) + 'A'
 obj = location + name
 
 
 
 #Calling the original file, getting rif of the header and binning it (default set to 20A)
 
-kill_header_and_bin(original,30)
+kill_header_and_bin(original,resolution)
 
 
-#Core superfit function on the binned file
+#Core superfit function on the binned file, default to plot and save n fits
 
 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, lam, n = 2, plot = 1, kind=kind, obj=obj, path=path)
