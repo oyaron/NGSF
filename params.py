@@ -38,7 +38,14 @@ lam        =     np.linspace(lower, upper, interval)
 
 
 
+
+
 #Select template library
+
+#Path where the binnings folder is, in order to pull the files from the library 
+
+path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
+
 
 templates_gal = glob.glob('binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]

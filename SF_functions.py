@@ -21,26 +21,34 @@ import itertools
 #Error spectrum
 
 
-def obj_name_int(obj, lam):
+def obj_name_int(original, lam, resolution):
     
-    # Obtain object name 
+   
+    index1 = original.rfind("/")
+    index2 = original.rfind(".")
 
-    index = obj.rfind("/")
+    #Object name
+    name = original[index1+1:index2]
+    path = original[0:index1+1]
 
-    name = obj[index+1:]
+
+    #Binned name 
+    name_bin = name + '_' + str(resolution) + 'A'
+
+
 
 
     #Interpolate
 
-    object_spec =  np.loadtxt(obj)
+    object_spec =  np.loadtxt(original)
 
-    objecto = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
+    int_obj = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
 
-    objecto = objecto(lam)
+    int_obj = int_obj(lam)
 
 
 
-    return name, objecto
+    return name, int_obj, path, name_bin
 
 
 
@@ -109,8 +117,6 @@ def linear_error(spec_object):
 
 # ## Savitzky-Golay error
 
-# In[3]:
-
 
 def savitzky_golay(spec):
 
@@ -139,14 +145,13 @@ def savitzky_golay(spec):
     
     mov_var = moving_average(resid**2, n=100)
     mov_var = np.concatenate((mov_var, [mov_var[-1]]* (resid.size-mov_var.size)))
-    err_std = mov_var**(1/2);
+    err_std = mov_var**(1/2)
  
     return np.array([x,err_std]).T 
 
 
 # ## Extinction law
 
-# In[4]:
 
 
 
@@ -175,7 +180,6 @@ def Alam(lamin):
 
 # ## Truncate templates
 
-# In[5]:
 
 
 def select_templates(DATABASE, TYPES):
@@ -205,11 +209,8 @@ def select_templates(DATABASE, TYPES):
 
 # ## Error choice
 
-# In[6]:
 
-
-
-def error_obj(kind, lam, obj):
+def error_obj(kind, lam, obj_path):
     
     
     
@@ -235,7 +236,7 @@ def error_obj(kind, lam, obj):
     
     
 
-    object_spec = np.loadtxt(obj)
+    object_spec = np.loadtxt(obj_path)
     
     
     if kind == 'included' and len(object_spec[1,:]) > 2:
@@ -271,10 +272,9 @@ def error_obj(kind, lam, obj):
 
 # # Core function
 
-# In[7]:
 
 
-def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs):
+def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
 
     """
     
@@ -304,14 +304,21 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
 
 
     kind = kwargs['kind']
-    obj  = kwargs['obj']
+    
+    original  = kwargs['original']
 
-    objecto = obj_name_int(obj, lam)[1]
+  
+
+
+    int_obj = obj_name_int(original, lam, resolution)[1]
     
-    name = obj_name_int(obj, lam)[0]
-    
+    name    = obj_name_int(original, lam, resolution)[0]
+
    
-    sigma = error_obj(kind, lam, obj)
+
+
+
+    sigma = error_obj(kind, lam, original)
 
 
     spec_gal = []
@@ -381,9 +388,9 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
     
     c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
 
-    b = c * (np.nansum(gal**2,2)*np.nansum(sn*objecto,2) - np.nansum(gal*sn,2)*np.nansum(gal*objecto,2))
+    b = c * (np.nansum(gal**2,2)*np.nansum(sn*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(gal*int_obj,2))
     
-    d = c * (np.nansum(sn**2,2)*np.nansum(gal*objecto,2) - np.nansum(gal*sn,2)*np.nansum(sn*objecto,2))
+    d = c * (np.nansum(sn**2,2)*np.nansum(gal*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(sn*int_obj,2))
     
 
     
@@ -397,7 +404,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
     
     # Obtain number of degrees of freedom
     
-    a = (  (objecto - (sn_b * sn + gal_d * gal))/sigma)**2
+    a = (  (int_obj - (sn_b * sn + gal_d * gal))/sigma)**2
     
     a = np.isnan(a)
     
@@ -410,7 +417,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
   
     # Obtain and reduce chi2
 
-    chi2  =  np.nansum(  ((objecto - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
+    chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
     
     reduchi2 = chi2/(times-2)**2
     
@@ -460,10 +467,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, **kwargs)
 
 # ## Plotting
 
-# In[8]:
 
-
-def plotting(core, lam, obj, number, **kwargs):
+def plotting(core, lam, original, number, resolution, **kwargs):
 
     """
     
@@ -488,8 +493,7 @@ def plotting(core, lam, obj, number, **kwargs):
    
     lam = lam
    
-    obj = obj
-    
+   
 
     obj_name = values[0][0]
     
@@ -510,11 +514,14 @@ def plotting(core, lam, obj, number, **kwargs):
     
     extcon = extcon 
    
-    objecto = obj_name_int(obj, lam)[1]
+    int_obj = obj_name_int(original, lam, resolution)[1]
     
 
 
     path = kwargs['path']
+    save = kwargs['save']
+
+
     number = number
 
     
@@ -547,7 +554,7 @@ def plotting(core, lam, obj, number, **kwargs):
 
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
-    plt.plot(lam, objecto,'r', label = obj_name)
+    plt.plot(lam, int_obj,'r', label = obj_name)
     plt.plot(lam, host_nova,'g', label = sn_name +' & '+ hg_name)
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
@@ -564,8 +571,8 @@ def plotting(core, lam, obj, number, **kwargs):
     #print(obj_name)
     #sn_name = sn_name.replace('dat', '')
     
-    plt.savefig(path + obj_name + '_' + str(number))
-    plt.show()
+    plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
+    #plt.show()
     
 
         
@@ -577,7 +584,7 @@ def plotting(core, lam, obj, number, **kwargs):
 
 
 
-def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, n=3, plot=False, **kwargs):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=3, plot=False, **kwargs):
 
     
     '''
@@ -621,21 +628,27 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     '''
 
-    #templates_sn_trunc, templates_gal_trunc, lam, plot, n = templates_sn_trunc, templates_gal_trunc, lam, plot, n
-    
-
-    obj  = kwargs['obj']
+ 
     path = kwargs['path']
-    
-    
-    
-    
+  
+    save = kwargs['save']
+
+    original  = kwargs['original']
+
+    binned_name = obj_name_int(original, lam, resolution)[3]
+
+
+
+
+
+
+
     results = []
     
     for element in itertools.product(redshift,extconstant):
          
     
-        a = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, **kwargs)[0]
+        a = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)[0]
                       
         results.append(a)
     
@@ -645,7 +658,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     result.sort('CHI2')
 
-    ascii.write(result, obj+ '.csv', format='csv', fast_writer=False)  
+    ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False)  
     
     # Plot the first n results (default set to 3)
 
@@ -655,7 +668,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         for i in range(0,n):
 
  
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, **kwargs), lam , obj, i, path=path)
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, path=path, save=save)
     
     
     return result

@@ -14,6 +14,7 @@ from scipy.optimize import curve_fit
 import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
+from SF_functions import *
 
 
 # In[2]:
@@ -140,7 +141,7 @@ def bin_spectrum(spectrum, resolution):
         return bin_spectra
 
 
-def kill_header_and_bin(original, resolution =20):
+def kill_header_and_bin(original, resolution =20, **kwargs):
 
 
     """
@@ -163,15 +164,19 @@ def kill_header_and_bin(original, resolution =20):
 
     
 
+    saving_path = kwargs['save_bin']
+    
+    
+    # binned_name = kwargs['binned_name']
+    
+    #index1 = original.rfind("/")
+    #index2 = original.rfind(".")
 
-    index1 = original.rfind("/")
-    index2 = original.rfind(".")
+    #name = original[index1+1:index2]
+    #path = original[0:index1+1]
 
-    name = original[index1+1:index2]
-    path = original[0:index1+1]
-
-    name = name + '_' + str(resolution) + 'A'
-    saving_path = path + name
+    #name = name + '_' + str(resolution) + 'A'
+    #saving_path = path + name
 
 
 
@@ -192,7 +197,7 @@ def kill_header_and_bin(original, resolution =20):
 
 
 
-    np.savetxt(saving_path ,bin_spec, fmt='%s')
+    np.savetxt(saving_path  ,bin_spec, fmt='%s')
 
     return bin_spec, saving_path
 
