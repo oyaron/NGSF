@@ -18,6 +18,7 @@ z_num    = 11
 alam_num = 21
 
 redshift      =    np.linspace(0,0.1,z_num)
+#redshift = np.array([0.065712])
 extconstant   =    np.linspace(-2,2,alam_num)
           
 
