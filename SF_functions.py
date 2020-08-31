@@ -18,7 +18,7 @@ from matplotlib.pyplot import show, plot
 import sys 
 import itertools
 from error_routines import *
-
+from numba import jit
 
 
 def obj_name_int(original, lam, resolution):
@@ -172,56 +172,7 @@ def error_obj(kind, lam, obj_path):
     return sigma
 
 
-# # Core function
-
-
-
-def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
-
-    """
-    
-    Inputs: 
-    ------
-    
-    z - an array of redshifts
-    
-    extcon - array of values of A_v
-    
-    
-    Outputs:
-    --------
-    
-    
-    Astropy table with the names for the best fit supernova and host galaxy,
-    
-    constants of proportionality for both the host galaxy and supernova templates,
-    
-    the value of chi2, the corresponding redshift and A_v.
-    
-    
-    
-    """
-    templates_sn_trunc, templates_gal_trunc, lam = templates_sn_trunc, templates_gal_trunc, lam
-
-
-
-    kind = kwargs['kind']
-    
-    original  = kwargs['original']
-
-  
-
-
-    int_obj = obj_name_int(original, lam, resolution)[1]
-    
-    name    = obj_name_int(original, lam, resolution)[0]
-
-   
-
-
-
-    sigma = error_obj(kind, lam, original)
-
+def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
     spec_gal = []
     spec_sn  = []
@@ -283,9 +234,146 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     gal = gal[:, np.newaxis,:]
     sn  = sn[np.newaxis,:,:]
+    
 
+    return sn, gal
+
+
+
+
+
+
+@jit
+def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
+
+    spec_sn = []
+    
+    for i in range(0, len(templates_sn_trunc)): 
+        
+        one_sn           =  np.loadtxt(templates_sn_trunc[i])
+       
+        sn_interp        =  np.interp(lam, one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])) )
+        
+        spec_sn.append(sn_interp)
+        
+        
+    sns = [] 
+    
+    for j in range(0,len(spec_sn)):
+    
+        sn = spec_sn[j]
+        
+        
+        for j in range(0,len(sn)-1): 
+            
+            if sn[j+1] == sn[j]:
+                sn[j] = 'nan'
+                
+        sn[-1] = 'nan'
+        
+        sns.append(sn)
+        
+        sn_array  = np.array(sns)
+        
+        sn_array  = sn_array[np.newaxis,:,:]
+        
+        
+    
+    spec_gal = []
     
     
+
+    for i in range(0, len(templates_gal_trunc)): 
+            
+            one_gal           =  np.loadtxt(templates_gal_trunc[i])
+            
+            gal_interp        =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1])
+            
+            spec_gal.append(gal_interp)
+
+
+        
+    gals = [] 
+    
+    for j in range(0,len(spec_gal)):
+    
+        gal = spec_gal[j]
+        
+        
+        for j in range(0,len(gal)-1): 
+            
+            if gal[j+1] == gal[j]:
+                gal[j] = 'nan'
+                
+        gal[-1] = 'nan'
+        
+        gals.append(gal)
+        
+        gal_array  = np.array(gals)
+        
+        gal_array  = gal_array[:, np.newaxis,:]
+        
+        
+        
+    return sn_array, gal_array
+
+
+
+
+
+
+
+## Core function
+
+def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
+
+    """
+    
+    Inputs: 
+    ------
+    
+    z - an array of redshifts
+    
+    extcon - array of values of A_v
+    
+    
+    Outputs:
+    --------
+    
+    
+    Astropy table with the names for the best fit supernova and host galaxy,
+    
+    constants of proportionality for both the host galaxy and supernova templates,
+    
+    the value of chi2, the corresponding redshift and A_v.
+    
+    
+    
+    """
+
+
+
+    kind = kwargs['kind']
+    
+    original  = kwargs['original']
+
+  
+
+
+    int_obj = obj_name_int(original, lam, resolution)[1]
+    
+    name    = obj_name_int(original, lam, resolution)[0]
+
+    sigma = error_obj(kind, lam, original)
+
+    sn, gal = sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc) 
+
+    # Here we can switch to using the np array
+    #sn, gal = sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc)
+    
+    
+  
+
     # Apply linear algebra witchcraft
     
     c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
