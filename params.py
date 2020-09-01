@@ -30,8 +30,7 @@ extconstant   =    np.linspace(-2,2,alam_num)
 resolution = 30 #Angstrom
 upper      = 10500
 lower      = 3000
-interval   = (upper - lower)/resolution
-
+interval   = int((upper - lower)/resolution)
 
 lam        =     np.linspace(lower, upper, interval)
 
@@ -45,7 +44,7 @@ lam        =     np.linspace(lower, upper, interval)
 
 #Path where the binnings folder is, in order to pull the files from the library 
 
-path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
+path = "/home/idoi/Dropbox/superfit/"
 
 
 templates_gal = glob.glob('binnings/'+ str(resolution) +'A/gal/*')

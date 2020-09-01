@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import time
 import statistics 
-from extinction import ccm89, apply
+#from extinction import ccm89, apply
+import extinction
 from astropy import table
 from astropy.io import ascii
 from scipy.optimize import least_squares
@@ -75,8 +76,8 @@ def Alam(lamin):
     
     flux = np.ones(len(lamin))
     
-    redreturn = apply(ccm89(lamin, A_v, R_v), flux)
-    
+    #redreturn = apply(ccm89(lamin, A_v, R_v), flux)
+    redreturn  =  A_v*extinction.a_lambda_cardelli_fast(lamin*1e-4,R_v)
     return redreturn
 
 
@@ -182,10 +183,16 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
     for i in range(0, len(templates_sn_trunc)): 
         
-        one_sn           =  np.loadtxt(templates_sn_trunc[i])
-       
-        sn_interp        =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])),    bounds_error=False, fill_value='nan')
+        one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
+
+        redshifted_one_sn =  one_sn[:,0]*(z+1)
+        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
         
+        #sn_interp         =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])),    bounds_error=False, fill_value='nan')
+        sn_interp         =  interpolate.interp1d(redshifted_one_sn,    extinct_excon,    bounds_error=False, fill_value='nan')
+
+        #sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon,    fill_value='nan')
+
         spec_sn.append(sn_interp)
       
     
@@ -196,7 +203,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
         
         one_gal           =  np.loadtxt(templates_gal_trunc[i])
         
-        gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1],    bounds_error=False, fill_value='nan')
+        gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),    bounds_error=False, fill_value='nan')
         
         spec_gal.append(gal_interp)
         
@@ -243,16 +250,18 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
 
 
-@jit
 def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
 
     spec_sn = []
     
     for i in range(0, len(templates_sn_trunc)): 
         
-        one_sn           =  np.loadtxt(templates_sn_trunc[i])
+        one_sn            =  np.loadtxt(templates_sn_trunc[i])
+
+        redshifted_one_sn =  one_sn[:,0]*(z+1)
+        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)
        
-        sn_interp        =  np.interp(lam, one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])) )
+        sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
         
         spec_sn.append(sn_interp)
         
@@ -527,10 +536,17 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
     #Interpolate supernova and host galaxy 
     
+    redshifted_nova   =  nova[:,0]*(z+1)
+    extinct_nova     =  nova[:,1]*10**(extcon * Alam(nova[:,0]))/(1+z)
     
-    nova_int = interpolate.interp1d(nova[:,0]*(z+1), nova[:,1]*10**(extcon * Alam(nova[:,0])),   bounds_error=False, fill_value='nan')
+    
 
-    host_int = interpolate.interp1d(host[:,0]*(z+1), host[:,1],   bounds_error=False, fill_value='nan')
+    reshifted_host    =  host[:,0]*(z+1)
+    
+
+    nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
+
+    host_int = interpolate.interp1d(reshifted_host, host[:,1],   bounds_error=False, fill_value='nan')
 
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
@@ -648,7 +664,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     result.sort('CHI2')
 
-    ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False)  
+    ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
     
     # Plot the first n results (default set to 3)
 
