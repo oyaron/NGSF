@@ -27,7 +27,7 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 # Select a wavelength range and resolution
 
-resolution = 30 #Angstrom
+resolution = 20 #Angstrom
 upper      = 10500
 lower      = 3000
 interval   = int((upper - lower)/resolution)
@@ -66,7 +66,6 @@ temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6',
 temp_sn_tr  = ['/Ia/','/Ib/','/Ic/','/II/','/Others/']
 
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
-
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
 
 

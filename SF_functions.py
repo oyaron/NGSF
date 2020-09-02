@@ -183,8 +183,8 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
     for i in range(0, len(templates_sn_trunc)): 
         
-        one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
-
+        #one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
+        one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
         redshifted_one_sn =  one_sn[:,0]*(z+1)
         extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
         
@@ -201,7 +201,9 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
     
     for i in range(0, len(templates_gal_trunc)): 
         
-        one_gal           =  np.loadtxt(templates_gal_trunc[i])
+        #one_gal           =  np.loadtxt(templates_gal_trunc[i])
+
+        one_gal            =  templates_gal_trunc_dict[templates_gal_trunc[i]]
         
         gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),    bounds_error=False, fill_value='nan')
         
@@ -361,7 +363,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     """
 
 
-
+    
     kind = kwargs['kind']
     
     original  = kwargs['original']
@@ -634,7 +636,10 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     '''
 
- 
+    import time
+    print('Optimization started')
+    start = time.time()
+
     path = kwargs['path']
   
     save = kwargs['save']
@@ -644,9 +649,17 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     binned_name = obj_name_int(original, lam, resolution)[3]
 
 
+    global templates_sn_trunc_dict
+    templates_sn_trunc_dict={}
+    global templates_gal_trunc_dict
+    templates_gal_trunc_dict={}
 
-
-
+    for i in range(0, len(templates_sn_trunc)): 
+        one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
+        templates_sn_trunc_dict[templates_sn_trunc[i]]=one_sn
+    for i in range(0, len(templates_gal_trunc)): 
+        one_gal           =  np.loadtxt(templates_gal_trunc[i])
+        templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
 
     results = []
@@ -666,6 +679,9 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
     
+    end   = time.time()
+    print('Optimization finished within {0: .2f}s '.format(end-start))
+
     # Plot the first n results (default set to 3)
 
     

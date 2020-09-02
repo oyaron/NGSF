@@ -10,7 +10,7 @@ from params import *
 
 #Path of the object of interest
 
-original = "/home/idoi/Dropbox/superfit/test/10gxi+37.ascii"
+original = "/home/idoi/Dropbox/superfit/for adam/ZTF20abjwntg_20200829_P200_v1_host_lines_removed.ascii"
 
 
 
@@ -41,10 +41,7 @@ kill_header_and_bin(original,resolution, save_bin = save_bin)
 
 
 #Core superfit function on the binned file, default to plot and save n fits
-import time
-print('Optimization started')
-start = time.time()
-all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, lam, resolution, n=2, plot=1, kind=kind, original=save_bin, path=path, save=save_results_path)
-end   = time.time()
 
-print('Optimization finished within {0: .2f}s '.format(end-start))
+
+all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, lam, resolution, n=2, plot=1, kind=kind, original=save_bin, path=path, save=save_results_path)
+
