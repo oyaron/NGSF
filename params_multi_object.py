@@ -11,18 +11,20 @@ from SF_functions import *
 
 
 
-#Path of the object of interest
+#Path to folder with the objects of interest
 
-original = "/home/idoi/Dropbox/superfit/for adam/ZTF20abjwntg_20200829_P200_v1_host_lines_removed.ascii"
-
+objects_path = "/home/idoi/Dropbox/superfit/multi_object/"
+objects_list = glob.glob(objects_path+'*') 
 
 #Saving paths
+
 
 save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
 
 save_results_path = "/home/idoi/Dropbox/superfit/results/"
 
-show = True   #show plots after optimization (if False, plots will still be saved as long as)
+show = False   #show plots after optimization (if False, plots will still be saved as long as)
+
 
 # Select a range and number of steps for z and A_v
 

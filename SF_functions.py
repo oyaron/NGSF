@@ -521,7 +521,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
     path = kwargs['path']
     save = kwargs['save']
-
+    show = kwargs['show']
 
     number = number
 
@@ -580,7 +580,8 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #sn_name = sn_name.replace('dat', '')
     
     plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
-    plt.show()
+    if show:
+        plt.show()
     
 
         
@@ -644,6 +645,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
   
     save = kwargs['save']
 
+    show = kwargs['show']
+
     original  = kwargs['original']
 
     binned_name = obj_name_int(original, lam, resolution)[3]
@@ -690,7 +693,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         for i in range(0,n):
 
  
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, path=path, save=save)
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, path=path, save=save, show=show)
     
     
     return result
