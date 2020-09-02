@@ -421,17 +421,21 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
     
     reduchi2 = chi2/(times-2)**2
-    
+    reduchi2_once = chi2/(times-2)
+    prob=scipy.stats.chi2.pdf(chi2, (times-2))
+    lnprob=np.log(prob)
 
     
     
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
     
     reduchi2_1d = reduchi2.ravel()
-    
+    #lnprob_1d = lnprob.ravel()
     index = np.argsort(reduchi2_1d)
+    #index = np.argsort(-lnprob_1d)
     
     idx = np.unravel_index(index[0], reduchi2.shape)
+    #idx = np.unravel_index(index[0], prob.shape)
     
    
     
@@ -451,15 +455,15 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     
     
-    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon ,reduchi2[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
-                    names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2'), 
+                    names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
                     
-                    dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f'))
+                    dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f','f','f','f'))
        
         
     
-    return output, reduchi2[idx]
+    return output, reduchi2[idx] #lnprob[idx]
 
     
     
@@ -670,16 +674,16 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     for element in itertools.product(redshift,extconstant):
          
     
-        a = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)[0]
+        a, _ = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
                       
         results.append(a)
     
         result = table.vstack(results)
 
     result = table.unique(result,keys='SN',keep='first')
-    
-    result.sort('CHI2')
 
+    
+    result.sort('CHI2/dof2')
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
     
     end   = time.time()
