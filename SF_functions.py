@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import time
 import statistics 
-#from extinction import ccm89, apply
-import extinction
+from extinction import ccm89, apply
+#import extinction
 from astropy import table
 from astropy.io import ascii
 from scipy.optimize import least_squares
@@ -76,8 +76,8 @@ def Alam(lamin):
     
     flux = np.ones(len(lamin))
     
-    #redreturn = apply(ccm89(lamin, A_v, R_v), flux)
-    redreturn  =  A_v*extinction.a_lambda_cardelli_fast(lamin*1e-4,R_v)
+    redreturn = apply(ccm89(lamin, A_v, R_v), flux)
+    #redreturn  =  A_v*extinction.a_lambda_cardelli_fast(lamin*1e-4,R_v)
     return redreturn
 
 
