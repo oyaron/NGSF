@@ -499,7 +499,6 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     lam = lam
    
    
-
     obj_name = values[0][0]
     
     hg_name  = values[0][1]
@@ -563,11 +562,11 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
     #Plot 
     
-
+  
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
-    plt.plot(lam, int_obj,'r', label = obj_name)
-    plt.plot(lam, host_nova,'g', label = sn_name +' & '+ hg_name)
+    plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
+    plt.plot(lam, host_nova,'g', label = 'SN template: '+sn_name[17:] +' & host template: '+ hg_name[17:])
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
     

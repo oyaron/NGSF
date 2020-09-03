@@ -11,10 +11,6 @@ from SF_functions import *
 
 
 
-#Path of the object of interest
-
-original = "/home/idoi/Dropbox/superfit/for adam/ZTF20abjwntg_20200829_P200_v1_host_lines_removed.ascii"
-
 
 #Saving paths
 
@@ -22,7 +18,7 @@ save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
 
 save_results_path = "/home/idoi/Dropbox/superfit/results/"
 
-show = True   #show plots after optimization (if False, plots will still be saved as long as)
+show = False   #show plots after optimization (if False, plots will still be saved as long as)
 
 # Select a range and number of steps for z and A_v
 
@@ -57,6 +53,7 @@ lam        =     np.linspace(lower, upper, interval)
 #Path where the binnings folder is, in order to pull the files from the library 
 
 path = "/home/idoi/Dropbox/superfit/"
+location_multiobj = 'multi_object/'
 
 
 templates_gal = glob.glob('binnings/'+ str(resolution) +'A/gal/*')
