@@ -4,12 +4,13 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 
 ## Install 
 
-To install the software the user should download all the files and unzip the `30A.zip` and `20A.zip` files into a folder called "binnings".
+To install the software the user should download all the files and unzip the `30A.zip` and `20A.zip` files into a folder called "binnings". These are the template banks for 30 and 20 angstrom resolutions respectively.
 
 ## To run the code for an individual object
 
 To achieve this task the files needed are: 
 
+- `Template bank of chosen resolution`
 - `Header_binnings.py`
 - `error_routines.py`
 - `SF_functions.py`
@@ -26,7 +27,7 @@ In the `params.py` file there are three paths that the user should change.
 In the `run.py` file the user should change the "original" path to be that of the object of interest.
 
 
-## Main SuPyFit function 
+## Main SuPyFit Function 
 
 In the `run.py` file we find the main function which looks like this:
 
@@ -63,6 +64,22 @@ The rest the inputs correspond to the paths mentioned above.
 The results are: an astropy table that is saved as a csv file (to the specified path) and the best fit plots saved as pdf files (to the specified path)
 
 
-## To run
+## To Run
 
 Once the parameters have been updated in the `params.py` file the user simply needs to run the script from the `run.py` file. 
+
+
+## To run for multiple objects 
+
+SuPyFit has the option of multithreading to make running large data sets an easier and faster task. 
+
+To achieve this task the files needed are: 
+
+- `Template bank of chosen resolution`
+- `Header_binnings.py`
+- `error_routines.py`
+- `SF_functions.py`
+- `params_multi_object.py`
+- `run_multi_object.py`
+
+Just like in the individual object case the user must enter the disered parameters for the analysis on the `params_multi_object.py`, then in the `run_multi_object.py` file the user enters the path for the object list that he is interested in. 
