@@ -31,8 +31,12 @@ In the `run.py` file the user should change the "original" path to be that of th
 In the `run.py` file we find the main function which looks like this:
 
 
-`all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=2, plot=1, kind=kind, original=save_bin, path=path, save=save_results_path, show=show)`
+```
+
+all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
+    lam, resolution, n=2, plot=1, kind=kind, original=save_bin, path=path, save=save_results_path, show=show)
+
+```
     
     
 The inputs of the function are updated in the `params.py` file and are as follow: 
