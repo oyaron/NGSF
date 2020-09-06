@@ -2,9 +2,19 @@
 
 SuPyFit (Python Superfit) is a software for the spectral classification of Supernovae 
 
+## Requierments
+
+- `numpy`
+- `scipy`
+- `astropy`
+- `astropy extinction package`
+
+
+
 ## Install 
 
 To install the software the user should download all the files and unzip the `30A.zip` and `20A.zip` files into a folder called "binnings". These are the template banks for 30 and 20 angstrom resolutions respectively.
+
 
 ## To run the code for an individual object
 
