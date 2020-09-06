@@ -5,7 +5,14 @@ import sys
 from SF_functions import *
 from Header_Binnings import *
 from params import *
-original=sys.argv[1]
+
+
+# Enter path of object of interest, can also be specified as input
+
+original = "/home/sam/Dropbox (Weizmann Institute)/superfit/sedm_sample/spectra/ZTF20aawiicr_20200426_P60_v1.ascii"
+#original=sys.argv[1]
+
+
 
 #Path of the object of interest
 #if location_multiobj[-1]=='/':
@@ -13,6 +20,8 @@ original=sys.argv[1]
 #else:
 #    original = location_multiobj + '/' + spec_filename 
 #
+
+
 try:
     binned_name= obj_name_int(original, lam, resolution)[3]
     print('Running optimization for spectrum file: {0}'.format(binned_name))
@@ -22,7 +31,7 @@ try:
     kill_header_and_bin(original,resolution, save_bin = save_bin)
     #Core superfit function on the binned file, default to plot and save n fits
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=2, plot=1, kind=kind, original=save_bin, path=path, save=save_results_path, show=show)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, path=path, save=save_results_path, show=show)
 except:
     print('An error has occured when trying to optimize for spectrum file {0}. \
     Inspect input spectrum and parameters. Proceeding to next spectrum file'.format(original))
