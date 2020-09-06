@@ -59,8 +59,8 @@ The inputs of the function are updated in the `params.py` file and are as follow
 - `resolution:` resolution at which to bin and perform the fit. The default is 20 A. 
 - `n:` this corresponds to the number of plots to show and save as a result. 
 - `plot:` either 1 or 0, to either plot or not plot. 
-- `kind:` corresponds to the type of error spectrum the user prefers, the options are 'SG':Savitsky Golay, 'linear': for obtaining the error of the spectrum 
-by making linear fit every 10 points, and 'included': if the user wants to use the error that comes with the object itself. The default is 'SG'
+- `kind:` corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
+by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `SG`
 
 
 The `templates_sn_trunc` and `templates_sn_trunc` are updated by changing the `temp_gal_tr` and `temp_sn_tr` lists on the `params.py` file, to what the user is
