@@ -30,9 +30,9 @@ To achieve this task the files needed are:
 
 In the `params.py` file there are three paths that the user should change.
 
-- The "save_bin_path" to which the binned files will be saved.
-- The "save_results_path" to which the results (a csv file and pdf images of the plots) will be saved.
-- The "path" which is the location of the "binnings" folder. 
+- The `save_bin_path` to which the binned files will be saved.
+- The `save_results_path` to which the results (a csv file and pdf images of the plots) will be saved.
+- The `path` which is the location of the "binnings" folder. 
 
 In the `run.py` file the user should change the "original" path to be that of the object of interest.
 
