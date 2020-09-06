@@ -66,9 +66,15 @@ lam        =     np.linspace(lower, upper, interval)
 
 kind = 'SG'
 
+# To plot? (yes or no)
+
+plotting = 1
+
+# How many top results so show? 
+
+n = 3
+
 #--------------------------------------------------------------------------------------------------
-
-
 
 #Template library
 
