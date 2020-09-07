@@ -7,7 +7,8 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 - `numpy`
 - `scipy`
 - `astropy`
-- `astropy extinction package`
+- `astropy extinction`
+- `PyAstronomy`
 
 
 
