@@ -15,7 +15,7 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 
 ## Install 
 
-Before anything the user should unzip the `original_sf_bank.zip` and then open the `template_bank_setup.py` script. In this file the user should specify the desired resolution for the template library, along with the paths of the original data and of the new resolution template bank.  
+Before anything the user should unzip the `original_sf_bank.zip` and then open the `template_bank_setup.py` script. In this file the user should specify the desired resolution for the template library, along with the path of the original data and the path for the new resolution template bank.  
 
 
 
