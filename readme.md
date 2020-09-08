@@ -9,12 +9,14 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 - `astropy`
 - `astropy extinction`
 - `PyAstronomy`
+- `pathlib`
 
 
 
 ## Install 
 
-To install the software the user should download all the files and unzip the `30A.zip` and `20A.zip` files into a folder called "binnings". These are the template banks for 30 and 20 angstrom resolutions respectively.
+Before anything the user should unzip the `original_sf_bank.zip` and then open the `template_bank_setup.py` script. In this file the user should specify the desired resolution for the template library, along with the paths of the original data and of the new resolution template bank.  
+
 
 
 ## To run the code for an individual object
