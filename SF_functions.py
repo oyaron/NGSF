@@ -524,8 +524,6 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
 
 
-    #path = kwargs['path']
-    
     save = kwargs['save']
     show = kwargs['show']
 
@@ -533,9 +531,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
     
     
-    
-    #nova   = np.loadtxt(path + sn_name)
-    #host   = np.loadtxt(path + hg_name)
+   
     nova   = np.loadtxt(sn_name)
     host   = np.loadtxt(hg_name)
     
@@ -656,8 +652,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     import time
     print('Optimization started')
     start = time.time()
-
-    path = kwargs['path']
   
     save = kwargs['save']
 
@@ -709,8 +703,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         for i in range(0,n):
 
  
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, path=path, save=save, show=show)
-    
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, save=save, show=show)
+
     
     return result
 

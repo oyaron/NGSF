@@ -20,7 +20,7 @@ save_results_path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/somethi
 
 # Path where library folder is located (the binnings folder)
 
-path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/bank/"
+path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
 
 show = True   #show plots after optimization (if False, plots will still be saved as long as)
 
@@ -70,7 +70,7 @@ kind = 'SG'
 
 plotting = 1
 
-# How many top results so show? 
+# How many top results so plot? 
 
 n = 3
 
