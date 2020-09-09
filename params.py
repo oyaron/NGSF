@@ -20,7 +20,7 @@ save_results_path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/somethi
 
 # Path where library folder is located (the binnings folder)
 
-path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/"
+path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/bank/"
 
 show = True   #show plots after optimization (if False, plots will still be saved as long as)
 
@@ -31,7 +31,7 @@ show = True   #show plots after optimization (if False, plots will still be save
 
 z_start = 0  
 z_end   = 0.1
-z_num    = 21
+z_num    = 11
 
 
 # Number of steps for A_v (do not change)
@@ -78,12 +78,12 @@ n = 3
 
 #Template library
 
-templates_gal = glob.glob('binnings/'+ str(resolution) +'A/gal/*')
+templates_gal = glob.glob(path + 'binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
 templates_gal = np.array(templates_gal)
 
 
-templates_sn = glob.glob('binnings/' + str(resolution) + 'A/sne/**/*')
+templates_sn = glob.glob(path + 'binnings/' + str(resolution) + 'A/sne/**/*')
 templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
 templates_sn = np.array(templates_sn)
 

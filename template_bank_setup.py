@@ -13,6 +13,7 @@ path_of_original_data = 'original_sf_bank/'
 
 path_of_binned_data   = '/home/sam/Dropbox (Weizmann Institute)/superfit/new/bank/'
 
+mask = 0 
 
 
 # ---------------------------------------------------------
@@ -31,7 +32,7 @@ templates_sn_o = np.array(templates_sn_o)
 
 
 
-def create_template_bank(resolution):
+def create_template_bank(resolution, mask):
 
     '''
     Takes as input a specific resolution and bins the original data to it. Has as output template bank
@@ -69,16 +70,24 @@ def create_template_bank(resolution):
     
     for i in range(0, len(templates_sn_o)): 
     
-        one_sn_o           =  np.loadtxt(templates_sn_o[i]) #this is an expensive line
+
+        one_sn_o           =  np.loadtxt(templates_sn_o[i]) 
+
+        if mask == True:
+        
+            one_sn_o           =  mask_lines_bank(one_sn_o)
+        
+            templates_sn_dict_o[templates_sn_o[i]] = one_sn_o
     
-        templates_sn_dict_o[templates_sn_o[i]] = one_sn_o
-    
-   
+        else:
+        
+            templates_sn_dict_o[templates_sn_o[i]] = one_sn_o
 
     
+   
     for i in range(0, len(templates_gal_o)): 
     
-        one_gal_o           =  np.loadtxt(templates_gal_o[i]) #this is an expensive line
+        one_gal_o           =  np.loadtxt(templates_gal_o[i]) 
     
         templates_gal_dict_o[templates_gal_o[i]] = one_gal_o
     
@@ -120,4 +129,4 @@ def create_template_bank(resolution):
           
     
   
-create_template_bank(resolution)
+create_template_bank(resolution, mask)

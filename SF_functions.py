@@ -12,7 +12,7 @@ import statistics
 from extinction import ccm89, apply
 #import extinction
 from astropy import table
-from astropy.io import ascii
+from astropy.io import ascii 
 from scipy.optimize import least_squares
 import scipy.signal as mf 
 from matplotlib.pyplot import show, plot
@@ -185,6 +185,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
         
         #one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
+        
         redshifted_one_sn =  one_sn[:,0]*(z+1)
         extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
         
@@ -250,7 +251,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
 
 
-
+ 
 
 def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
 
@@ -499,6 +500,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     lam = lam
    
    
+
     obj_name = values[0][0]
     
     hg_name  = values[0][1]
@@ -522,7 +524,8 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
 
 
-    path = kwargs['path']
+    #path = kwargs['path']
+    
     save = kwargs['save']
     show = kwargs['show']
 
@@ -531,8 +534,10 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
     
     
-    nova   = np.loadtxt(path + sn_name)
-    host   = np.loadtxt(path + hg_name)
+    #nova   = np.loadtxt(path + sn_name)
+    #host   = np.loadtxt(path + hg_name)
+    nova   = np.loadtxt(sn_name)
+    host   = np.loadtxt(hg_name)
     
     
     
@@ -561,12 +566,20 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
 
     #Plot 
+    s = sn_name
+    h = hg_name
+
     
-  
+    i = h[:h[:h.rfind('/')].rfind('/')].rfind('/')
+    j = j =s[:s[:s[:s.rfind('/')].rfind('/')].rfind('/')].rfind('/')
+
+    sn_name = s[j+1:]
+    hg_name = h[i+1:]
+
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
-    plt.plot(lam, host_nova,'g', label = 'SN template: '+sn_name[17:] +' & host template: '+ hg_name[17:])
+    plt.plot(lam, host_nova,'g', label = 'SN template: ' + sn_name +' & '+ 'Host template: '+ hg_name)
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
     
