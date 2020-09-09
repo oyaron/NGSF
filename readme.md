@@ -15,7 +15,7 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 
 ## Install 
 
-Before anything the user should unzip the `original_sf_bank.zip` and then open the `template_bank_setup.py` script. In this file the user should specify the desired resolution for the template library, along with the path of the original data and the path for the new resolution template bank.  
+Before anything the user should unzip the `original_sf_bank.zip` and then open the `template_bank_setup.py` script. In this file the user should specify the desired resolution for the template library, along with the path of the original data and the path for the new resolution template bank. The user also has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
 
 
 
