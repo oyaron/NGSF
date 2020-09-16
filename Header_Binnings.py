@@ -15,6 +15,11 @@ import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
 from SF_functions import *
+from PyAstronomy import pyasl
+from astropy.table import table
+
+
+
 
 
 # In[2]:
@@ -165,21 +170,7 @@ def kill_header_and_bin(original, resolution =20, **kwargs):
     
 
     saving_path = kwargs['save_bin']
-    
-    
-    # binned_name = kwargs['binned_name']
-    
-    #index1 = original.rfind("/")
-    #index2 = original.rfind(".")
-
-    #name = original[index1+1:index2]
-    #path = original[0:index1+1]
-
-    #name = name + '_' + str(resolution) + 'A'
-    #saving_path = path + name
-
-
-
+   
 
     noheader = kill_header(original)
 
@@ -201,3 +192,108 @@ def kill_header_and_bin(original, resolution =20, **kwargs):
 
     return bin_spec, saving_path
 
+
+
+
+
+def bin_spectrum_bank(spectrum, resolution):
+    
+    
+    """
+
+        Returns a median normalized flux, binned in a resolution given by the user. Modified to bin only
+        the template bank since no error is involved. 
+        
+        
+        Parameters:
+        -----------
+        spectrum ‘array’: array of arrays containing the spectrum (with or without flux error). 
+        First array must be the wavelength, second the flux, (third the error on the flux).
+        resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
+    
+    """    
+  
+    lam = spectrum[:,0]
+    flux = spectrum[:,1]
+    
+  
+    
+    
+    if lam[1]- lam[0] >= resolution:
+        bin_spectra = spectrum
+   
+    
+    
+    
+    else:
+        number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
+        flux_bin, bin_edge, index = stats.binned_statistic(lam, flux, statistic = 'median', range=(lam.min(), lam.max()), bins = number_of_bins)
+        bin_wavelength = [ (bin_edge[i] + bin_edge[i+1]) / 2 for i in range(len(bin_edge)-1) ]
+        
+     
+    
+     
+        bin_wavelength = np.array(bin_wavelength)
+        flux_bin = np.array(flux_bin)
+               
+        mask = [not(np.isnan(x)) for x in flux_bin]
+       
+        bin_wavelength = bin_wavelength[mask]
+        flux_bin = flux_bin[mask]
+  
+        bin_spectra = table.Table()
+        flux_bin = np.array(flux_bin)
+        median_flux = np.nanmedian(flux_bin)
+        flux_bin = flux_bin / median_flux
+        bin_spectra['lam_bin'] = bin_wavelength
+        bin_spectra['bin_flux'] = flux_bin
+        
+        
+            
+        return bin_spectra
+
+
+
+def mask_lines_bank(Data):
+
+
+
+    # The objects in the bank have a redshift of zero
+
+    z_obj = 0 
+
+    #These lines are in rest frame
+
+    host_lines=np.array([
+         6564.61        
+        ,4862.69        
+        ,3726.09        
+        ,3729.88        
+        ,5008.24        
+        ,4960.30        
+        ,6549.84        
+        ,6585.23        
+        ,6718.32        
+        ,6732.71])
+    
+    host_lines_air = (1+z_obj)*pyasl.airtovac2(host_lines)
+    host_range_air = np.column_stack([host_lines_air,host_lines_air])
+    z_disp = 4e2/3e5
+    host_range_air[:,0]=host_range_air[:,0]*(1-z_disp)
+    host_range_air[:,1]=host_range_air[:,1]*(1+z_disp)
+    
+    func=lambda x,y: (x<y[1])&(x>y[0])
+    cum_mask=np.array([True]*len(Data[:,0]))
+    for i in range(len(host_lines_air)):
+        mask=np.array(list(map(lambda x: ~func(x,host_range_air[i]),Data[:,0])))
+        cum_mask = cum_mask & mask
+    
+    Data_masked = Data[cum_mask]
+
+    
+    #plt.figure()
+    #plt.plot(Data[:,0],Data[:,1],'r')
+    #plt.plot(Data_masked[:,0],Data_masked[:,1],'.b')
+    #plt.show()
+    
+    return Data_masked
