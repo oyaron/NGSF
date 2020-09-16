@@ -22,12 +22,12 @@ show = False   #show plots after optimization (if False, plots will still be sav
 
 # Select a range and number of steps for z and A_v
 
-z_num    = 11
+z_num    = 5
 alam_num = 21
 
-redshift      =    np.linspace(0,0.1,z_num)
+redshift      =    np.linspace(0.021,0.025,z_num)
 #redshift = np.array([0.065712])
-extconstant   =    np.linspace(-2,2,alam_num)
+extconstant   =    np.linspace(-4,4,alam_num)
           
 
 
@@ -35,7 +35,7 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 # Select a wavelength range and resolution
 
-resolution = 20 #Angstrom
+resolution = 30 #Angstrom
 upper      = 10500
 lower      = 3000
 interval   = int((upper - lower)/resolution)

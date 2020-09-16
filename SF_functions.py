@@ -186,7 +186,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
         #one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
         redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
+        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
         
         #sn_interp         =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])),    bounds_error=False, fill_value='nan')
         sn_interp         =  interpolate.interp1d(redshifted_one_sn,    extinct_excon,    bounds_error=False, fill_value='nan')
@@ -261,7 +261,7 @@ def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
         one_sn            =  np.loadtxt(templates_sn_trunc[i])
 
         redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)
+        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)
        
         sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
         
@@ -455,7 +455,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     
     
-    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, 0.4*extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
                     
@@ -542,7 +542,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova     =  nova[:,1]*10**(extcon * Alam(nova[:,0]))/(1+z)
+    extinct_nova     =  nova[:,1]*10**(0.4*extcon * Alam(nova[:,0]))/(1+z)
     
     
 
