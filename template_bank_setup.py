@@ -11,7 +11,7 @@ resolution = 30
 
 path_of_original_data = 'original_sf_bank/'
 
-path_of_binned_data   = '/home/sam/Dropbox (Weizmann Institute)/superfit/new/bank/'
+path_of_binned_data   = '/home/idoi/Dropbox/superfit/bank/'
 
 mask = 0 
 

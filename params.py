@@ -14,13 +14,13 @@ from SF_functions import *
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/something/"
+save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
 
-save_results_path = "/home/sam/Dropbox (Weizmann Institute)/superfit/new/something/"
+save_results_path = "/home/idoi/Dropbox/superfit/results/"
 
 # Path where library folder is located (the binnings folder)
 
-path = "/home/sam/Dropbox (Weizmann Institute)/superfit/"
+path = "/home/idoi/Dropbox/superfit/"
 
 show = True   #show plots after optimization (if False, plots will still be saved as long as)
 
