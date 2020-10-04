@@ -7,7 +7,7 @@ import numpy as np
 
 path_of_binned_data = '/Users/user/Dropbox (Weizmann Institute)/superfit/new/z_corrected/sam/binnings/20A/sne'
 saving_path         = '/Users/user/Dropbox (Weizmann Institute)/superfit/new/something/'
-folder_name         = '/IIb/2001ig/'  #In the form 'Ia-norm/2009ig'
+folder_name         = '/IIb/2001ig/'  #In the form '/Ia-norm/2009ig/'
 
 
 
