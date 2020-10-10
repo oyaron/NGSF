@@ -12,7 +12,7 @@ import statistics
 from extinction import ccm89, apply
 #import extinction
 from astropy import table
-from astropy.io import ascii
+from astropy.io import ascii 
 from scipy.optimize import least_squares
 import scipy.signal as mf 
 from matplotlib.pyplot import show, plot
@@ -173,18 +173,21 @@ def error_obj(kind, lam, obj_path):
     return sigma
 
 
+
+
+
 def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
     spec_gal = []
     spec_sn  = []
     
     
-    
-
+    #print(templates_sn_trunc)
     for i in range(0, len(templates_sn_trunc)): 
         
         #one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
+        #print(one_sn)
         redshifted_one_sn =  one_sn[:,0]*(z+1)
         extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
         
@@ -193,9 +196,11 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
         #sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon,    fill_value='nan')
 
+        
         spec_sn.append(sn_interp)
+
+    #print(spec_sn)
       
-    
 
     
     
@@ -222,16 +227,22 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
     sn  = []
     
     
+    
     for i in spec_gal: 
-        
+
         gal.append(i(lam))
     
    
-    for i in spec_sn:    
+    for i in spec_sn: 
+        
+        #check = checkEqual(list(i(lam)))
+
+        #if check == False:
         
         sn.append(i(lam))
 
     
+ 
     
     # Redefine sn and gal by adding a new axis
     
@@ -244,13 +255,13 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
     gal = gal[:, np.newaxis,:]
     sn  = sn[np.newaxis,:,:]
     
-
+   
     return sn, gal
 
 
 
 
-
+ 
 
 def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
 
@@ -370,10 +381,11 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
   
 
-
     int_obj = obj_name_int(original, lam, resolution)[1]
     
     name    = obj_name_int(original, lam, resolution)[0]
+
+    #print(name)
 
     sigma = error_obj(kind, lam, original)
 
@@ -382,7 +394,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     # Here we can switch to using the np array
     #sn, gal = sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc)
     
-    
+    #print(sn,gal)
   
 
     # Apply linear algebra witchcraft
@@ -420,6 +432,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
     
+    #print(chi2)
+
     reduchi2 = chi2/(times-2)**2
     reduchi2_once = chi2/(times-2)
     prob=scipy.stats.chi2.pdf(chi2, (times-2))
@@ -431,29 +445,45 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     reduchi2_1d = reduchi2.ravel()
     #lnprob_1d = lnprob.ravel()
+    
     index = np.argsort(reduchi2_1d)
+
     #index = np.argsort(-lnprob_1d)
     
     idx = np.unravel_index(index[0], reduchi2.shape)
     #idx = np.unravel_index(index[0], prob.shape)
     
-   
     
+    #for i in idx:
+
+     #   print(reduchi2[i])
     
     
     # Load file, load plots and construct output table with all the values we care about 
     
-    supernova_file  = templates_sn_trunc[idx[1]]
-    host_galaxy_file = templates_gal_trunc[idx[0]]
+    #s  = templates_sn_trunc[idx[1]]
     
+    #index_sn  = s[:s[:s.rfind('/')].rfind('/')].rfind('/')
+        
+    #supernova_file = s[index_sn:]
+
+    #print(supernova_file)
+        
+    #h = templates_gal_trunc[idx[0]]
+    
+    #index_h = h[:h.rfind('/')].rfind('/')
+    
+    #host_galaxy_file = h[index_h:]
     
 
     
+    supernova_file  = templates_sn_trunc[idx[1]]
+    host_galaxy_file = templates_gal_trunc[idx[0]]
+    
     bb = b[idx[0]][idx[1]]
     dd = d[idx[0]][idx[1]]
-    
-    
-    
+
+   
     
     output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
@@ -461,7 +491,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
                     
                     dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f','f','f','f'))
        
-        
+   
     
     return output, reduchi2[idx] #lnprob[idx]
 
@@ -499,6 +529,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     lam = lam
    
    
+
     obj_name = values[0][0]
     
     hg_name  = values[0][1]
@@ -512,7 +543,6 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     z        = values[0][5]
    
     extcon   = values[0][6]
-    
    
     z = z
     
@@ -520,22 +550,22 @@ def plotting(core, lam, original, number, resolution, **kwargs):
    
     int_obj = obj_name_int(original, lam, resolution)[1]
     
+    
 
-
-    path = kwargs['path']
     save = kwargs['save']
     show = kwargs['show']
 
     number = number
 
+    #print(sn_name)
+    #print(hg_name)
+    
+
+    nova   = np.loadtxt(sn_name)
+    host   = np.loadtxt(hg_name)
     
     
-    
-    nova   = np.loadtxt(path + sn_name)
-    host   = np.loadtxt(path + hg_name)
-    
-    
-    
+  
     
     
     
@@ -561,12 +591,24 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
 
     #Plot 
+    s = sn_name
+    h = hg_name
+
     
-  
+
+    #print(s)
+    #print(h)
+
+    i = h[:h.rfind('/')].rfind('/')
+    j = j = s[:s[:s.rfind('/')].rfind('/')].rfind('/')
+
+    sn_name = s[j+1:]
+    hg_name = h[i+1:]
+
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
-    plt.plot(lam, host_nova,'g', label = 'SN template: '+sn_name[17:] +' & host template: '+ hg_name[17:])
+    plt.plot(lam, host_nova,'g', label = 'SN: ' + sn_name +' & '+ 'Host: '+ hg_name)
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
     
@@ -643,8 +685,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     import time
     print('Optimization started')
     start = time.time()
-
-    path = kwargs['path']
   
     save = kwargs['save']
 
@@ -670,23 +710,39 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     results = []
     
+
     for element in itertools.product(redshift,extconstant):
          
-    
+        
         a, _ = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
                       
+        #print(a)
         results.append(a)
     
         result = table.vstack(results)
+    
+    
 
-    result = table.unique(result,keys='SN',keep='first')
+
+    #result = table.unique(result,keys='SN',keep='first')
 
     
+
     result.sort('CHI2/dof2')
+
+    result = table.unique(result, keys='SN',keep='first')
+    
+    result.sort('CHI2/dof2')
+
+    #print(result['CHI2/dof2'])
+
+  
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
     
     end   = time.time()
     print('Optimization finished within {0: .2f}s '.format(end-start))
+
+
 
     # Plot the first n results (default set to 3)
 
@@ -696,8 +752,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         for i in range(0,n):
 
  
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, path=path, save=save, show=show)
-    
+            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, save=save, show=show)
+
     
     return result
 
