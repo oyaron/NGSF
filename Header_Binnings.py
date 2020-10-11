@@ -187,7 +187,6 @@ def kill_header_and_bin(original, resolution =20, **kwargs):
     if np.min(np.diff(spectrum[:,0]))>resolution:
         raise Exception('The resolution you chose ({0} Ang) is less than a single bin ({1: .2f} ang). Decrease the resolution for this spectrum and try again'.format(resolution,np.min(np.diff(spectrum[:,0]))))
 
-
     np.savetxt(saving_path  ,bin_spec, fmt='%s')
 
     return bin_spec, saving_path

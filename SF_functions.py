@@ -39,8 +39,7 @@ def obj_name_int(original, lam, resolution):
 
 
 
-    #Interpolate
-
+    #Interpolate    
     object_spec =  np.loadtxt(original)
 
     int_obj = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
@@ -489,10 +488,9 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
                     
                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
                     
-                    dtype  =  ('S100', 'S100', 'S100','f','f','f','f','f','f','f','f'))
+                    dtype  =  ('S200', 'S200', 'S200','f','f','f','f','f','f','f','f'))
        
    
-    
     return output, reduchi2[idx] #lnprob[idx]
 
     
@@ -713,7 +711,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for element in itertools.product(redshift,extconstant):
          
-        
         a, _ = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
                       
         #print(a)
@@ -747,12 +744,11 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     # Plot the first n results (default set to 3)
 
     
-    
     if plot: 
         for i in range(0,n):
 
- 
-            plotting(core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs), lam , original, i, resolution, save=save, show=show)
+            res=core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
+            plotting(res, lam , original, i, resolution, save=save, show=show)
 
     
     return result

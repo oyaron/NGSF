@@ -8,21 +8,21 @@ from astropy import table
 from astropy.io import ascii
 import sys 
 from SF_functions import *
-
+import os
 
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = "something/"
+save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
 
-save_results_path = "something/"
+save_results_path = "/home/idoi/Dropbox/superfit/"
 
 # Path where library folder is located (the binnings folder)
 
 path = "/home/idoi/Dropbox/superfit/"
 
-show = True   #show plots after optimization (if False, plots will still be saved as long as)
+show = False   #show plots after optimization (if False, plots will still be saved as long as)
 
 
 #--------------------------------------------------------------------------------------------------
@@ -40,8 +40,13 @@ alam_num = 21
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
-extconstant   =    np.linspace(-2,2,alam_num)
-#extconstant = np.array([0, 2, -2, 0])         
+#redshift      =    np.array([0.02])
+
+# Log uniform sampling of extinction coefficient 
+extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
+extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
+# Linear sampling of extinction coefficient:
+#extconstant   =    np.linspace(-2,2,alam_num)
 
 
 # What part of the library do you want to look at?  
@@ -78,18 +83,17 @@ n = 3
 
 #Template library
 #print(path + 'binnings/'+ str(resolution) +'A/gal/*')
-templates_gal = glob.glob(path + 'binnings/'+ str(resolution) +'A/gal/*')
+templates_gal = glob.glob(path + 'bank/binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
 templates_gal = np.array(templates_gal)
 #print(templates_gal)
 
-templates_sn = glob.glob(path + 'binnings/' + str(resolution) + 'A/sne/**/**/*')
+templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
 #templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
 templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_sn = np.array(templates_sn)
 
 #print(templates_sn)
-
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
 
