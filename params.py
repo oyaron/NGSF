@@ -16,7 +16,7 @@ import os
 
 save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
 
-save_results_path = "/home/idoi/Dropbox/superfit/"
+save_results_path = "/home/idoi/Dropbox/superfit/results/"
 
 # Path where library folder is located (the binnings folder)
 
@@ -77,7 +77,7 @@ plotting = 1
 
 # How many top results so plot? 
 
-n = 3
+n = 2
 
 #--------------------------------------------------------------------------------------------------
 
