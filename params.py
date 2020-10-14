@@ -43,17 +43,17 @@ redshift      =    np.linspace(z_start, z_end,z_num)
 #redshift      =    np.array([0.02])
 
 # Log uniform sampling of extinction coefficient 
-extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
-extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
+#extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
+#extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
 # Linear sampling of extinction coefficient:
-#extconstant   =    np.linspace(-2,2,alam_num)
+extconstant   =    np.linspace(-2,2,alam_num)
 
 
 # What part of the library do you want to look at?  
 
 temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
 
-temp_sn_tr = os.listdir(path + 'bank/original resolution/sne/')
+temp_sn_tr = os.listdir(path + 'bank/original_resolution/sne/')
  
 
 
@@ -92,7 +92,6 @@ templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/*
 #templates_sn = [x for x in templates_sn if 'CVS' not in x and 'README' not in x]
 templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_sn = np.array(templates_sn)
-
 #print(templates_sn)
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)

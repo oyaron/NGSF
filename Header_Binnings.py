@@ -178,7 +178,7 @@ def kill_header_and_bin(original, resolution =20, **kwargs):
     lam  = [float(item) for item in noheader[:,0]]
     flux = [float(item) for item in noheader[:,1]]
 
-
+    
 
     spectrum = np.array([lam,flux]).T
 

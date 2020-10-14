@@ -9,7 +9,6 @@ from astropy.io import ascii
 import sys 
 import os
 
-
 def list_folders(path):
     if path[-1] != '/':
         path=path+'/'
@@ -21,8 +20,8 @@ def list_folders(path):
             folders.append(dir)
 
     return folders
+original_bank_path='/home/idoi/Dropbox/superfit/bank/original_resolution/sne'
 
-original_bank_path='/home/idoi/Dropbox/bank/original resolution/'
 dirs=os.listdir(original_bank_path)
 
 
@@ -39,12 +38,18 @@ spec_file_dic={}
 inst_dic={}
 obs_date_dict={}
 shorhand_dict={}
+Type_dic={}
 subfolders=[]
 for folder in folders:
     subs=list_folders(folder)
     for sub in subs:
-        subpath=folder+'/'+sub+'/'
+        subpath=sub
+        idx=subpath.rfind('/')
+        sub=subpath[(idx+1):]
         subfolders.append(subpath)
+        idx2=subpath[0:idx].rfind('/')
+        sn_type=subpath[idx2+1:idx]
+        Type_dic[sub]=sn_type
         if os.path.exists(subpath+'/wiserep_spectra.csv'):
             have_wiserep.append(subpath)
             wise=ascii.read(subpath+'/wiserep_spectra.csv')
@@ -57,10 +62,8 @@ for folder in folders:
             inst_dic[sub]=np.array(wise['Instrument'][:])
             lis=[]
             for i,spec_file in enumerate(spec_file_dic[sub]):
-                shorhand_dict[spec_file]=np.array(wise['Instrument'][i]+'+'+str(wise['JD'][i]))
+                shorhand_dict[spec_file]=np.array(sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i]))
         else: 
             no_wiserep.append(subpath)
 
 
-
-    
