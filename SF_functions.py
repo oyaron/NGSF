@@ -544,7 +544,8 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
     idx1 = sn_name.rfind('/')
     idx2 = sn_name[0:idx1].rfind('/')
-    sn_type = sn_name[idx2+1:idx1]
+    idx3 = sn_name[0:idx2].rfind('/')
+    sn_type = sn_name[idx3+1:idx2]
     #print(s)
     #print(h)
 
@@ -573,7 +574,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #print(obj_name)
     #sn_name = sn_name.replace('dat', '')
     
-    plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
+    plt.savefig(save + obj_name + '_' + str(number) + '.png' )
     if show:
         plt.show()
     
