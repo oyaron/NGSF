@@ -14,9 +14,9 @@ import os
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files/"
+save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files_2018/"
 
-save_results_path = "/home/idoi/Dropbox/superfit/results/"
+save_results_path = "/home/idoi/Dropbox/superfit/results_2018/"
 
 # Path where library folder is located (the binnings folder)
 

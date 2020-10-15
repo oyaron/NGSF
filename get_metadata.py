@@ -40,6 +40,7 @@ obs_date_dict={}
 shorhand_dict={}
 Type_dic={}
 subfolders=[]
+short_path_dict={}
 for folder in folders:
     subs=list_folders(folder)
     for sub in subs:
@@ -62,7 +63,9 @@ for folder in folders:
             inst_dic[sub]=np.array(wise['Instrument'][:])
             lis=[]
             for i,spec_file in enumerate(spec_file_dic[sub]):
-                shorhand_dict[spec_file]=np.array(sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i]))
+                shorhand_dict[spec_file]=sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i])
+                short_path_dict[shorhand_dict[spec_file]]=spec_file
+
         else: 
             no_wiserep.append(subpath)
 

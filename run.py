@@ -2,14 +2,20 @@ import sys
 from SF_functions import *
 from Header_Binnings import *
 from params import *
-
+import numpy as np 
 
 # Enter path of object of interest, can also be specified as input
 
 
 
 original=sys.argv[1]
+idx=original.rfind('/')
+filename=original[idx+1:]
+meta=ascii.read('2018_test_metadata.ascii') 
 
+red=meta[meta['name']==filename]['redshift'][0]
+rred=round(red,2)
+redshift=np.array([rred-0.03,rred-0.02,rred-0.01,rred,rred+0.01,rred+0.02,rred+0.03])
 
 
 
