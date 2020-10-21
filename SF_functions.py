@@ -426,7 +426,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     #host_galaxy_file = h[index_h:]
     
-
     
     supernova_file  = templates_sn_trunc[idx[1]]
     host_galaxy_file = templates_gal_trunc[idx[0]]

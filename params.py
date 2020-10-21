@@ -60,8 +60,8 @@ temp_sn_tr = os.listdir(path + 'bank/original_resolution/sne/')
 # Select a wavelength range and resolution
 
 resolution = 10 #Angstrom
-upper      = 10500
-lower      = 3000
+upper      = 9000
+lower      = 4000
 interval   = int((upper - lower)/resolution)
 
 lam        =     np.linspace(lower, upper, interval)
