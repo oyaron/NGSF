@@ -144,8 +144,8 @@ def get_SN(SN_name,table=sample):
     return table[cond]
 
 def get_accuracy(sample,SN_type, exact=True, quality_cut='None', col='SF_fit_1'):
-    if quality_cut!='None':
-        sample=sample[quality_cut]
+    if quality_cut=='None':
+        quality_cut=np.array([True]*len(sample))
 
     if bool(exact)==True:
         real_true=sample['classification']==SN_type
@@ -161,10 +161,10 @@ def get_accuracy(sample,SN_type, exact=True, quality_cut='None', col='SF_fit_1')
         elif col=='all':
             class_true=np.array([SN_type in x for x in sample['SF_fit_1']]) & np.array([SN_type in x for x in sample['c_snid']])
 
-    TP = (class_true ) & (real_true)
-    FP = (class_true ) & (~real_true)
-    FN = (~class_true) & (real_true)
-    TN = (~class_true) & (~real_true)
+    TP = ((class_true ) & (real_true)) & (quality_cut)
+    FP = ((class_true ) & (~real_true)) & (quality_cut)
+    FN = ((~class_true) & (real_true)) 
+    TN = ((~class_true) & (~real_true))
     P= TP|FN
     N= FP|TN
 
@@ -309,7 +309,7 @@ accuracy,N=get_accuracy(sample,'Ic', exact=True, col='all')
 print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
 
 
-
+classification
 print('SLSN-I')
 print('Superfit:')
 
@@ -359,6 +359,64 @@ print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f
 
 
 
+# Plot ROC curves for SF,SNID rlap/chi2 cuts and for a combined score cut. 
+
+
+sample_good=sample[sample['chi2_fit_1']>0]
+TPR_vec_SF=[]
+FPR_vec_SF=[]
+quality_range_SF=np.array([5*np.min(sample_good['chi2_fit_1']),np.max(sample_good['chi2_fit_1'])])
+
+for cut in 10**np.linspace(np.log10(quality_range_SF[0]),np.log10(quality_range_SF[1]),10):
+    quality_cut=sample_good['chi2_fit_1']<cut
+    R,_ = get_accuracy(sample_good,'Ia', exact=False, quality_cut=quality_cut, col='SF_fit_1')
+    TPR_vec_SF.append(R[0])
+    FPR_vec_SF.append(R[1])
+ 
+
+
+sample_good=sample[sample['c_rlap']>0]
+TPR_vec_snid=[]
+FPR_vec_snid=[]
+quality_range_snid=np.array([2*np.min(sample_good['c_rlap']),np.max(sample_good['c_rlap'])])
+
+for cut in 10**np.linspace(np.log10(quality_range_snid[0]),np.log10(quality_range_snid[1]),10):
+    quality_cut=sample_good['c_rlap']<cut
+    R,_ = get_accuracy(sample_good,'Ia', exact=False, quality_cut=quality_cut, col='c_snid')
+    TPR_vec_snid.append(R[0])
+    FPR_vec_snid.append(R[1])
+ 
+
+
+sample['comb_scorr']=sample['c_rlap']*sample['chi2_fit_1']
+sample_good=sample[sample['comb_scorr']>0]
+TPR_vec_all=[]
+FPR_vec_all=[]
+quality_range=quality_range_snid*quality_range_SF
+
+for cut in 10**np.linspace(np.log10(quality_range[0]),np.log10(quality_range[1]),10):
+    quality_cut=sample_good['comb_scorr']<cut
+    R,_ = get_accuracy(sample_good,'Ia', exact=False, quality_cut=quality_cut, col='all')
+    TPR_vec_all.append(R[0])
+    FPR_vec_all.append(R[1])
+ 
+
+
+
+
+
+
+plt.figure()
+
+plt.plot(FPR_vec_snid,TPR_vec_snid,'*r',label='snid')
+plt.plot(FPR_vec_SF,TPR_vec_SF,'*b',label='superfit')
+plt.plot(FPR_vec_all,TPR_vec_all,'*m',label='both')
+
+plt.ylim((0,1))
+plt.xlim((0,0.3))
+plt.xlabel('False Positive')
+plt.ylabel('True positive')
+plt.show()
 
 
 
@@ -368,5 +426,10 @@ plt.figure()
 #plt.plot(sample['redshift'],sample['zfit_1']-sample['redshift'],'*')
 plt.plot(np.round(sample['redshift'],2),sample['zfit_1'],'.r')
 #plt.plot(np.round(sample['redshift'],2),sample['zfit_1']-sample['redshift'],'.r')
-
+plt.legend()
 plt.show()
+
+
+
+
+

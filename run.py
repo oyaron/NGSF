@@ -11,14 +11,14 @@ import numpy as np
 original=sys.argv[1]
 idx=original.rfind('/')
 filename=original[idx+1:]
-#meta=ascii.read('2018_test_metadata.ascii') 
-#
-#red=meta[meta['name']==filename]['redshift'][0]
-#rred=round(red,2)
-#redshift=np.array([rred-0.03,rred-0.02,rred-0.01,rred,rred+0.01,rred+0.02,rred+0.03])
-#
-#
-#
+meta=ascii.read('2018_test_metadata.ascii') 
+
+red=meta[meta['name']==filename]['redshift'][0]
+rred=round(red,2)
+redshift=np.linspace(rred-0.05,red+0.05,21)
+
+
+
 binned_name= obj_name_int(original, lam, resolution)[3]
 print('Running optimization for spectrum file: {0}'.format(binned_name))
                                                                                                                                                                                                                                                                                     
