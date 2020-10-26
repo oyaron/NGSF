@@ -7,7 +7,17 @@ import os
 import sys 
 sys.path.insert(1,'/home/idoi/Dropbox/superfit/')
 from get_metadata import *
-
+from matplotlib import rcParams
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "sans-serif",
+    "font.sans-serif": ["Helvetica"]})
+## for Palatino and other serif fonts use:
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "serif",
+    "font.serif": ["Palatino"],
+})
 
 
 path='/home/idoi/Dropbox/superfit/results_2018/*.csv'
@@ -194,172 +204,117 @@ def get_full_accuray(sample,exact=True,quality_cut='None', col='SF_fit_1'):
 #get_accuracy(sample,'Ia', exact=False,quality_cut=quality, col='SF_fit_1') 
 #
 
+TPR_dic_sf={}
+NTPR_dic_sf={}
+FP_rate_dic_sf={}
+NFPR_dic_sf={}
 
-print('All classifications:')
+TPR_dic_snid={}
+NTPR_dic_snid={}
+FP_rate_dic_snid={}
+NFPR_dic_snid={}
 
+TPR_dic_both={}
+NTPR_dic_both={}
+FP_rate_dic_both={}
+NFPR_dic_both={}
 
+type_list=['Ia','Ib','Ic','II','II','IIb','IIn','SLSN']
+exact_list=[False,True,True,False,True,True,True,False]
+key_list=['Ia - all','Ib','Ic','II - all','II-norm','IIb','IIn','SLSN - all']
 
+for i in range(len(type_list)):
 
+    sn_type=type_list[i]
+    key=key_list[i]
 
-print('Ia')
-accuracy,N=get_accuracy(sample,'Ia', exact=False, col='SF_fit_1') 
-print('Superfit:')
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-accuracy,N=get_accuracy(sample,'Ia', exact=False, col='c_snid') 
-print('SNid:')
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
+    print('{0}:'.format(key))
+    accuracy,N=get_accuracy(sample,sn_type, exact=exact_list[i], col='SF_fit_1') 
+    print('Superfit:')
+    print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
 
-accuracy,N=get_accuracy(sample,'Ia', exact=False, col='all')
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
+    TPR_dic_sf[key]=accuracy[0]
+    NTPR_dic_sf[key]=N[0]
+    FP_rate_dic_sf[key]=accuracy[1]
+    NFPR_dic_sf[key]=N[1]
 
-print('II-all')
-print('Superfit:')
+    accuracy,N=get_accuracy(sample,type_list[i], exact=exact_list[i], col='c_snid') 
+    print('SNid:')
+    print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
 
-accuracy,N=get_accuracy(sample,'II', exact=False, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
+    TPR_dic_snid[key]=accuracy[0]
+    NTPR_dic_snid[key]=N[0]
+    FP_rate_dic_snid[key]=accuracy[1]
+    NFPR_dic_snid[key]=N[1]
 
-print('SNid:')
+    accuracy,N=get_accuracy(sample,type_list[i], exact=exact_list[i], col='all') 
+    print('Combined:')
+    print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
 
-accuracy,N=get_accuracy(sample,'II', exact=False, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'II', exact=False, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-
-print('II-norm')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'II', exact=True, col='SF_fit_1')
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'II', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'II', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-print('IIn')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'IIn', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'IIn', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'IIn', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
+    TPR_dic_both[key]=accuracy[0]
+    NTPR_dic_snid[key]=N[0]
+    FP_rate_dic_both[key]=accuracy[1]
+    NFPR_dic_both[key]=N[1]
 
 
 
-print('IIb')
-print('Superfit:')
+## make sensativity and specificity bar plot  
+labels = key_list
+TP_vals_SF = np.round(list(TPR_dic_sf.values()),3)
+FP_vals_SF = np.round(list(FP_rate_dic_sf.values()),3)
+TP_vals_SNid = np.round(list(TPR_dic_snid.values()),3)
+FP_vals_SNid = np.round(list(FP_rate_dic_snid.values()),3)
+TP_vals_Both = np.round(list(TPR_dic_both.values()),3)
+FP_vals_Both = np.round(list(FP_rate_dic_both.values()),3)
+NTP_vals_SF   = list(NTPR_dic_sf.values())
+NFP_vals_SF   = list(NFPR_dic_sf.values())
+NTP_vals_SNid = list(NTPR_dic_snid.values())
+NFP_vals_SNid = list(NFPR_dic_snid.values())
+NTP_vals_Both = list(NTPR_dic_both.values())
+NFP_vals_Both = list(NFPR_dic_both.values())
 
-accuracy,N=get_accuracy(sample,'IIb', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'IIb', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'IIb', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-
-print('Ib')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'Ib', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'Ib', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'Ib', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-
-
-print('Ic')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'Ic', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'Ic', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'Ic', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-classification
-print('SLSN-I')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'SLSN-I', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'SLSN-I', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'SLSN-I', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-
-
-print('SLSN-II')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'SLSN-II', exact=True, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'SLSN-II', exact=True, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'SLSN-II', exact=True, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
+x = 1.1*np.arange(len(labels))  # the label locations
+width = 1/7  # the width of the bars
+fig, ax = plt.subplots()
+rects1 = ax.bar(x - 3*width, TP_vals_SF, width, label='superfit TP')
+rects2 = ax.bar(x - 2*width, TP_vals_SNid, width, label='snid TP')
+rects3 = ax.bar(x - 1*width, TP_vals_Both, width, label='combined TP')
+rects4 = ax.bar(x + 0*width, FP_vals_SF, width, label='superfit FP')
+rects5 = ax.bar(x + 1*width, FP_vals_SNid, width, label='snid FP')
+rects6 = ax.bar(x + 2*width, FP_vals_Both, width, label='combined FP')
+# Add some text for labels, title and custom x-axis tick labels, etc.
+ax.set_ylabel('Rate')
+ax.set_title('Sensativity and Specificity of superfit')
+ax.set_xticks(x)
+ax.set_xticklabels(labels)
+ax.legend()
+def autolabel(rects, data='h'):
+    """Attach a text label above each bar in *rects*, displaying its height."""
+    for rect in rects:
+        height = rect.get_height()
+        if data=='h':
+            data=height
+        ax.annotate('{0: .2f}'.format(data),
+                    xy=(rect.get_x() + rect.get_width() / 2, height),
+                    xytext=(0, 3),  # 3 points vertical offset
+                    textcoords="offset points",
+                    ha='center', va='bottom')
+autolabel(rects1)
+autolabel(rects2)
+autolabel(rects3)
+autolabel(rects4)
+autolabel(rects5)
+autolabel(rects6)
+fig.tight_layout()
+plt.show()
 
 
 
 
 
-print('SLSN-all')
-print('Superfit:')
-
-accuracy,N=get_accuracy(sample,'SLSN', exact=False, col='SF_fit_1') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('SNid:')
-
-accuracy,N=get_accuracy(sample,'SLSN', exact=False, col='c_snid') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
-print('both:')
-
-accuracy,N=get_accuracy(sample,'SLSN', exact=False, col='all') 
-print('TPR={0:.2f} (N={1}) ,FPR={2:.2f} (N={3}), TNR={4:.2f} (N={5}), FNR={6:.2f} (N={7})'.format(accuracy[0],N[0],accuracy[1],N[1],accuracy[2],N[2],accuracy[3],N[3]))
 
 
-
-# Plot ROC curves for SF,SNID rlap/chi2 cuts and for a combined score cut. 
+## Plot ROC curves for SF,SNID rlap/chi2 cuts and for a combined score cut. 
 
 
 sample_good=sample[sample['chi2_fit_1']>0]
@@ -416,19 +371,42 @@ plt.ylim((0,1))
 plt.xlim((0,0.3))
 plt.xlabel('False Positive')
 plt.ylabel('True positive')
-plt.show()
+plt.legend()
 
 
+sample['zfit_1'][sample['zfit_1']<0]=0
+sample_good['zfit_1'][sample_good['zfit_1']<0]=0
 
+quality_good_SF = sample['SF_fit_1']==sample['classification']
+quality_good_SNid = (sample['c_snid']==sample['classification'])&(sample['z_snid']-sample['redshift']<0.05)
+
+plt.figure()
+sf_z    = sample['zfit_1']  
+snid_z  = sample['z_snid']  
+marsh_z = sample['redshift']
+plt.plot(sample[quality_good_SF]['HGz'],sf_z[quality_good_SF],'.b',label='superfit')
+plt.plot(sample[quality_good_SNid]['HGz'],snid_z[quality_good_SNid],'.r',label='snid')
+plt.plot(sample['HGz'],marsh_z,'.g',label='marshal')
+plt.ylabel('$z_{sn}$')
+plt.xlabel('$z_{host}$')
+#plt.plot(np.round(sample['redshift'],2),sample['zfit_1']-sample['redshift'],'.r')
+plt.legend()
 
 
 plt.figure()
 #plt.plot(sample['redshift'],sample['zfit_1']-sample['redshift'],'*')
-plt.plot(np.round(sample['redshift'],2),sample['zfit_1'],'.r')
+res_sf_z    = sample['zfit_1']  -sample['HGz']
+res_snid_z  = sample['z_snid']  -sample['HGz']
+res_marsh_z = sample['redshift']-sample['HGz']
+plt.plot(sample[quality_good_SF]['HGz'],res_sf_z[quality_good_SF],'.b',label='superfit ($\sigma = {0: .3f}$)'.format(np.nanstd(res_sf_z[quality_good_SF])))
+plt.plot(sample[quality_good_SNid]['HGz'],res_snid_z[quality_good_SNid],'.r',label='snid ($\sigma = {0: .3f}$)'.format(np.nanstd(res_snid_z[quality_good_SNid])))
+plt.plot(sample['HGz'],res_marsh_z,'.g',label='marshal ($\sigma = {0: .3f}$)'.format(np.nanstd(res_marsh_z)))
+plt.ylim((-0.1,0.1))
+plt.ylabel('$z_{sn}-z_{host}$')
+plt.xlabel('$z_{host}$')
 #plt.plot(np.round(sample['redshift'],2),sample['zfit_1']-sample['redshift'],'.r')
 plt.legend()
 plt.show()
-
 
 
 
