@@ -20,14 +20,15 @@ plt.rcParams.update({
 })
 
 
-path='/home/idoi/Dropbox/superfit/results_2018/*.csv'
+path='/home/idoi/Dropbox/superfit/results_2018_sedm/*.csv'
+outpath='/home/idoi/Dropbox/superfit/results_2018_sedm.txt'
 file_list=glob.glob(path)
 
 sample=ascii.read('/home/idoi/Dropbox/Objects/RCF/2018_test_metadata.ascii')
 snid_sample=ascii.read('/home/idoi/Dropbox/Objects/RCF/ML_sample_snid_2018.csv')
 
 sample=sample[sample['flag']==1]
-cond=['P60' not in x for x in sample['name'] ]
+cond=['P60' in x for x in sample['name'] ]
 sample=sample[cond]
 sample.add_column(sample['ZTFname'].astype('S100'),name='SF_fit_1')
 sample.add_column(0*sample['phase'].copy(),name='chi2_fit_1')
@@ -38,6 +39,7 @@ sample.add_column(0*sample['phase'].copy(),name='chi2_fit_2')
 sample.add_column(sample['ZTFname'].astype('S100'),name='c_snid')
 sample.add_column(0*sample['phase'].copy(),name='c_rlap')
 sample.add_column(0*sample['phase'].copy(),name='z_snid')
+sample.add_column(sample['ZTFname'].astype('S100'),name='short_name')
 
 
 snid_sample['c_snid'][snid_sample['c_snid']=='II-norm']='II'
@@ -59,9 +61,14 @@ for file in file_list:
     res.sort('CHI2/dof2')    
     short_name1,z1,chi2_1 = res['SN','Z','CHI2/dof2'][0]
     idx=short_name1.rfind('/')
-    sn_type1=Type_dic[short_name1[0:idx]]
+    try:
+        sn_type1=Type_dic[short_name1[0:idx]]
+
+    except:
+        import ipdb; ipdb.set_trace()
     cond=[spec_name[:-3] in x for x in sample['name']]
     sample['SF_fit_1'][cond] =  sn_type1
+    sample['short_name'][cond]= short_name1
     sample['zfit_1'][cond] =  z1
     sample['chi2_fit_1'][cond] =  chi2_1
     if len(res)>1:
@@ -107,7 +114,7 @@ sample=sample[sample['SF_fit_1']!='nan']
 #
 
 
-
+ascii.write(sample,out_path)
 
 
 
@@ -288,13 +295,11 @@ ax.set_title('Sensativity and Specificity of superfit')
 ax.set_xticks(x)
 ax.set_xticklabels(labels)
 ax.legend()
-def autolabel(rects, data='h'):
+def autolabel(rects):
     """Attach a text label above each bar in *rects*, displaying its height."""
     for rect in rects:
         height = rect.get_height()
-        if data=='h':
-            data=height
-        ax.annotate('{0: .2f}'.format(data),
+        ax.annotate('{0: .2f}'.format(height),
                     xy=(rect.get_x() + rect.get_width() / 2, height),
                     xytext=(0, 3),  # 3 points vertical offset
                     textcoords="offset points",

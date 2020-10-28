@@ -493,7 +493,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
     z        = values[0][5]
    
-    extcon   = values[0][6]
+    extmag   = values[0][6]
    
    
     int_obj = obj_name_int(original, lam, resolution)[1]
@@ -519,7 +519,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova     =  nova[:,1]*10**(0.4*extcon * Alam(nova[:,0]))/(1+z)
+    extinct_nova     =  nova[:,1]*10**(extmag * Alam(nova[:,0]))/(1+z)
     
     
 
@@ -695,6 +695,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     result.sort('CHI2/dof2')
 
     #print(result['CHI2/dof2'])
+    #import ipdb; ipdb.set_trace()
 
   
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
@@ -705,7 +706,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
 
     # Plot the first n results (default set to 3)
-
     
     if plot: 
         for i in range(0,n):
