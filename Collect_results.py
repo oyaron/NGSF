@@ -21,7 +21,7 @@ plt.rcParams.update({
 
 
 path='/home/idoi/Dropbox/superfit/results_2018_sedm/*.csv'
-outpath='/home/idoi/Dropbox/superfit/results_2018_sedm.txt'
+out_path='/home/idoi/Dropbox/superfit/results_2018_sedm.txt'
 file_list=glob.glob(path)
 
 sample=ascii.read('/home/idoi/Dropbox/Objects/RCF/2018_test_metadata.ascii')
@@ -313,6 +313,42 @@ autolabel(rects6)
 fig.tight_layout()
 plt.show()
 
+
+
+classes=np.unique(sample['classification'])
+classes=classes[classes!='ambiguous']
+classes=classes[['Ia' not in x for x in classes]]
+classes=np.append('Ia',classes)
+classes.sort()
+n_class=len(classes)
+conf_matrix=np.zeros((n_class,n_class))
+
+for i in range(n_class):
+    real_class=classes[i]
+    if real_class=='Ia':
+        All_class=[real_class in x for x in sample['classification']]
+    else:
+        All_class=sample['classification']==real_class
+    for j in range(n_class):
+        if real_class=='Ia':
+            det_class=[classes[j] in x for x in sample['SF_fit_1']]
+        else:
+            det_class=sample['SF_fit_1']==classes[j]
+        conf_matrix[i,j]=np.sum(np.array(All_class) & np.array(det_class))/np.sum(All_class)
+
+
+fig, ax = plt.subplots(1, 1)
+ax.imshow(conf_matrix)
+plt.xticks(ticks=range(n_class),labels=classes)
+plt.yticks(ticks=range(n_class),labels=classes)
+ax.xaxis.set_tick_params(labeltop='on',labelbottom='off')
+for i in range(n_class):
+    for j in range(n_class):
+        text = ax.text(j, i, np.round(conf_matrix[i, j],3),
+                       ha="center", va="center", color="r")
+plt.tight_layout()
+
+plt.show()
 
 
 
