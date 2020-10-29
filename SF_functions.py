@@ -18,12 +18,11 @@ import scipy.signal as mf
 from matplotlib.pyplot import show, plot
 import sys 
 import itertools
-from error_routines import *
+from superfit.error_routines import *
 from numba import *
 from numba.typed import Dict 
 from numba import types
-
-import get_metadata
+import  get_metadata
 
 def obj_name_int(original, lam, resolution):
     
@@ -668,9 +667,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         one_gal           =  np.loadtxt(templates_gal_trunc[i])
         templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
-
+    sn_spec_files=[x for x in path_dict.keys()]
     results = []
-    
 
     for element in itertools.product(redshift,extconstant):
          

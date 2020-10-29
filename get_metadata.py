@@ -8,6 +8,7 @@ from astropy import table
 from astropy.io import ascii
 import sys 
 import os
+import params 
 
 def list_folders(path):
     if path[-1] != '/':
@@ -20,14 +21,15 @@ def list_folders(path):
             folders.append(dir)
 
     return folders
-original_bank_path='/home/idoi/Dropbox/superfit/bank/original_resolution/sne'
+
+
+original_bank_path='./bank/original_resolution/sne'
 
 dirs=os.listdir(original_bank_path)
 
 
 
 folders=list_folders(original_bank_path)
-
 have_wiserep=[]
 no_wiserep=[]
 z_dic={}
@@ -63,7 +65,7 @@ for folder in folders:
             inst_dic[sub]=np.array(wise['Instrument'][:])
             lis=[]
             for i,spec_file in enumerate(spec_file_dic[sub]):
-                shorhand_dict[spec_file]=sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i])
+                shorhand_dict[spec_file]=sub+'/'+wise['Instrument'][i]+'+'+str(wise['Obs-date'][i])
                 short_path_dict[shorhand_dict[spec_file]]=spec_file
 
         else: 

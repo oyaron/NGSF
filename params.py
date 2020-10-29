@@ -7,23 +7,30 @@ import scipy.optimize
 from astropy import table
 from astropy.io import ascii
 import sys 
-from SF_functions import *
-import os
 
+path='/home/idoi/Dropbox/superfit/'
+
+sys.path.insert(1,path)
+from superfit.auxiliary import *
+import os
+#from  superfit.SF_functions import *
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = "/home/idoi/Dropbox/superfit/binned_files_2018/"
+save_bin_path     = path+"binned_files_2018/"
 
-save_results_path = "/home/idoi/Dropbox/superfit/results_2018/"
+save_results_path = path+"results_yakov_free_z/"
+
 
 # Path where library folder is located (the binnings folder)
 
-path = "/home/idoi/Dropbox/superfit/"
 
 show = False   #show plots after optimization (if False, plots will still be saved as long as)
 
+#path where original bank is located for metadata
+
+original_bank_path = path + 'bank/original_resolution/sne/'
 
 #--------------------------------------------------------------------------------------------------
 
@@ -40,7 +47,6 @@ alam_num = 21
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
-#redshift      =    np.array([0.02])
 
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
@@ -53,9 +59,9 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
 
-temp_sn_tr = os.listdir(path + 'bank/original_resolution/sne/')
+temp_sn_tr = os.listdir(original_bank_path)
  
-
+temp_sn_tr=['/Ia']
 
 # Select a wavelength range and resolution
 
@@ -77,10 +83,8 @@ plotting = 1
 
 # How many top results so plot? 
 
-n = 2
-
+n = 1
 #--------------------------------------------------------------------------------------------------
-
 #Template library
 #print(path + 'binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = glob.glob(path + 'bank/binnings/'+ str(resolution) +'A/gal/*')

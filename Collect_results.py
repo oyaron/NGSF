@@ -6,7 +6,7 @@ import glob
 import os 
 import sys 
 sys.path.insert(1,'/home/idoi/Dropbox/superfit/')
-from get_metadata import *
+from superfit.get_metadata import *
 from matplotlib import rcParams
 plt.rcParams.update({
     "text.usetex": True,
