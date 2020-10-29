@@ -178,7 +178,6 @@ def error_obj(kind, lam, obj_path):
 def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
     sn=[]
     gal=[]
-    #print(templates_sn_trunc)
     for i in range(0, len(templates_sn_trunc)): 
 
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
@@ -222,7 +221,7 @@ def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
         one_sn            =  np.loadtxt(templates_sn_trunc[i])
 
         redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)
+        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)
        
         sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
         
@@ -355,6 +354,9 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     d = c * (np.nansum(sn**2,2)*np.nansum(gal*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(sn*int_obj,2))
 
+    b[b < 0] = np.nan
+    d[d < 0] = np.nan
+
 
 
     #Add new axis in order to compute chi2
@@ -362,7 +364,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     gal_d = d[:, :, np.newaxis]
     
     
-    
+    #print(sn_b)
     
     
     # Obtain number of degrees of freedom
@@ -380,15 +382,24 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
   
     # Obtain and reduce chi2
 
+    
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
 
-    #print(chi2)
-
+    
     reduchi2 = chi2/(times-2)**2
-    reduchi2_once = chi2/(times-2)
-    prob=scipy.stats.chi2.pdf(chi2, (times-2))
-    lnprob=np.log(prob)
+    reduchi2 = np.where(reduchi2==0, 1e10, reduchi2) 
+    
 
+    reduchi2_once = chi2/(times-2)
+    reduchi2_once = np.where(reduchi2_once == 0, 1e10, reduchi2_once) 
+
+
+    prob = scipy.stats.chi2.pdf(chi2, (times-2))
+    prob = np.where(prob == 0, 1e10, reduchi2_once) 
+
+
+    lnprob = np.log(prob)
+    lnprob = np.where(lnprob == np.nan, 1e10, reduchi2_once) 
 
     
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
@@ -434,7 +445,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
    
     
-    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, 0.4*extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
                     
@@ -521,13 +532,20 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     extinct_nova     =  nova[:,1]*10**(extmag * Alam(nova[:,0]))/(1+z)
     
     
+    #extinct_nova     =  nova[:,1]*extcon/(1+z)
 
-    reshifted_host    =  host[:,0]*(z+1)
     
+    reshifted_host    =  host[:,0]*(z+1)
+    reshifted_hostf   =  host[:,1]/(z+1)
+    
+
+
+
+
 
     nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
 
-    host_int = interpolate.interp1d(reshifted_host, host[:,1],   bounds_error=False, fill_value='nan')
+    host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
 
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
@@ -676,27 +694,40 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
                       
         #print(a)
         results.append(a)
-    
+
+        #print(results)
+
         result = table.vstack(results)
+        #print(len(result['SN']))
     
     
 
-
+    #np.savetxt('/home/sam/Dropbox (Weizmann Institute)/superfit/asd', result['SN'])
     #result = table.unique(result,keys='SN',keep='first')
 
     
 
     result.sort('CHI2/dof2')
+    #print(result['SN'])
 
-    result = table.unique(result, keys='SN',keep='first')
-    
-    result.sort('CHI2/dof2')
+    #result = table.unique(result, keys='SN',keep='first')
+    #print(len(result))
+    #
+
+    #result.sort('CHI2/dof2')
 
     #print(result['CHI2/dof2'])
     #import ipdb; ipdb.set_trace()
 
-  
-    ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
+    
+
+    #print(len(result))
+    
+    result = table.unique(result, keys='SN',keep='first')
+
+    result.sort('CHI2/dof2')
+
+    ascii.write(result, save + binned_name + 'repeated.csv', format='csv', fast_writer=False, overwrite=True)  
     
     end   = time.time()
     print('Optimization finished within {0: .2f}s '.format(end-start))
