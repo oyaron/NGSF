@@ -197,7 +197,7 @@ def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
         one_sn            =  np.loadtxt(templates_sn_trunc[i])
 
         redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)
+        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)
        
         sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
         
@@ -334,7 +334,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     d[d < 0] = np.nan
 
 
-
     #Add new axis in order to compute chi2
     sn_b = b[:, :, np.newaxis]
     gal_d = d[:, :, np.newaxis]
@@ -346,13 +345,15 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     # Obtain number of degrees of freedom
     
     a = (  (int_obj - (sn_b * sn + gal_d * gal))/sigma)**2
-    
+
     a = np.isnan(a)
-    
+
     times = np.nansum(a,2)
     
     times = len(lam) - times
     
+    # True if overlap is valid
+    overlap = times/len(lam) > 0.7
     
     
   
@@ -361,6 +362,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
 
+    # avoid short overlaps
+    chi2[~overlap]=np.inf
     
     reduchi2 = chi2/(times-2)**2
     reduchi2 = np.where(reduchi2==0, 1e10, reduchi2) 

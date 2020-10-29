@@ -6,7 +6,7 @@ import glob
 import os 
 import sys 
 sys.path.insert(1,'/home/idoi/Dropbox/superfit/')
-from superfit.get_metadata import *
+from get_metadata import *
 from matplotlib import rcParams
 plt.rcParams.update({
     "text.usetex": True,
@@ -331,21 +331,23 @@ for i in range(n_class):
         All_class=sample['classification']==real_class
     for j in range(n_class):
         if real_class=='Ia':
-            det_class=[classes[j] in x for x in sample['SF_fit_1']]
+            det_class=[classes[j] in x for x in sample['c_snid']]
         else:
-            det_class=sample['SF_fit_1']==classes[j]
+            det_class=sample['c_snid']==classes[j]
         conf_matrix[i,j]=np.sum(np.array(All_class) & np.array(det_class))/np.sum(All_class)
 
 
 fig, ax = plt.subplots(1, 1)
-ax.imshow(conf_matrix)
+ax.imshow(conf_matrix,cmap='Purples')
 plt.xticks(ticks=range(n_class),labels=classes)
 plt.yticks(ticks=range(n_class),labels=classes)
 ax.xaxis.set_tick_params(labeltop='on',labelbottom='off')
 for i in range(n_class):
     for j in range(n_class):
         text = ax.text(j, i, np.round(conf_matrix[i, j],3),
-                       ha="center", va="center", color="r")
+                       ha="center", va="center", color='k',fontweight='bold',fontsize=14)
+plt.ylabel('Ground truth')
+plt.xlabel('SNID classification')
 plt.tight_layout()
 
 plt.show()
