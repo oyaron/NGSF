@@ -19,8 +19,11 @@ from matplotlib.pyplot import show, plot
 import sys 
 import itertools
 from error_routines import *
-from numba import jit
+from numba import *
+#from numba.typed import Dict 
+from numba import types
 
+import get_metadata
 
 def obj_name_int(original, lam, resolution):
     
@@ -173,88 +176,38 @@ def error_obj(kind, lam, obj_path):
 
 
 
-
-
 def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
-
-    spec_gal = []
-    spec_sn  = []
-    
-    
-    #print(templates_sn_trunc)
+    sn=[]
+    gal=[]
+    print(templates_sn_trunc)
     for i in range(0, len(templates_sn_trunc)): 
-        
-        #one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
+
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
-        #print(one_sn)
-        redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)  #why is this the expression for extinction?
-        
-        #sn_interp         =  interpolate.interp1d(one_sn[:,0]*(z+1),    one_sn[:,1]*10**(extcon * Alam(one_sn[:,0])),    bounds_error=False, fill_value='nan')
-        sn_interp         =  interpolate.interp1d(redshifted_one_sn,    extinct_excon,    bounds_error=False, fill_value='nan')
+        a_lam_sn          =  alam_dict[templates_sn_trunc[i]]
+        redshifted_sn     =  one_sn[:,0]*(z+1)
+        extinct_excon     =  one_sn[:,1]*(10**(extcon * a_lam_sn)) /(1+z) 
+        sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
 
-        #sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon,    fill_value='nan')
+        sn.append(sn_interp)
 
-        
-        spec_sn.append(sn_interp)
-
-    #print(spec_sn)
-      
-
-    
     
     for i in range(0, len(templates_gal_trunc)): 
         
-        #one_gal           =  np.loadtxt(templates_gal_trunc[i])
-
         one_gal            =  templates_gal_trunc_dict[templates_gal_trunc[i]]
-        
-        gal_interp        =  interpolate.interp1d(one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),    bounds_error=False, fill_value='nan')
-        
-        spec_gal.append(gal_interp)
-        
-        
-        
-        
+        gal_interp         =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),  left=np.nan,right=np.nan)
+        gal.append(gal_interp)
 
-
-    # Obtain all spectra and make them a function of lam, then add a new axis
-    
-    
-    
-    gal = []
-    sn  = []
-    
-    
-    
-    for i in spec_gal: 
-
-        gal.append(i(lam))
-    
-   
-    for i in spec_sn: 
-        
-        #check = checkEqual(list(i(lam)))
-
-        #if check == False:
-        
-        sn.append(i(lam))
-
-    
- 
     
     # Redefine sn and gal by adding a new axis
     
     sn  = np.array(sn)
     gal = np.array(gal)
     
-    
-   
-    
     gal = gal[:, np.newaxis,:]
     sn  = sn[np.newaxis,:,:]
+
+    print(sn)
     
-   
     return sn, gal
 
 
@@ -264,14 +217,14 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
 def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
 
-    spec_sn = []
+    spec_sn = np.array([])
     
     for i in range(0, len(templates_sn_trunc)): 
         
         one_sn            =  np.loadtxt(templates_sn_trunc[i])
 
         redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)
+        extinct_excon     =  one_sn[:,1]*10**(extcon * Alam(one_sn[:,0]))/(1+z)
        
         sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
         
@@ -378,7 +331,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     original  = kwargs['original']
 
-  
+
+
 
     int_obj = obj_name_int(original, lam, resolution)[1]
     
@@ -395,7 +349,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     #print(sn,gal)
   
-
     # Apply linear algebra witchcraft
     
     c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
@@ -403,15 +356,18 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     b = c * (np.nansum(gal**2,2)*np.nansum(sn*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(gal*int_obj,2))
     
     d = c * (np.nansum(sn**2,2)*np.nansum(gal*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(sn*int_obj,2))
-    
 
-    
+    b[b < 0] = np.nan
+    d[d < 0] = np.nan
+
+
+
     #Add new axis in order to compute chi2
     sn_b = b[:, :, np.newaxis]
     gal_d = d[:, :, np.newaxis]
-
     
     
+    #print(sn_b)
     
     
     # Obtain number of degrees of freedom
@@ -429,16 +385,25 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
   
     # Obtain and reduce chi2
 
+    
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
-    
-    #print(chi2)
 
+    
     reduchi2 = chi2/(times-2)**2
-    reduchi2_once = chi2/(times-2)
-    prob=scipy.stats.chi2.pdf(chi2, (times-2))
-    lnprob=np.log(prob)
-
+    reduchi2 = np.where(reduchi2==0, 1e10, reduchi2) 
     
+
+    reduchi2_once = chi2/(times-2)
+    reduchi2_once = np.where(reduchi2_once == 0, 1e10, reduchi2_once) 
+
+
+    prob = scipy.stats.chi2.pdf(chi2, (times-2))
+    prob = np.where(prob == 0, 1e10, reduchi2_once) 
+
+
+    lnprob = np.log(prob)
+    lnprob = np.where(lnprob == np.nan, 1e10, reduchi2_once) 
+
     
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
     
@@ -484,13 +449,14 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
    
     
-    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, 0.4*extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
                     names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
                     
                     dtype  =  ('S200', 'S200', 'S200','f','f','f','f','f','f','f','f'))
        
-   
+
+
     return output, reduchi2[idx] #lnprob[idx]
 
     
@@ -529,11 +495,12 @@ def plotting(core, lam, original, number, resolution, **kwargs):
    
 
     obj_name = values[0][0]
-    
     hg_name  = values[0][1]
     
-    sn_name  = values[0][2]
-    
+    short    = values[0][2]
+
+    sn_name  = path_dict[short]
+
     bb       = values[0][3]
     
     dd       = values[0][4]
@@ -542,9 +509,6 @@ def plotting(core, lam, original, number, resolution, **kwargs):
    
     extcon   = values[0][6]
    
-    z = z
-    
-    extcon = extcon 
    
     int_obj = obj_name_int(original, lam, resolution)[1]
     
@@ -553,7 +517,6 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     save = kwargs['save']
     show = kwargs['show']
 
-    number = number
 
     #print(sn_name)
     #print(hg_name)
@@ -570,16 +533,22 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova     =  nova[:,1]*10**(0.4*extcon * Alam(nova[:,0]))/(1+z)
+    extinct_nova     =  nova[:,1]*(10**(extcon * Alam(nova[:,0])) )/(1+z)
     
+    #extinct_nova     =  nova[:,1]*extcon/(1+z)
+
+    
+    reshifted_host    =  host[:,0]*(z+1)
+    reshifted_hostf   =  host[:,1]/(z+1)
     
 
-    reshifted_host    =  host[:,0]*(z+1)
-    
+
+
+
 
     nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
 
-    host_int = interpolate.interp1d(reshifted_host, host[:,1],   bounds_error=False, fill_value='nan')
+    host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
 
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
@@ -592,8 +561,10 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     s = sn_name
     h = hg_name
 
-    
-
+    idx1 = sn_name.rfind('/')
+    idx2 = sn_name[0:idx1].rfind('/')
+    idx3 = sn_name[0:idx2].rfind('/')
+    sn_type = sn_name[idx3+1:idx2]
     #print(s)
     #print(h)
 
@@ -606,7 +577,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
-    plt.plot(lam, host_nova,'g', label = 'SN: ' + sn_name +' & '+ 'Host: '+ hg_name)
+    plt.plot(lam, host_nova,'g', label = sn_type+': ' + short +' & '+ 'Host: '+ hg_name)
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
     
@@ -622,7 +593,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #print(obj_name)
     #sn_name = sn_name.replace('dat', '')
     
-    plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
+    plt.savefig(save + obj_name + '_' + str(number) + '.png' )
     if show:
         plt.show()
     
@@ -691,17 +662,29 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     original  = kwargs['original']
 
     binned_name = obj_name_int(original, lam, resolution)[3]
-
-
+    
     global templates_sn_trunc_dict
-    templates_sn_trunc_dict={}
+    templates_sn_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
     global templates_gal_trunc_dict
-    templates_gal_trunc_dict={}
+    templates_gal_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
+    global alam_dict
+    alam_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:],)
+    sn_spec_files=[str(x) for x in get_metadata.shorhand_dict.values()] 
+    global path_dict
+    path_dict={}
 
     for i in range(0, len(templates_sn_trunc)): 
         one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
-        templates_sn_trunc_dict[templates_sn_trunc[i]]=one_sn
-    for i in range(0, len(templates_gal_trunc)): 
+
+        idx=templates_sn_trunc[i].rfind("/")+1
+        filename=templates_sn_trunc[i][idx:]
+
+        short_name= str(get_metadata.shorhand_dict[filename])
+        path_dict[short_name]=templates_sn_trunc[i]
+        templates_sn_trunc_dict[short_name]=one_sn
+        alam_dict[short_name]  = Alam(one_sn[:,0])
+
+    for i in range(0, len(templates_gal_trunc)):    
         one_gal           =  np.loadtxt(templates_gal_trunc[i])
         templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
@@ -711,30 +694,43 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for element in itertools.product(redshift,extconstant):
          
-        a, _ = core_total(element[0],element[1], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
+        a, _ = core_total(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution, **kwargs)
                       
         #print(a)
         results.append(a)
-    
+
+        #print(results)
+
         result = table.vstack(results)
+        #print(len(result['SN']))
     
     
 
-
+    #np.savetxt('/home/sam/Dropbox (Weizmann Institute)/superfit/asd', result['SN'])
     #result = table.unique(result,keys='SN',keep='first')
 
     
 
     result.sort('CHI2/dof2')
+    #print(result['SN'])
 
-    result = table.unique(result, keys='SN',keep='first')
-    
-    result.sort('CHI2/dof2')
+    #result = table.unique(result, keys='SN',keep='first')
+    #print(len(result))
+    #
+
+    #result.sort('CHI2/dof2')
 
     #print(result['CHI2/dof2'])
 
-  
-    ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
+    
+
+    #print(len(result))
+    
+    result = table.unique(result, keys='SN',keep='first')
+
+    result.sort('CHI2/dof2')
+
+    ascii.write(result, save + binned_name + 'repeated.csv', format='csv', fast_writer=False, overwrite=True)  
     
     end   = time.time()
     print('Optimization finished within {0: .2f}s '.format(end-start))
@@ -746,9 +742,10 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     if plot: 
         for i in range(0,n):
+            res=core_total(result[i][5], result[i][6], sn_spec_files, templates_gal_trunc, lam, resolution, **kwargs)
 
-            res=core_total(result[i][5], result[i][6], templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs)
             plotting(res, lam , original, i, resolution, save=save, show=show)
+
 
     
     return result
