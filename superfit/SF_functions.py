@@ -508,7 +508,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova     =  nova[:,1]*10**(extmag * Alam(nova[:,0]))/(1+z)
+    extinct_nova     =  nova[:,1]*10**(0.4*extmag * Alam(nova[:,0]))/(1+z)
     
     
     #extinct_nova     =  nova[:,1]*extcon/(1+z)
