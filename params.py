@@ -20,7 +20,7 @@ import os
 
 save_bin_path     = path+"binned_files_2018/"
 
-save_results_path = path+"results_yakov_free_z/"
+save_results_path = path+"results_2018_sedm/"
 
 
 # Path where library folder is located (the binnings folder)
@@ -36,7 +36,7 @@ original_bank_path = path + 'bank/original_resolution/sne/'
 
 # Select a range and number of steps for z
 
-z_start = 0  
+z_start = 0.0  
 z_end   = 0.1
 z_num    = 11
 
@@ -60,8 +60,7 @@ extconstant   =    np.linspace(-2,2,alam_num)
 temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
 
 temp_sn_tr = os.listdir(original_bank_path)
- 
-temp_sn_tr=['/Ia']
+
 
 # Select a wavelength range and resolution
 
