@@ -20,13 +20,14 @@ import os
 
 save_bin_path     = path+"binned_files_2018/"
 
-save_results_path = path+"results_2018_sedm/"
-
+#save_results_path = path+"results_yakov/results_yakov/"
+#save_results_path = path+"results_rcf/"
+save_results_path = path+"results/"
 
 # Path where library folder is located (the binnings folder)
 
 
-show = False   #show plots after optimization (if False, plots will still be saved as long as)
+show = True   #show plots after optimization (if False, plots will still be saved as long as)
 
 #path where original bank is located for metadata
 
@@ -47,6 +48,7 @@ alam_num = 21
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
+redshift      =    np.array([0.02])
 
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
@@ -59,8 +61,41 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
 
-temp_sn_tr = os.listdir(original_bank_path)
-
+temp_sn_tr =['SLSN-II',
+             #'ILRT',
+             'Ia-rapid',
+             'Ia-02cx like',
+             '"super chandra"',
+             #'TDE H',
+             'IIb',
+             'Ia-pec',
+             #'TDE He',
+             #'computed',
+             'Ia 02es-like',
+             'Ia-norm',
+             'Ib',
+             'Ca-Ia',
+             'Ic-BL',
+             'II',
+             'SLSN-IIn',
+             'Ia 91bg-like',
+             'FBOT',
+             'Ia 99aa-like',
+             'Ibn',
+             'Ia 91T-like',
+             'II-flash',
+             'SLSN-I',
+             'Ic',
+             #'SN - Imposter',
+             'SLSN-IIb',
+             'Ca-Ib',
+             'Ia-CSM-(ambigious)',
+             'SLSN-Ib',
+             'Ia-CSM',
+             #'TDE H+He',
+             'Ic-pec',
+             'IIn',
+             'IIb-flash']
 
 # Select a wavelength range and resolution
 

@@ -12,6 +12,20 @@ original=sys.argv[1]
 idx=original.rfind('/')
 filename=original[idx+1:]
 
+#meta=ascii.read('2018_test_metadata.ascii') 
+#red=meta[meta['name']==filename]['redshift'][0]
+#rred=round(red,2)
+##redshift=np.linspace(rred-0.05,red+0.05,21)
+#redshift=np.array([red])
+#
+#idx2=original.rfind('.')
+#idx1=original.rfind('/')
+#filename=original[idx1+1:idx2]
+#meta=ascii.read('Yakov_SNe/redshifts.txt') 
+#
+#red=meta[filename==meta['SN']]['z'][0]
+#redshift=np.array([red])
+#
 
 try:
     binned_name= obj_name_int(original, lam, resolution)[3]
