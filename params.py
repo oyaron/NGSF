@@ -8,7 +8,7 @@ from astropy import table
 from astropy.io import ascii
 import sys 
 
-path='/home/idoi/Dropbox/superfit/'
+path='/your/path/to/superfit/'
 
 sys.path.insert(1,path)
 from superfit.auxiliary import *
@@ -20,7 +20,7 @@ import os
 
 save_bin_path     = path+"binned_files_2018/"
 
-save_results_path = path+"results_2018_sedm/"
+save_results_path = path+"results/"
 
 
 # Path where library folder is located (the binnings folder)
@@ -47,7 +47,6 @@ alam_num = 21
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
-
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
 #extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
