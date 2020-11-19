@@ -23,7 +23,7 @@ def list_folders(path):
     return folders
 
 
-original_bank_path='./bank/original_resolution/sne'
+original_bank_path=params.original_bank_path
 
 dirs=os.listdir(original_bank_path)
 

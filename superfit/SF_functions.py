@@ -43,7 +43,7 @@ def obj_name_int(original, lam, resolution):
 
     #Interpolate    
     object_spec =  np.loadtxt(original)
-
+    object_spec[:,1]=object_spec[:,1]/np.nanmedian(object_spec[:,1])
     int_obj = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
 
     int_obj = int_obj(lam)
@@ -117,7 +117,7 @@ def error_obj(kind, lam, obj_path):
     
 
     object_spec = np.loadtxt(obj_path)
-    
+    object_spec[:,1] = object_spec[:,1]/np.nanmedian(object_spec[:,1])
     
     if kind == 'included' and len(object_spec[1,:]) > 2:
         
@@ -159,7 +159,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
         a_lam_sn          =  alam_dict[templates_sn_trunc[i]]
         redshifted_sn     =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * a_lam_sn)/(1+z) 
+        extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * a_lam_sn)/(1+z) 
         sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
 
         sn.append(sn_interp)
@@ -185,88 +185,88 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
 
 
-
- 
-
-def sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
-
-    spec_sn = np.array([])
-    
-    for i in range(0, len(templates_sn_trunc)): 
-        
-        one_sn            =  np.loadtxt(templates_sn_trunc[i])
-
-        redshifted_one_sn =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(0.4*extcon * Alam(one_sn[:,0]))/(1+z)
-       
-        sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
-        
-        spec_sn.append(sn_interp)
-        
-        
-    sns = [] 
-    
-    for j in range(0,len(spec_sn)):
-    
-        sn = spec_sn[j]
-        
-        
-        for j in range(0,len(sn)-1): 
-            
-            if sn[j+1] == sn[j]:
-                sn[j] = 'nan'
-                
-        sn[-1] = 'nan'
-        
-        sns.append(sn)
-        
-        sn_array  = np.array(sns)
-        
-        sn_array  = sn_array[np.newaxis,:,:]
-        
-        
-    
-    spec_gal = []
-    
-    
-
-    for i in range(0, len(templates_gal_trunc)): 
-            
-            one_gal           =  np.loadtxt(templates_gal_trunc[i])
-            
-            gal_interp        =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1])
-            
-            spec_gal.append(gal_interp)
-
-
-        
-    gals = [] 
-    
-    for j in range(0,len(spec_gal)):
-    
-        gal = spec_gal[j]
-        
-        
-        for j in range(0,len(gal)-1): 
-            
-            if gal[j+1] == gal[j]:
-                gal[j] = 'nan'
-                
-        gal[-1] = 'nan'
-        
-        gals.append(gal)
-        
-        gal_array  = np.array(gals)
-        
-        gal_array  = gal_array[:, np.newaxis,:]
-        
-        
-        
-    return sn_array, gal_array
-
-
-
-
+#
+#
+#
+#ef sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
+#
+#   spec_sn = np.array([])
+#   
+#   for i in range(0, len(templates_sn_trunc)): 
+#       
+#       one_sn            =  np.loadtxt(templates_sn_trunc[i])
+#
+#       redshifted_one_sn =  one_sn[:,0]*(z+1)
+#       extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * Alam(one_sn[:,0]))/(1+z)
+#      
+#       sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
+#       
+#       spec_sn.append(sn_interp)
+#       
+#       
+#   sns = [] 
+#   
+#   for j in range(0,len(spec_sn)):
+#   
+#       sn = spec_sn[j]
+#       
+#       
+#       for j in range(0,len(sn)-1): 
+#           
+#           if sn[j+1] == sn[j]:
+#               sn[j] = 'nan'
+#               
+#       sn[-1] = 'nan'
+#       
+#       sns.append(sn)
+#       
+#       sn_array  = np.array(sns)
+#       
+#       sn_array  = sn_array[np.newaxis,:,:]
+#       
+#       
+#   
+#   spec_gal = []
+#   
+#   
+#
+#   for i in range(0, len(templates_gal_trunc)): 
+#           
+#           one_gal           =  np.loadtxt(templates_gal_trunc[i])
+#           
+#           gal_interp        =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1])
+#           
+#           spec_gal.append(gal_interp)
+#
+#
+#       
+#   gals = [] 
+#   
+#   for j in range(0,len(spec_gal)):
+#   
+#       gal = spec_gal[j]
+#       
+#       
+#       for j in range(0,len(gal)-1): 
+#           
+#           if gal[j+1] == gal[j]:
+#               gal[j] = 'nan'
+#               
+#       gal[-1] = 'nan'
+#       
+#       gals.append(gal)
+#       
+#       gal_array  = np.array(gals)
+#       
+#       gal_array  = gal_array[:, np.newaxis,:]
+#       
+#       
+#       
+#   return sn_array, gal_array
+#
+#
+#
+#
 
 
 
@@ -421,14 +421,20 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     bb = b[idx[0]][idx[1]]
     dd = d[idx[0]][idx[1]]
+    sn_flux  = sn[0,idx[1],:]
+    gal_flux  = gal[idx[0],0,:]
+    sn_cont = bb*np.nanmean(sn_flux*10**(-0.4*extcon * Alam(lam)))
+    gal_cont = dd*np.nanmean(gal_flux)
+    sum_cont = sn_cont+gal_cont
+    sn_cont  = sn_cont/sum_cont
+    gal_cont  = gal_cont/sum_cont
 
-   
     
-    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
+    output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
                     
-                    names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','CHI2','CHI2/dof','CHI2/dof2','ln(prob)' ), 
+                    names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','Frac(SN)','Frac(gal)','CHI2','CHI2/dof','CHI2/dof2','ln(prob)'), 
                     
-                    dtype  =  ('S200', 'S200', 'S200','f','f','f','f','f','f','f','f'))
+                    dtype  =  ('S200', 'S200', 'S200','f','f','f','f','f','f','f','f','f','f'))
        
 
 
@@ -483,8 +489,9 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     z        = values[0][5]
    
     extmag   = values[0][6]
-   
-   
+
+    sn_cont  = values[0][7]   
+      
     int_obj = obj_name_int(original, lam, resolution)[1]
     
     
@@ -498,8 +505,9 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     
 
     nova   = np.loadtxt(sn_name)
+    nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
     host   = np.loadtxt(hg_name)
-    
+    host[:,1]=host[:,1]/np.nanmedian(host[:,1])
     
   
     
@@ -508,7 +516,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova     =  nova[:,1]*10**(0.4*extmag * Alam(nova[:,0]))/(1+z)
+    extinct_nova     =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
     
     
     #extinct_nova     =  nova[:,1]*extcon/(1+z)
@@ -528,9 +536,10 @@ def plotting(core, lam, original, number, resolution, **kwargs):
 
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
- 
 
 
+
+    extmag
 
 
     #Plot 
@@ -553,7 +562,7 @@ def plotting(core, lam, original, number, resolution, **kwargs):
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
-    plt.plot(lam, host_nova,'g', label = sn_type+': ' + short +' & '+ 'Host: '+ hg_name)
+    plt.plot(lam, host_nova,'g', label = sn_type+': ' + short + '\nHost: '+ hg_name +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
     
     plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
     
@@ -651,7 +660,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for i in range(0, len(templates_sn_trunc)): 
         one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
-
+        one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
         idx=templates_sn_trunc[i].rfind("/")+1
         filename=templates_sn_trunc[i][idx:]
 
@@ -662,6 +671,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for i in range(0, len(templates_gal_trunc)):    
         one_gal           =  np.loadtxt(templates_gal_trunc[i])
+        one_gal[:,1]           =  one_gal[:,1] / np.nanmedian(one_gal[:,1])
         templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
     sn_spec_files=[x for x in path_dict.keys()]
@@ -696,7 +706,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     #result.sort('CHI2/dof2')
 
     #print(result['CHI2/dof2'])
-    #import ipdb; ipdb.set_trace()
 
     
 
