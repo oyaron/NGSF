@@ -19,9 +19,9 @@ from matplotlib.pyplot import show, plot
 import sys 
 import itertools
 from superfit.error_routines import *
-from numba import *
-from numba.typed import Dict 
-from numba import types
+#from numba import *
+#from numba.typed import Dict 
+#from numba import types
 import  superfit.get_metadata as get_metadata
 
 def obj_name_int(original, lam, resolution):
