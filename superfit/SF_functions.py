@@ -22,7 +22,7 @@ from superfit.error_routines import *
 from numba import *
 from numba.typed import Dict 
 from numba import types
-import  get_metadata
+import  superfit.get_metadata as get_metadata
 
 def obj_name_int(original, lam, resolution):
     
@@ -306,10 +306,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
 
 
-
-    int_obj = obj_name_int(original, lam, resolution)[1]
-    
-    name    = obj_name_int(original, lam, resolution)[0]
+    name,int_obj,_,_  = obj_name_int(original, lam, resolution)
+    int_obj[int_obj==0] = np.nan
 
     #print(name)
 
@@ -660,7 +658,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for i in range(0, len(templates_sn_trunc)): 
         one_sn           =  np.loadtxt(templates_sn_trunc[i]) #this is an expensive line
-        one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
+        one_sn[:,1]=one_sn[:,1]/np.nanmedian(one_sn[:,1])
         idx=templates_sn_trunc[i].rfind("/")+1
         filename=templates_sn_trunc[i][idx:]
 
