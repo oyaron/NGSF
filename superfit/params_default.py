@@ -7,20 +7,20 @@ import scipy.optimize
 from astropy import table
 from astropy.io import ascii
 import sys 
-
-path='/home/idoi/Dropbox/superfit/'
-
-sys.path.insert(1,path)
 from superfit.auxiliary import *
 import os
-#from  superfit.SF_functions import *
+
+
+path='/home/idoi/Dropbox/superfit/'
+sys.path.insert(1,path)
+
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = path+"binned_files_2018/"
+save_bin_path     = "./binned_files/"
 
-save_results_path = path+"results/"
+save_results_path = "./results/"
 
 
 # Path where library folder is located (the binnings folder)
@@ -37,8 +37,8 @@ original_bank_path = path + 'bank/original_resolution/sne/'
 # Select a range and number of steps for z
 
 z_start = 0.0  
-z_end   = 0.1
-z_num    = 11
+z_end   = 0.5
+z_num    = 51
 
 
 # Number of steps for A_v (do not change)
@@ -47,8 +47,6 @@ alam_num = 21
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
-
-#redshift      =  np.array([0.02])
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
 #extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
