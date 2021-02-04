@@ -14,7 +14,8 @@ from scipy.optimize import curve_fit
 import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
-from superfit.SF_functions import *
+#from superfit.SF_functions import *
+from SF_functions_original import *
 from PyAstronomy import pyasl
 from astropy.table import table
 
@@ -47,17 +48,25 @@ def kill_header(file_name):
     
     '''
     
+    bad_lines = []
+    
     lines = [] 
     
     file = open(file_name,'r')
     
     lines = file.readlines()
     
-    lines = [i for i in lines if i[0] != '#']
+    lines = [i for i in lines if i]
+
+    lines = [i for i in lines if i[0].isalpha() == False and i[0] != '#' and i[0] != '%']
+
+    lines = [i for i in lines if i[0] != '\n']
     
-    lines = [s.strip('\n') for s in lines] # remove the '\n' from the string borders
+    lines = [s.strip('\n') for s in lines] # remove empty lines
     
     lines = [s.replace('\n', '') for s in lines]  #replace with nothing
+    
+    
     
     columns = [] 
     
@@ -67,10 +76,14 @@ def kill_header(file_name):
         
     columns = np.array(columns)
     
-      
+    lam_floats  = [float(i) for i in columns[:,0]]
+    flux_floats = [float(i) for i in columns[:,1]]
 
+    spectrum = np.array([lam_floats, flux_floats]).T
     
-    return columns
+    return spectrum
+
+
 
 
 # In[3]:
@@ -215,14 +228,12 @@ def bin_spectrum_bank(spectrum, resolution):
     lam = spectrum[:,0]
     flux = spectrum[:,1]
     
-  
     
     
-    if lam[1]- lam[0] >= resolution:
+    if lam[15]- lam[14] >= resolution:
         bin_spectra = spectrum
    
-    
-    
+   
     
     else:
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)

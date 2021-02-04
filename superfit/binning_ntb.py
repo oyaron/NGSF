@@ -24,7 +24,7 @@ import time
 
 # Templates from the original template bank
 
-templates = glob.glob('/home/sam/Dropbox (Weizmann Institute)/new_template_bank/sne/**/**/*')
+templates = glob.glob('/Users/user/Dropbox (Weizmann Institute)/new_template_bank/bank/original_resolution/sne/**/**/*')
 templates = [x for x in templates if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates = np.array(templates)
 
@@ -54,7 +54,7 @@ def get_largest_bank_resolution(templates):
 
 
     for i in templates:
-    
+
         a = kill_header(i)
 
         # The 14th and 15th lines are arbitrary, I just didn't want to take the 0th and 1st cause sometimes there are errors.
@@ -152,7 +152,7 @@ def remove_telluric(spectrum):
 
 # Path where the binned data will go and binning resolution
 
-path_of_binned_data   = '/home/sam/Dropbox (Weizmann Institute)/superfit/'
+path_of_binned_data   = '/Users/user/Dropbox (Weizmann Institute)/superfit/superfit-sam/bank/'
 resolution            = 20
 
 
@@ -178,9 +178,11 @@ for i in templates:
     df = pd.read_csv( i[:idx]  + '/wiserep_spectra.csv')
     z = df['Redshift'][0]
     
-   
+    
+    print(i)
     nova = kill_header(i)
-    nova = remove_telluric(nova)
+
+    #nova = remove_telluric(nova)
    
    
     z_lam      =  nova[:,0]/(z+1)
@@ -190,13 +192,11 @@ for i in templates:
     result = np.array([z_lam,z_flux]).T
     result = bin_spectrum_bank(result,resolution)
 
-   
     index = i[:i[:i.rfind('/')].rfind('/')].rfind('/')
     
     name = i[index:]
     
-    
-    #print(path_of_binned_data +'binnings/'  + str(resolution) + 'A/sne'+ name)
+    print(path_of_binned_data +'binnings/'  + str(resolution) + 'A/sne'+ name)
     np.savetxt(path_of_binned_data +'binnings/' + str(resolution) + 'A/sne' + name ,result)
 
    
@@ -209,7 +209,7 @@ templates_hg = np.array(templates_hg)
 
 
 
-templates_hg
+
 
 
 for i in templates_hg: 
