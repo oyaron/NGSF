@@ -1,4 +1,4 @@
-# Welcome to SuPyFit!
+# Welcome to Superfit in Python!
 
 SuPyFit (Python Superfit) is a software for the spectral classification of Supernovae 
 
