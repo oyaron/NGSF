@@ -1,6 +1,6 @@
 # Welcome to Superfit in Python!
 
-Superfit in python (pySF) is a software for the spectral classification of Supernovae :dizzy: :bomb: :boom:
+Superfit in python (pySF) is a software for the spectral classification of Supernovae of all major types :dizzy: :bomb: :boom:
 
 ## Requierments
 
@@ -19,8 +19,8 @@ The user must make sure to have a template bank to look at. The new template ban
 
 # New template bank
 
-The new Superfit template bank contains major subclasses such as calcium rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated in different folders for more accurate classification. The default option for binning in 10A. 
-The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF. 
+The improved Superfit template bank contains major subclasses such as: calcium rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated in different folders for more accurate classification. The default option for binning in 10A. 
+The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF, and please be mindful that pySF is only as good as the template bank it uses.
 
 
 The user has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
