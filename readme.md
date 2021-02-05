@@ -87,6 +87,11 @@ The rest the inputs correspond to the paths mentioned above.
 The results are: an astropy table that is saved as a csv file (to the specified path) and the best fit plots saved as pdf files (to the specified path)
 
 
+## The output looks like this
+
+![Alt text](/Users/user/Dropbox (Weizmann Institute)/superfit/superfit-sam/1991bg_1992-01-11_00-00-00_WHT-4_0.pdfraw=true "Title")
+
+
 ## To Run
 
 Once the parameters have been updated in the `params.py` file the user simply needs to run the script from the `run.py` file. 
