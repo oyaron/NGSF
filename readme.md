@@ -90,7 +90,7 @@ The results are: an astropy table that is saved as a csv file (to the specified 
 ## The output looks like this
 
 
-![Screenshot](1991bg_1992-01-11_00-00-00_WHT-4_0.pdf)
+![Output](1991bg_1992-01-11_00-00-00_WHT-4_0.png)
 
 
 ## To Run
