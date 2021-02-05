@@ -87,10 +87,13 @@ The rest the inputs correspond to the paths mentioned above.
 The results are: an astropy table that is saved as a csv file (to the specified path) and the best fit plots saved as pdf files (to the specified path)
 
 
-## The output looks like this
+## The output graphs look like this
 
 
 ![Output](1991bg_1992-01-11_00-00-00_WHT-4_0.png)
+
+
+The plot shows the input object in red, the SN and Host Galaxy combined templates in green, and in the legend 
 
 
 ## To Run
