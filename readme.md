@@ -14,12 +14,13 @@ SuPyFit (Python Superfit) is a software for the spectral classification of Super
 
 
 ## Install 
-The user must make sure to have a template bank to look at. 
+The user must make sure to have a template bank to look at. The new template bank is not in the GitHub because of space limitations, however it can be downloaded from my Dropbox as a zip file, please email me for the Dropbox link.
 
 
 # New template bank
-The new template bank is not in the github because of space limitations, however it can be downloaded from my Dropbox as a zip file. The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF.
 
+The new Superfit template bank contains major subclasses such as calcium rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated in different folders for more accurate classification. The default option for binning in 10A. 
+The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF. 
 
 
 The user has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
