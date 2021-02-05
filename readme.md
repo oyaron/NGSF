@@ -89,7 +89,7 @@ The results are: an astropy table that is saved as a csv file (to the specified 
 
 ## The output looks like this
 
-![Alt text](/Users/user/Dropbox (Weizmann Institute)/superfit/superfit-sam/1991bg_1992-01-11_00-00-00_WHT-4_0.pdfraw=true "Title")
+![Alt text](1991bg_1992-01-11_00-00-00_WHT-4_0.pdfraw=true "Title")
 
 
 ## To Run
