@@ -6,14 +6,11 @@ import numpy as np
 
 # Enter path of object of interest, can also be specified as input
 
-if not os.path.exists(save_bin_path):
-    os.mkdir(save_bin_path)
-if not os.path.exists(save_results_path):
-    os.mkdir(save_results_path)
-
 
 
 original=sys.argv[1]
+
+#original = 'ZTF18aahhzqn_20180421_P60_v1.ascii'
 idx=original.rfind('/')
 filename=original[idx+1:]
 

@@ -8,25 +8,26 @@ from astropy import table
 from astropy.io import ascii
 import sys 
 
-path='/your/path/to/superfit/'
+path= ''
 
 sys.path.insert(1,path)
-from superfit.auxiliary import *
+from auxiliary import *
+from auxiliary import *
 import os
-#from  superfit.SF_functions import *
+from SF_functions_original import *
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = path+"binned_files_2018/"
+save_bin_path     = path + " "
 
-save_results_path = path+"results/"
+#save_results_path = path + "something/v2/"
 
 
 # Path where library folder is located (the binnings folder)
 
 
-show = True   #show plots after optimization (if False, plots will still be saved as long as)
+show = False   #show plots after optimization (if False, plots will still be saved as long as)
 
 #path where original bank is located for metadata
 
@@ -46,57 +47,29 @@ z_num    = 11
 alam_num = 21
 
 
-redshift      =    np.linspace(z_start, z_end,z_num)
+#redshift      =    np.linspace(z_start, z_end,z_num)
+redshift = np.array([0])
+
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
 #extconstant   =    np.append(-np.flip(extconstant),np.append(0, extconstant))
 # Linear sampling of extinction coefficient:
 extconstant   =    np.linspace(-2,2,alam_num)
 
+#extconstant   =    np.array([-2,0])
+
 
 # What part of the library do you want to look at?  
 
 temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
 
-temp_sn_tr =['SLSN-II',
-             #'ILRT',
-             'Ia-rapid',
-             'Ia-02cx like',
-             '"super chandra"',
-             #'TDE H',
-             'IIb',
-             'Ia-pec',
-             #'TDE He',
-             #'computed',
-             'Ia 02es-like',
-             'Ia-norm',
-             'Ib',
-             'Ca-Ia',
-             'Ic-BL',
-             'II',
-             'SLSN-IIn',
-             'Ia 91bg-like',
-             'FBOT',
-             'Ia 99aa-like',
-             'Ibn',
-             'Ia 91T-like',
-             'II-flash',
-             'SLSN-I',
-             'Ic',
-             #'SN - Imposter',
-             'SLSN-IIb',
-             'Ca-Ib',
-             'Ia-CSM-(ambigious)',
-             'SLSN-Ib',
-             'Ia-CSM',
-             #'TDE H+He',
-             'Ic-pec',
-             'IIn',
-             'IIb-flash']
+temp_sn_tr = os.listdir(original_bank_path)
+#temp_sn_tr = ['/Ib/']
+
 
 # Select a wavelength range and resolution
 
-resolution = 10 #Angstrom
+resolution = 30 #Angstrom
 upper      = 9000
 lower      = 4000
 interval   = int((upper - lower)/resolution)
@@ -110,11 +83,11 @@ kind = 'SG'
 
 # To plot? (yes or no)
 
-plotting = 1
+plotting = 0
 
 # How many top results so plot? 
 
-n = 1
+n = 0
 #--------------------------------------------------------------------------------------------------
 #Template library
 #print(path + 'binnings/'+ str(resolution) +'A/gal/*')

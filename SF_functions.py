@@ -25,7 +25,6 @@ from numba import *
 from numba import types
 import  get_metadata
 import pandas as pd
-import time
 from params import * 
 
 def obj_name_int(original, lam, resolution):
@@ -41,6 +40,7 @@ def obj_name_int(original, lam, resolution):
 
     #Binned name 
     name_bin = name + '_' + str(resolution) + 'A'
+
 
 
 
@@ -155,10 +155,8 @@ def error_obj(kind, lam, obj_path):
 
 
 def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
-    
     sn=[]
     gal=[]
-    
     for i in range(0, len(templates_sn_trunc)): 
 
         one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
@@ -187,6 +185,91 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
     
     return sn, gal
+
+
+
+#
+#
+#
+#ef sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc):
+#
+#   spec_sn = np.array([])
+#   
+#   for i in range(0, len(templates_sn_trunc)): 
+#       
+#       one_sn            =  np.loadtxt(templates_sn_trunc[i])
+#
+#       redshifted_one_sn =  one_sn[:,0]*(z+1)
+#       extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * Alam(one_sn[:,0]))/(1+z)
+#      
+#       sn_interp         =  np.interp(lam, redshifted_one_sn,    extinct_excon)
+#       
+#       spec_sn.append(sn_interp)
+#       
+#       
+#   sns = [] 
+#   
+#   for j in range(0,len(spec_sn)):
+#   
+#       sn = spec_sn[j]
+#       
+#       
+#       for j in range(0,len(sn)-1): 
+#           
+#           if sn[j+1] == sn[j]:
+#               sn[j] = 'nan'
+#               
+#       sn[-1] = 'nan'
+#       
+#       sns.append(sn)
+#       
+#       sn_array  = np.array(sns)
+#       
+#       sn_array  = sn_array[np.newaxis,:,:]
+#       
+#       
+#   
+#   spec_gal = []
+#   
+#   
+#
+#   for i in range(0, len(templates_gal_trunc)): 
+#           
+#           one_gal           =  np.loadtxt(templates_gal_trunc[i])
+#           
+#           gal_interp        =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1])
+#           
+#           spec_gal.append(gal_interp)
+#
+#
+#       
+#   gals = [] 
+#   
+#   for j in range(0,len(spec_gal)):
+#   
+#       gal = spec_gal[j]
+#       
+#       
+#       for j in range(0,len(gal)-1): 
+#           
+#           if gal[j+1] == gal[j]:
+#               gal[j] = 'nan'
+#               
+#       gal[-1] = 'nan'
+#       
+#       gals.append(gal)
+#       
+#       gal_array  = np.array(gals)
+#       
+#       gal_array  = gal_array[:, np.newaxis,:]
+#       
+#       
+#       
+#   return sn_array, gal_array
+#
+#
+#
+#
 
 
 
@@ -235,6 +318,10 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
     sn, gal = sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc) 
 
+    # Here we can switch to using the np array
+    #sn, gal = sn_hg_np_array(z,extcon,lam,templates_sn_trunc,templates_gal_trunc)
+    
+    
 
 
   
@@ -251,7 +338,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
 
     #Add new axis in order to compute chi2
-
     sn_b = b[:, :, np.newaxis]
     gal_d = d[:, :, np.newaxis]
     
@@ -268,13 +354,13 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     times = len(lam) - times
     
     # True if overlap is valid
-
     overlap = times/len(lam) > 0.7
     
     
   
     # Obtain and reduce chi2
 
+    
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
 
     # avoid short overlaps
@@ -309,12 +395,11 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
 
 
-    # Here I'm going over the first however many results I'm interested in for every SN-HG combination
+
 
 
     redchi2 = [] 
     all_tables = [] 
-
 
     for i in range(10):
 
@@ -424,9 +509,9 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     nova   = np.loadtxt(sn_name)
 
 
-    nova[:,1] = nova[:,1]/np.nanmedian(nova[:,1])
-    host      = np.loadtxt(hg_name)
-    host[:,1] = host[:,1]/np.nanmedian(host[:,1])
+    nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
+    host   = np.loadtxt(hg_name)
+    host[:,1]=host[:,1]/np.nanmedian(host[:,1])
     
   
     
@@ -552,9 +637,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     '''
 
-  
+    import time
     print('Optimization started')
-
     start = time.time()
   
     save = kwargs['save']
@@ -567,14 +651,11 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
     global templates_sn_trunc_dict
     templates_sn_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
-    
     global templates_gal_trunc_dict
     templates_gal_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
-    
     global alam_dict
     alam_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:],)
     sn_spec_files=[str(x) for x in get_metadata.shorhand_dict.values()] 
-    
     global path_dict
     path_dict={}
 
@@ -623,7 +704,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     ascii.write(result, save + binned_name + '_result.csv', format='csv', fast_writer=False, overwrite=True)  
 
     end   = time.time()
-    
     print('Optimization finished within {0: .2f}s '.format(end-start))
 
 
@@ -642,6 +722,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
             row = df.iloc[i]
          
             plotting(row, lam , original, i, resolution, save=save, show=show)
+
 
     
     return result
