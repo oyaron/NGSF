@@ -21,47 +21,6 @@ from astropy.table import table
 
 
 
-'''
-This version is for Erez's bank
-
-
-def kill_header(file_name):
-
-
-    bad_lines = []
-
-    lines = [] 
-
-    file = open(file_name,'r')
-
-    lines = file.readlines()
-
-    lines = [i for i in lines if i]
-
-    lines = lines[10:]
-
-    lines = [s.replace('\t', ' ') for s in lines]
-
-
-    columns = [] 
-
-    for line in lines:
-        ii = line.split()
-        columns.append(ii)
-    
-    columns = np.array(columns)
-
-    lam_floats  = [float(i) for i in columns[:,0]]
-    flux_floats = [float(i) for i in columns[:,1]]
-
-    spectrum = np.array([lam_floats, flux_floats]).T
-
-
-    return spectrum
-
-'''
-# In[2]:
-
 
 def kill_header(file_name):
 
@@ -85,7 +44,7 @@ def kill_header(file_name):
     '''
     
     
-    bad_lines = []
+   
     
     lines = [] 
     
