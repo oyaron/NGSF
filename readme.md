@@ -90,7 +90,7 @@ The results are: an astropy table that is saved as a csv file (to the specified 
 ## The output graphs look like this
 
 
-![Output](1991bg_1992-01-11_00-00-00_WHT-4_0.png)
+![Output](eg.png)
 
 
 The plot shows the input object in red, the SN and Host Galaxy combined templates in green. The legend shows the SN type, HG type and percentage contribution from the SN template to the fit. On top of the plot the redshift value is indicated.
