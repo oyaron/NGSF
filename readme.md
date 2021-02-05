@@ -38,6 +38,7 @@ To achieve this task the files needed are:
 - `params.py`
 - `run.py`
 - `auxiliary.py`
+- `get_metadata.py`
 
 
 In the `params.py` file there are three paths that the user should change.
