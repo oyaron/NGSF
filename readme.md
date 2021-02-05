@@ -1,6 +1,6 @@
-# Welcome to Superfit in Python!
+# Welcome to Superfit in Python! :dizzy: :bomb: :boom:
 
-Superfit in python (pySF) is a software for the spectral classification of Supernovae of all major types :dizzy: :bomb: :boom:
+Superfit in python (pySF) is a software for the spectral classification of Supernovae of all major types 
 
 ## Requierments
 
