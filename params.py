@@ -14,14 +14,14 @@ sys.path.insert(1,path)
 from auxiliary import *
 from auxiliary import *
 import os
-from SF_functions_original import *
+from SF_functions import *
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = path + " "
+save_bin_path     = path + "something/"
 
-#save_results_path = path + "something/v2/"
+save_results_path = path + "something/"
 
 
 # Path where library folder is located (the binnings folder)
@@ -48,7 +48,7 @@ alam_num = 21
 
 
 #redshift      =    np.linspace(z_start, z_end,z_num)
-redshift = np.array([0])
+redshift = np.array([0.0317])
 
 # Log uniform sampling of extinction coefficient 
 #extconstant   =    2*10**np.linspace(-2,0,(alam_num-1)//2)
@@ -69,7 +69,7 @@ temp_sn_tr = os.listdir(original_bank_path)
 
 # Select a wavelength range and resolution
 
-resolution = 30 #Angstrom
+resolution = 10 #Angstrom
 upper      = 9000
 lower      = 4000
 interval   = int((upper - lower)/resolution)
@@ -83,11 +83,11 @@ kind = 'SG'
 
 # To plot? (yes or no)
 
-plotting = 0
+plotting = 1
 
 # How many top results so plot? 
 
-n = 0
+n = 5
 #--------------------------------------------------------------------------------------------------
 #Template library
 #print(path + 'binnings/'+ str(resolution) +'A/gal/*')
