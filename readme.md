@@ -37,6 +37,7 @@ To achieve this task the files needed are:
 - `SF_functions.py`
 - `params.py`
 - `run.py`
+- `auxiliary.py`
 
 
 In the `params.py` file there are three paths that the user should change.
