@@ -69,7 +69,7 @@ The inputs of the function are updated in the `params.py` file and are as follow
 - `templates_sn_trunc:`  truncated library of supernovae, aka: which SN types to look at when optimizing.
 - `templates_gal_trunc:` truncated library of host galaxies, aka: which HG types to look at when optimizing.
 - `lam:` lambda array over which to perform the fit. The default is from 3000 A to 10500 A. 
-- `resolution:` resolution at which to bin and perform the fit. The default is 20 A. 
+- `resolution:` resolution at which to bin and perform the fit. The default is 10 A. 
 - `n:` this corresponds to the number of plots to show and save as a result. 
 - `plot:` either 1 or 0, to either plot or not plot. 
 - `kind:` corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
