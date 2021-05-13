@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import numpy as np 
 from astropy import table
 from scipy import stats
@@ -14,7 +8,6 @@ from scipy.optimize import curve_fit
 import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
-#from superfit.SF_functions import *
 from SF_functions import *
 from PyAstronomy import pyasl
 from astropy.table import table
