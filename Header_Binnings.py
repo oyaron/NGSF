@@ -15,7 +15,7 @@ import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
 #from superfit.SF_functions import *
-from SF_functions_original import *
+from SF_functions import *
 from PyAstronomy import pyasl
 from astropy.table import table
 
