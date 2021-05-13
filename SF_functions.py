@@ -270,7 +270,8 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 #
 #
 #
-
+def MJD(JD):
+    return JD - 2400000.5
 
 
 ## Core function
@@ -413,7 +414,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
         host_galaxy_file = templates_gal_trunc[idx[0]]
     
 
-
+     
         bb = b[idx[0]][idx[1]]
 
 
@@ -426,12 +427,37 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
         sn_cont  = sn_cont/sum_cont
         gal_cont  = gal_cont/sum_cont
 
+
+
+        idex = supernova_file.rfind('/')
+        ii = supernova_file.find('/')
+
+
+        iii = supernova_file.rfind(':')
+        JD = supernova_file[iii+1:]
+        kind = supernova_file[ii+1:idex]
+       
+
+        for i in range(0, len(mjd_max['Name'])):
     
-        output = table.Table(np.array([name, host_galaxy_file, supernova_file, bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx]]), 
+            if str(mjd_max['Name'][i]) == str(kind):
+                band = mjd_max['band_peak'][i]
+                mjd = mjd_max['mjd_peak'][i]
+
+        if float(mjd) == -1:
+            
+            phase = np.nan 
+
+        else: 
+            phase = int( MJD(float(JD)) - float(mjd))
+      
+ 
+    
+        output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx] ,band, phase]), 
                     
-                names  =  ('OBJECT', 'GALAXY', 'SN', 'CONST_SN','CONST_GAL','Z','A_v','Frac(SN)','Frac(gal)','CHI2','CHI2/dof','CHI2/dof2','ln(prob)'), 
+                names  =  ('OBJECT', 'GALAXY', 'SN' ,'CONST_SN','CONST_GAL','Z','A_v','Frac(SN)','Frac(gal)','CHI2','CHI2/dof','CHI2/dof2','ln(prob)', 'Band','Phase'), 
                     
-                dtype  =  ('S200', 'S200', 'S200','f','f','f','f','f','f','f','f','f','f'))
+                dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'f','f','f','f','f','f','S200','f'))
        
             
         all_tables.append(output)
@@ -446,10 +472,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
 
     
-
-
-# ## Plotting
-
 
 def plotting(values, lam, original, number, resolution, **kwargs):
 
@@ -560,11 +582,11 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
     
-    plt.plot(lam, host_nova,'g', label =  sn_type +  ': ' +  short_name[j+1:] + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
+    plt.plot(lam, host_nova,'g', label =  sn_type +  ': ' +  short_name[j+1:short_name.rfind('+')] + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
     
     plt.plot(lam, host_nova,'g')
     
-    plt.suptitle('Best fit for z = ', fontsize=16, fontweight='bold')
+    plt.suptitle('Best fit for z = ' + str(z), fontsize=16, fontweight='bold')
     
     plt.legend(framealpha=1, frameon=True)
     
@@ -572,7 +594,7 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     
     plt.xlabel('Lamda',fontsize = 14)
     
-    plt.title(z, fontsize = 15, fontweight='bold')
+    #plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
     
 
 
