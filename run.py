@@ -1,6 +1,6 @@
 import sys 
-from superfit.SF_functions import *
-from superfit.Header_Binnings import *
+from SF_functions import *
+from Header_Binnings import *
 from params import *
 import numpy as np 
 
