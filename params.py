@@ -86,11 +86,11 @@ n = data['n']
 
 #Template library
 
-templates_gal = glob.glob(path + 'banki/binnings/'+ str(resolution) +'A/gal/*')
+templates_gal = glob.glob(path + 'bank/binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
 templates_gal = np.array(templates_gal)
 
-templates_sn = glob.glob(path + 'banki/binnings/' + str(resolution) + 'A/sne/**/**/*')
+templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
 templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_sn = np.array(templates_sn)
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
