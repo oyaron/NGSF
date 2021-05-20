@@ -56,7 +56,7 @@ def obj_name_int(original, lam, resolution):
     return name, int_obj, path, name_bin
 
 
-
+mjd_max = pd.load_csv('mjd_of_maximum_brightness.csv')
 
 
 # ## Extinction law
