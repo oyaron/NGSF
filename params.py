@@ -7,36 +7,30 @@ import scipy.optimize
 from astropy import table
 from astropy.io import ascii
 import sys 
-
-path= ''
-
-sys.path.insert(1,path)
+import pandas as pd
 from auxiliary import *
 from auxiliary import *
 import os
-from SF_functions import *
+import json
 
 
 
 
+with open("parameters.json", "r") as read_file:
+    data = json.load(read_file)
 
 
 # Choose saving paths for binned data and results 
 
-save_bin_path     = path + "something/"
-
-save_results_path = path + "something/"
-
-
-# Path where library folder is located (the binnings folder)
-
-
-show = False   #show plots after optimization (if False, plots will still be saved as long as)
+path = data['path']
+sys.path.insert(1,path)
+save_bin_path     = path 
+save_results_path = path 
 
 
 
 
-#Path where original bank is located for metadata
+# Path where original bank is located for metadata
 
 original_bank_path = path + 'bank/original_resolution/sne/'
 
@@ -44,14 +38,15 @@ original_bank_path = path + 'bank/original_resolution/sne/'
 
 # Select a range and number of steps for z
 
-z_start = 0.0  
-z_end   = 0.1
-z_num    = 21
-
+z_start  = data['z_start'] 
+z_end    = data['z_end']
+z_num    = data['z_num']
 
 
 
 redshift      =    np.linspace(z_start, z_end,z_num)
+
+
 
 # Number of steps for A_v (do not change)
 
@@ -60,72 +55,48 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 
 
-
-
-
-
-# Log uniform sampling of extinction coefficient 
-
-
 # What part of the library do you want to look at?  
 
-temp_gal_tr = ['/E','/S0','/Sa','/Sb','/SB1','/SB2','/SB3','/SB4','/SB5','/SB6','/Sc']
+temp_gal_tr = data['temp_gal_tr']
+temp_sn_tr  = data['temp_sn_tr']
 
-
-
-
-temp_sn_tr = os.listdir(original_bank_path)
 
 # Select a wavelength range and resolution
 
+resolution = data['resolution']
+upper      = data['upper']
+lower      = data['lower']
 
-
-
-resolution = 10 #Angstrom
-upper      = 9000
-lower      = 4000
 interval   = int((upper - lower)/resolution)
-
 lam        =     np.linspace(lower, upper, interval)
 
 
 
+# Kind of error spectrum ('SG', 'linear' or 'included')
+kind = data['kind']
+
+# To show plot? 
+show = data['show']   
 
 
-
-# Select kind of error spectrum ('SG', 'linear' or 'included')
-
-kind = 'SG'
-
-# To plot? (yes or no)
-
-plotting = 1
-
-# How many top results so plot? 
-
-n = 5
-
-
-
-
+# How many top results to plot? 
+n = data['n']
 #--------------------------------------------------------------------------------------------------
+
+
 #Template library
 
-
-
-
-templates_gal = glob.glob(path + 'bank/binnings/'+ str(resolution) +'A/gal/*')
+templates_gal = glob.glob(path + 'banki/binnings/'+ str(resolution) +'A/gal/*')
 templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
 templates_gal = np.array(templates_gal)
 
-templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
+templates_sn = glob.glob(path + 'banki/binnings/' + str(resolution) + 'A/sne/**/**/*')
 templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_sn = np.array(templates_sn)
-
-
-
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
 
+
+mjd_max = pd.read_csv('mjd_of_maximum_brightness.csv')
 
 
