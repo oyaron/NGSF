@@ -18,12 +18,12 @@ import scipy.signal as mf
 from matplotlib.pyplot import show, plot
 import sys 
 import itertools
-#from superfit.error_routines import *
 from error_routines import *
 from numba import *
 #from numba.typed import Dict 
 from numba import types
 import  get_metadata
+import jason
 import pandas as pd
 from params import * 
 
