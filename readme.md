@@ -82,6 +82,8 @@ The user must only change the parameters of the fit from the parameters.json fil
 
 Once the parameters have been updated in the `parameters.json` file the user simply needs to run the script from the `run.py` file. 
 
+It is important to note that the file of the object to be analyzed should be within the superfit folder.
+
 
 
 
