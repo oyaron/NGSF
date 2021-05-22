@@ -15,6 +15,8 @@ Superfit in python (pySF) is a software for the spectral classification of Super
 
 # To run one object  
 The user must make sure to have a template bank to look at. The new template bank is not in the GitHub because of space limitations, however it can be downloaded from my Dropbox as a zip file, please email me for the Dropbox link.
+
+
 The user must download the full superfit folder and place the bank inside of it, also any spectra to be analized. The user only changes the parameters from the jason file already withing the folder, the following is an explanation of the parameters. 
 
 
