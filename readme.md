@@ -23,7 +23,6 @@ The user must download the full superfit folder and place the bank inside of it,
 The user must only change the parameters of the fit from the parameters.json file, the file looks like this 
 
 
-{   
     "original" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
@@ -54,9 +53,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 
     "n" : 3 
 
-        
-    
-}
+     
 
 `"original"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
 
