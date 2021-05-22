@@ -13,11 +13,83 @@ Superfit in python (pySF) is a software for the spectral classification of Super
 
 
 
-## Install 
+# To run one object  
 The user must make sure to have a template bank to look at. The new template bank is not in the GitHub because of space limitations, however it can be downloaded from my Dropbox as a zip file, please email me for the Dropbox link.
+The user must download the full superfit folder and place the bank inside of it, also any spectra to be analized. The user only changes the parameters from the jason file already withing the folder, the following is an explanation of the parameters. 
 
 
-# New template bank
+## The parameters of the fit 
+
+The user must only change the parameters of the fit from the parameters.json file, the file looks like this 
+
+
+{   
+    "original" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+
+
+    "z_start": 0.017189,
+    "z_end": 0.1,
+    "z_num": 1,
+    
+    
+   
+    "temp_gal_tr" : ["/E","/S0","/Sa","/Sb","/SB1","/SB2","/SB3","/SB4","/SB5","/SB6","/Sc"],
+    "temp_sn_tr"  : ["IIb-flash", "computed", "Ia 02es-like", "Ia-02cx like", "TDE He", "Ca-Ia", 
+                     "Ia-CSM-(ambigious)", "II", "super_chandra", "SLSN-II", "IIn", "FBOT", "Ibn", 
+                     "SLSN-IIn", "Ia 91T-like", "IIb", "TDE H", "SN - Imposter", "II-flash", "ILRT", 
+                     "Ia 99aa-like", "Ic", "SLSN-I", "Ia-pec", "Ib", "Ia-CSM", "Ia-norm", "SLSN-Ib", 
+                     "TDE H+He", "Ia 91bg-like", "Ca-Ib", "Ia-rapid", "Ic-BL", "Ic-pec", "SLSN-IIb"],
+    
+    
+    
+    "resolution": 10,
+    "upper": 10500,
+    "lower": 3500,
+    
+    "kind" : "SG",
+
+    "path" : "",
+
+    "show" : 1,
+
+    "n" : 3 
+
+        
+    
+}
+
+`"original"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
+
+`"z_start"`,`"z_end"`,`"z_num"`: redshift values over which to look for the fit, begining, end and number of intervals in between. In the case of a specific redshift value the user should just make "z_num" into 1 and "z_start" into the desired z value.
+
+`"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
+
+
+`"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å. 
+
+`"lower"`,`"upper"` : upper and lower bounds for lambda (wavelenght) over which to perform the fit, the default one is 3000-10500
+
+`"kind"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `SG` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
+
+`"path"`: path in which to save the performed fits, the default one is the superfit folder but the user can change this.
+ 
+ `"show"` : to show the plotted fit or no, the default being 1, to show. 
+ 
+  `"n"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
+
+
+
+## To Run
+
+Once the parameters have been updated in the `parameters.json` file the user simply needs to run the script from the `run.py` file. 
+
+
+
+
+# Further details about the code
+
+
+## New template bank
 
 The improved Superfit template bank contains major subclasses such as: calcium rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated in different folders for more accurate classification. The default option for binning in 10A. 
 The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF, and please be mindful that pySF is only as good as the template bank it uses.
@@ -25,29 +97,6 @@ The user must make sure to have this template bank or some alternative template 
 
 The user has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
 
-
-
-## To run the code for an individual object
-
-To achieve this task the files needed are: 
-
-- `Template bank of chosen resolution`
-- `Header_binnings.py`
-- `error_routines.py`
-- `SF_functions.py`
-- `params.py`
-- `run.py`
-- `auxiliary.py`
-- `get_metadata.py`
-
-
-In the `params.py` file there are three paths that the user should change.
-
-- The `save_bin_path` to which the binned files will be saved.
-- The `save_results_path` to which the results (a csv file and pdf images of the plots) will be saved.
-- The `path` which is the location of the "binnings" folder. 
-
-In the `run.py` file the user should change the "original" path to be that of the object of interest.
 
 
 ## Main SuPyFit Function 
@@ -82,7 +131,7 @@ interested in seeing (default is full library).
 
 The rest the inputs correspond to the paths mentioned above. 
     
-## Results
+# Results
 
 The results are: an astropy table that is saved as a csv file (to the specified path) and the best fit plots saved as pdf files (to the specified path)
 
@@ -95,10 +144,6 @@ The results are: an astropy table that is saved as a csv file (to the specified 
 
 The plot shows the input object in red, the SN and Host Galaxy combined templates in green. The legend shows the SN type, HG type and percentage contribution from the SN template to the fit. On top of the plot the redshift value is indicated.
 
-
-## To Run
-
-Once the parameters have been updated in the `params.py` file the user simply needs to run the script from the `run.py` file. 
 
 
 ## To run for multiple objects 
