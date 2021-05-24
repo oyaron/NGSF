@@ -3,7 +3,7 @@ from SF_functions import *
 from Header_Binnings import *
 from params import *
 import numpy as np 
-import jason 
+import json 
 
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
