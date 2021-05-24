@@ -23,7 +23,7 @@ from numba import *
 #from numba.typed import Dict 
 from numba import types
 import  get_metadata
-import jason
+import json
 import pandas as pd
 from params import * 
 
