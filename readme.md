@@ -108,12 +108,12 @@ In the `run.py` file we find the main function which looks like this:
 ```ruby
 
 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=2, plot=1, kind=kind, original=save_bin, save=save_results_path, show=show)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show)
 
 ```
     
     
-The inputs of the function are updated in the `params.py` file and are as follow: 
+The inputs of the function are updated in the `run.py` file from the json file, and are as follow: 
 
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize. 
 - `templates_sn_trunc:`  truncated library of supernovae, aka: which SN types to look at when optimizing.
