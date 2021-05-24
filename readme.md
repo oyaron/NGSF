@@ -116,13 +116,14 @@ all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc,
 The inputs of the function are updated in the `run.py` file from the json file, and are as follow: 
 
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize. 
-- `templates_sn_trunc:`  truncated library of supernovae, aka: which SN types to look at when optimizing.
-- `templates_gal_trunc:` truncated library of host galaxies, aka: which HG types to look at when optimizing.
-- `lam:` lambda array over which to perform the fit. The default is from 3000 A to 10500 A. 
-- `resolution:` resolution at which to bin and perform the fit. The default is 10 A. 
-- `n:` this corresponds to the number of plots to show and save as a result. 
-- `plot:` either 1 or 0, to either plot or not plot. 
-- `kind:` corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
+- `extconstant`: Array of values over which to optimize for the extinction constant. The user does not change this. 
+- `templates_sn_trunc:`  Truncated library of supernovae, aka: which SN types to look at when optimizing.
+- `templates_gal_trunc:` Truncated library of host galaxies, aka: which HG types to look at when optimizing.
+- `lam:` Lambda array over which to perform the fit. The default is from 3000 A to 10500 A. 
+- `resolution:` Resolution at which to bin and perform the fit. The default is 10 A. 
+- `n:` Corresponds to the number of plots to show and save as a result. 
+- `plot:` Either 1 or 0, to either plot or not plot. 
+- `kind:` Corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
 by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `SG`
 
 
@@ -134,7 +135,7 @@ The rest the inputs correspond to the paths mentioned above.
     
 # Results
 
-The results are: an astropy table that is saved as a csv file (to the specified path) and the best fit plots saved as pdf files (to the specified path)
+The results are: an astropy table that is saved as a csv file, and the best fit plots saved as pdf files (they both save to the superfit folder or to the specified path)
 
 
 ## The output graphs look like this
