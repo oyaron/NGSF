@@ -17,14 +17,23 @@ import numpy
 numpy.set_printoptions(threshold=sys.maxsize)
 #from matplotlib.font_manager import FontProperties
 import time
+from scipy.ndimage import gaussian_filter1d
 
+with open("parameters.json", "r") as read_file:
+    data = json.load(read_file)
+
+
+original = data['original']
+spec = np.loadtxt(original)
+obj_med = np.median(spec[:,0])
+obj_res = 100 #SEDM resolution 
 
 
 
 
 # Templates from the original template bank
 
-templates = glob.glob('/Users/user/Dropbox (Weizmann Institute)/new_template_bank/bank/original_resolution/sne/**/**/*')
+templates = glob.glob('/home/sam/Dropbox (Weizmann Institute)/new_template_bank/bank/original_resolution/sne/**/**/*')
 templates = [x for x in templates if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates = np.array(templates)
 
@@ -120,8 +129,6 @@ folders = get_sn_folder_names(templates)
 folder_names = folders
 
 
-#folder_names
-
 
 
 
@@ -152,8 +159,8 @@ def remove_telluric(spectrum):
 
 # Path where the binned data will go and binning resolution
 
-path_of_binned_data   = '/Users/user/Dropbox (Weizmann Institute)/superfit/superfit-sam/bank/'
-resolution            = 20
+path_of_binned_data   = '/home/sam/Dropbox (Weizmann Institute)/superfit/superfit-sam/banki/'
+resolution            = 30
 
 
 
@@ -171,7 +178,7 @@ Path(path_of_binned_data + 'binnings/' + str(resolution) + 'A/gal/').mkdir(paren
 
 # Binning the sne templates
 
-for i in templates: 
+for i in templates[1:15]: 
 
     
     idx = i.rfind('/')
@@ -179,35 +186,67 @@ for i in templates:
     z = df['Redshift'][0]
     
     
-    print(i)
     nova = kill_header(i)
 
     #nova = remove_telluric(nova)
-   
+    
    
     z_lam      =  nova[:,0]/(z+1)
     z_flux     =  nova[:,1]*(1+z)
 
+
     
-    result = np.array([z_lam,z_flux]).T
+    width  = obj_med/obj_res
+    sigma  = width/(2*np.sqrt(2*np.log(2)))
+    
+        
+    filtered = gaussian_filter1d(z_flux,sigma)
+        
+    result = np.array([z_lam,filtered]).T
+
     result = bin_spectrum_bank(result,resolution)
 
     index = i[:i[:i.rfind('/')].rfind('/')].rfind('/')
     
     name = i[index:]
     
+
+  
+    plt.figure(figsize=(7*np.sqrt(2), 7))
+
+    plt.plot(z_lam, z_flux/np.median(z_flux),'g', label = 'original')
+
+    plt.plot(z_lam, filtered/np.median(z_flux),'r', label = 'filtered ')
+    
+
+
+    plt.plot(result[0][:], result[1][:], 'b', label = 'filtered + binned')
+    
+    plt.legend(framealpha=1, frameon=True)
+    
+    plt.show()
+   
+
+
+
+
+
+
+
+
+
     print(path_of_binned_data +'binnings/'  + str(resolution) + 'A/sne'+ name)
     np.savetxt(path_of_binned_data +'binnings/' + str(resolution) + 'A/sne' + name ,result)
 
-   
-    
+
+
+
+
 # Same thing for host galaxies
 
-templates_hg = glob.glob('/home/sam/Dropbox (Weizmann Institute)/superfit/Modified_data/gal/*')
+templates_hg = glob.glob('/home/sam/Dropbox (Weizmann Institute)/superfit/old_bank/Modified_data/gal/*')
 templates_hg = [x for x in templates_hg if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_hg = np.array(templates_hg)
-
-
 
 
 
@@ -216,14 +255,43 @@ for i in templates_hg:
    
     
     result = np.loadtxt(i)
+    lam  = result[:,0]
+    flux = result[:,1]
     
+    width  = obj_med/obj_res
+    sigma  = width/(2*np.sqrt(2*np.log(2)))
     
+        
+    filtered = gaussian_filter1d(flux,sigma)
+        
+    result = np.array([lam,filtered]).T
+
+
+
+
     result = bin_spectrum_bank(result,resolution)
    
     index = i.rfind('/')
     
     name = i[index:]
+
+
+    '''
+
+    plt.figure(figsize=(7*np.sqrt(2), 7))
     
+    plt.plot(lam, filtered/np.median(flux),'r', label = 'filtered ')
+    
+    plt.plot(lam, flux/np.median(flux),'g', label = 'no filter')
+
+    plt.plot(result[0][:], result[1][:], 'b', label = 'binned')
+
+    plt.show()
+    
+
+    '''
+
+    print(path_of_binned_data +'binnings/' + str(resolution) + 'A/gal'+ name)
     np.savetxt(path_of_binned_data +'binnings/' + str(resolution) + 'A/gal'+ name ,result) 
    
-    
+   
