@@ -56,7 +56,6 @@ def obj_name_int(original, lam, resolution):
     return name, int_obj, path, name_bin
 
 
-mjd_max = pd.read_csv('mjd_of_maximum_brightness.csv')
 
 
 # ## Extinction law
@@ -402,7 +401,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(10):
+    for i in range(20):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]
@@ -443,26 +442,30 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
             if str(mjd_max['Name'][i]) == str(kind):
                 band = mjd_max['band_peak'][i]
                 mjd = mjd_max['mjd_peak'][i]
+                
 
-        if float(mjd) == -1:
+
+                if float(mjd) == -1:
             
-            phase = np.nan 
+                    phase = np.nan 
 
-        else: 
-            phase = int( MJD(float(JD)) - float(mjd))
+                else: 
+                
+                    phase = int( MJD(float(JD)) - float(mjd))
       
  
     
-        output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx] ,band, phase]), 
+                output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx], lnprob[idx] ,band, phase]), 
                     
                 names  =  ('OBJECT', 'GALAXY', 'SN' ,'CONST_SN','CONST_GAL','Z','A_v','Frac(SN)','Frac(gal)','CHI2','CHI2/dof','CHI2/dof2','ln(prob)', 'Band','Phase'), 
                     
                 dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'f','f','f','f','f','f','S200','f'))
        
             
-        all_tables.append(output)
+                all_tables.append(output)
+                
        
-        outputs = table.vstack(all_tables)
+                outputs = table.vstack(all_tables)
 
 
 
@@ -576,13 +579,13 @@ def plotting(values, lam, original, number, resolution, **kwargs):
 
 
 
-
+    #short_name[j+1:short_name.rfind('+')]
 
     plt.figure(figsize=(7*np.sqrt(2), 7))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
     
-    plt.plot(lam, host_nova,'g', label =  sn_type +  ': ' +  short_name[j+1:short_name.rfind('+')] + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
+    plt.plot(lam, host_nova,'g', label =  sn_type +  ': ' +  str(short_name[j+1:short_name.rfind('+')]) + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
     
     plt.plot(lam, host_nova,'g')
     

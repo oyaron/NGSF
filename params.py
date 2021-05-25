@@ -15,7 +15,6 @@ import json
 
 
 
-
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
 
