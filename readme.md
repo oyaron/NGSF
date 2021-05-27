@@ -25,12 +25,13 @@ The user must download the full superfit folder and place the bank inside of it,
 The user must only change the parameters of the fit from the parameters.json file, the file looks like this 
 
 
-    "original" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+
+"object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
-    "z_start": 0.017189,
+    "z_start": 0.02,
     "z_end": 0.1,
-    "z_num": 1,
+    "z_int": 2,
     
     
    
@@ -43,38 +44,39 @@ The user must only change the parameters of the fit from the parameters.json fil
     
     
     
+          
     "resolution": 10,
-    "upper": 10500,
-    "lower": 3500,
+
+    "error_spectrum" : "SG",
+
+    "saving_results_path" : "",
+
     
-    "kind" : "SG",
+    
+    "show_plot" : 1,
+    "how_many_plots" : 3 
 
-    "path" : "",
 
-    "show" : 1,
 
-    "n" : 3 
 
-     
+`"object_to_fit"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
 
-`"original"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
-
-`"z_start"`,`"z_end"`,`"z_num"`: redshift values over which to look for the fit, begining, end and number of intervals in between. In the case of a specific redshift value the user should just make "z_num" into 1 and "z_start" into the desired z value.
+`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make "z_num" into 1 and "z_start" into the desired z value.
 
 `"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
 
 
 `"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å. 
 
-`"lower"`,`"upper"` : upper and lower bounds for lambda (wavelenght) over which to perform the fit, the default one is 3000-10500
 
-`"kind"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `SG` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
 
-`"path"`: path in which to save the performed fits, the default one is the superfit folder but the user can change this.
+`"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `SG` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
+
+`"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder but the user can change this.
  
- `"show"` : to show the plotted fit or no, the default being 1, to show. 
+ `"show_plot"` : to show the plotted fit or no, the default being 1, to show. 
  
-  `"n"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
+  `"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
 
 
 
