@@ -31,7 +31,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 
     "z_start": 0.02,
     "z_end": 0.1,
-    "z_int": 2,
+    "z_int": 0,
     
     
    
@@ -61,7 +61,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 
 `"object_to_fit"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
 
-`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make "z_num" into 1 and "z_start" into the desired z value.
+`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make "z_int" equal to 0 and "z_start" into the desired z value.
 
 `"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
 
