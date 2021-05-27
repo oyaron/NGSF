@@ -22,11 +22,11 @@ The user must download the full superfit folder and place the bank inside of it,
 
 ## The parameters of the fit 
 
-The user must only change the parameters of the fit from the parameters.json file, the file looks like this 
+The user must only change the parameters of the fit from the parameters.json file, the file looks like this (the template for this example is included in the git)
 
 
 
-"object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+    "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
     "z_start": 0.02,
