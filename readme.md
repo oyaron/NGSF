@@ -72,7 +72,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 
 `"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `SG` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
 
-`"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder but the user can change this.
+`"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder.
  
  `"show_plot"` : to show the plotted fit or no, the default being 1, to show. 
  
