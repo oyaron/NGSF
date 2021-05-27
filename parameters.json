@@ -1,10 +1,10 @@
 {   
-    "original" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+    "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
-    "z_start": 0.017189,
+    "z_start": 0.02,
     "z_end": 0.1,
-    "z_num": 1,
+    "z_int": 2,
     
     
    
@@ -17,17 +17,17 @@
     
     
     
+          
     "resolution": 10,
-    "upper": 9000,
-    "lower": 3500,
+
+    "error_spectrum" : "SG",
+
+    "saving_results_path" : "",
+
     
-    "kind" : "SG",
-
-    "path" : "",
-
-    "show" : 1,
-
-    "n" : 3 
+    
+    "show_plot" : 1,
+    "how_many_plots" : 3 
 
         
     

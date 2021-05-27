@@ -9,7 +9,7 @@ with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
 
 
-original = data['original']
+original = data['object_to_fit']
 spectrum = np.loadtxt(original)
 
 

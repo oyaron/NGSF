@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 import time
 from scipy.interpolate import interp1d
 from astropy.io import ascii
-from SF_functions import *
+#from SF_functions import *
 from PyAstronomy import pyasl
 from astropy.table import table
 
