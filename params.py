@@ -71,8 +71,8 @@ temp_sn_tr  = data['temp_sn_tr']
 
 
 # Select a wavelength range and resolution
-lower = kill_header(original)[1][0]  
-upper = kill_header(original)[-1][0]
+lower = kill_header(original)[1][0] - 300
+upper = kill_header(original)[-1][0] + 300
 resolution = data['resolution']
 #upper      = data['upper']
 #lower      = data['lower']
