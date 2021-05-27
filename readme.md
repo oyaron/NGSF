@@ -143,7 +143,7 @@ The results are: an astropy table that is saved as a csv file, and the best fit 
 ## The output graphs look like this
 
 
-![Output](ZTF18abokyfk_20180925_P60_v1_10_0.pdf)
+![Output](ZTF18abokyfk_20180925_P60_v1_10_0.png)
 
 
 The plot shows the input object in red, the SN and Host Galaxy combined templates in green. The legend shows the SN type, HG type and percentage contribution from the SN template to the fit. On top of the plot the redshift value is indicated.
