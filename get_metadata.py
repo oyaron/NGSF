@@ -65,7 +65,7 @@ for folder in folders:
             inst_dic[sub]=np.array(wise['Instrument'][:])
             lis=[]
             for i,spec_file in enumerate(spec_file_dic[sub]):
-                shorhand_dict[spec_file]=sn_type + '/' + sub+'/'+wise['Instrument'][i]+'+'+str(wise['Obs-date'][i])
+                shorhand_dict[spec_file]=sn_type + '/' + sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i])
                 short_path_dict[shorhand_dict[spec_file]]=spec_file
 
         else: 
