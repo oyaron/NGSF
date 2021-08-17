@@ -6,7 +6,7 @@ with open("readme.md", "r") as fh:
 setuptools.setup(
     name="superfit", # Replace with your own username
     version="0.0.1",
-    author="Samantha Goldwasser, Ido Irani",
+    author="Samantha Goldwasser",
     author_email="Samantha.goldwasser@weizmann.ac.il",
     description="Classify supernova spectra according to Howell et al. 2004",
     long_description=long_description,
