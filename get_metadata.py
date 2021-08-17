@@ -9,6 +9,28 @@ from astropy.io import ascii
 import sys 
 import os
 import params 
+import pandas as pd
+import csv
+from params import * 
+
+def JD(mjd): 
+    return np.float(mjd) + 2400000.5
+
+
+mydict = {}
+
+with open('mjd_of_maximum_brightness.csv', mode='r') as inp:
+    reader = csv.reader(inp)
+    band_dictionary = {rows[0]:rows[2] for rows in reader}
+
+
+mydict = {}
+
+with open('mjd_of_maximum_brightness.csv', mode='r') as inp:
+    reader = csv.reader(inp)
+    MJD_dictionary = {rows[0]:rows[1] for rows in reader}
+
+
 
 def list_folders(path):
     if path[-1] != '/':
@@ -23,17 +45,13 @@ def list_folders(path):
     return folders
 
 
-original_bank_path=params.original_bank_path
 
-dirs=os.listdir(original_bank_path)
-
-
-
-folders=list_folders(original_bank_path)
+folders = ['bank/original_resolution/sne/'+ x for x in temp_sn_tr]
 have_wiserep=[]
 no_wiserep=[]
 z_dic={}
 path_dic={}
+dictionary_all_trunc_objects ={}
 JD_dic={}
 coord_dic={}
 spec_file_dic={}
@@ -59,15 +77,55 @@ for folder in folders:
             path_dic[sub]=subpath
             z_dic[sub]=wise['Redshift'][0]
             coord_dic[sub]=np.array(list(wise['Obj. RA','Obj. DEC'][0]))
+            
+            
+            
             JD_dic[sub]=np.array(wise['JD'][:])
             obs_date_dict[sub]=np.array(wise['Obs-date'][:])
             spec_file_dic[sub]=np.array(wise['Ascii file'][:])
             inst_dic[sub]=np.array(wise['Instrument'][:])
             lis=[]
             for i,spec_file in enumerate(spec_file_dic[sub]):
-                shorhand_dict[spec_file]=sn_type + '/' + sub+'/'+wise['Instrument'][i]+'+'+str(wise['JD'][i])
-                short_path_dict[shorhand_dict[spec_file]]=spec_file
 
+                
+             
+                if float(MJD_dictionary[sub]) == -1: 
+                    
+                    phase = 'u'
+                    
+                else: 
+                    
+                    phase = float(wise['JD'][i]) - JD(float(MJD_dictionary[sub])) 
+                
+                    phase = round(phase,2)
+                 
+                
+                if epoch_high == epoch_low:
+                    
+                    band = band_dictionary[sub]
+
+                    shorhand_dict[spec_file]=sn_type + '/' + sub + '/' + wise['Instrument'][i]+' phase-band : '+ str(phase) + str(band)
+
+                    short_path_dict[shorhand_dict[spec_file]]=spec_file
+
+                    dictionary_all_trunc_objects[spec_file] = 'bank/binnings/'+str(resolution)+'A/sne/' + sn_type +'/'+ sub + '/' + spec_file
+            
+            
+            
+                else:
+                    
+                    if phase!='u' and phase >= epoch_low and phase <= epoch_high:
+                    
+                        band = band_dictionary[sub]
+
+                        shorhand_dict[spec_file]=sn_type + '/' + sub + '/' + wise['Instrument'][i]+' phase-band : '+ str(phase) + str(band)
+
+                        short_path_dict[shorhand_dict[spec_file]]=spec_file
+
+                        dictionary_all_trunc_objects[spec_file] = 'bank/binnings/'+str(resolution)+'A/sne/' + sn_type +'/'+ sub + '/' + spec_file
+                        
+                        
+                     
         else: 
             no_wiserep.append(subpath)
 
