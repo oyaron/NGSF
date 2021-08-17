@@ -6,7 +6,9 @@ from params_multi_object import *
 
 
 
-
+'''
+This is outdated and will not work
+'''
 
 
 
