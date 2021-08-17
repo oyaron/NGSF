@@ -4,6 +4,10 @@ from Header_Binnings import *
 from params import *
 import numpy as np 
 import json 
+import warnings
+warnings.filterwarnings('ignore')
+
+
 
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
@@ -26,7 +30,7 @@ try:
     kill_header_and_bin(original,resolution, save_bin = save_bin)
     #Core superfit function on the binned file, default to plot and save n fits
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, chose_overlap=chose_overlap)
 except:
     resolution=30
     print('Failed. Retrying with resolution = {0} Ang'.format(resolution))
@@ -40,4 +44,4 @@ except:
     kill_header_and_bin(original,resolution, save_bin = save_bin)
     #Core superfit function on the binned file, default to plot and save n fits
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, chose_overlap=chose_overlap)

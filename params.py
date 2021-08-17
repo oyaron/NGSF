@@ -26,9 +26,8 @@ sys.path.insert(1,path)
 save_bin_path     = path 
 save_results_path = path 
 
-original = data['object_to_fit']
+object_to_fit = data['object_to_fit']
 
-#original = kill_header(data['original'])
 # Path where original bank is located for metadata
 
 original_bank_path = path + 'bank/original_resolution/sne/'
@@ -54,9 +53,16 @@ else:
 redshift      =    np.linspace(z_start, z_end,z_num)
 
 
+# To truncate epochs
+epoch_high = data['epoch_high']
+epoch_low = data['epoch_low']
+
+
+# Chose minimum overlap
+chose_overlap =  data['chose_overlap']
+
 
 # Number of steps for A_v (do not change)
-
 alam_num = 21
 extconstant   =    np.linspace(-2,2,alam_num)
 
@@ -68,18 +74,24 @@ temp_gal_tr = data['temp_gal_tr']
 temp_sn_tr  = data['temp_sn_tr']
 
 
-
-
-# Select a wavelength range and resolution
-lower = kill_header(original)[1][0] - 300
-upper = kill_header(original)[-1][0] + 300
 resolution = data['resolution']
-#upper      = data['upper']
-#lower      = data['lower']
+upper     = data['upper_lam']
+lower     = data['lower_lam']
 
-interval   = int((upper - lower)/resolution)
-lam        =     np.linspace(lower, upper, interval)
 
+if upper == lower: 
+
+    lower = kill_header(object_to_fit)[1][0] - 300
+    upper = kill_header(object_to_fit)[-1][0] + 300
+
+    interval   = int((upper - lower)/resolution)
+    lam        =     np.linspace(lower, upper, interval)
+
+else:
+    upper     = data['upper_lam']
+    lower     = data['lower_lam']
+    interval   = int((upper - lower)/resolution)
+    lam        =     np.linspace(lower, upper, interval)
 
 
 # Kind of error spectrum ('SG', 'linear' or 'included')
@@ -102,10 +114,10 @@ templates_gal = np.array(templates_gal)
 templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
 templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
 templates_sn = np.array(templates_sn)
+
+
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
 
-
-mjd_max = pd.read_csv('mjd_of_maximum_brightness.csv')
 
 

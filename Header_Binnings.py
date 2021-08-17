@@ -146,7 +146,7 @@ def bin_spectrum(spectrum, resolution):
         return bin_spectra
 
 
-def kill_header_and_bin(original, resolution =20, **kwargs):
+def kill_header_and_bin(original, resolution =10, **kwargs):
 
 
     """
