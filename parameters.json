@@ -1,8 +1,8 @@
 {   
-    "object_to_fit" : "SN2021jmm_2020-05-13_00-00-00_MMT_BINOSPEC_TNS.txt",
+    "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
-    "z_start": 0,
+    "z_start": 0.02,
     "z_end": 0,
     "z_int": 0,
     
