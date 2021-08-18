@@ -25,11 +25,14 @@ from params import *
 
 def obj_name_int(original, lam, resolution):
    
+
+
     index1 = original.rfind("/")
     index2 = original.rfind(".")
 
   
     name = original[index1+1:index2]
+
   
     path = original[0:index1+1]
 
@@ -68,15 +71,7 @@ def Alam(lamin):
     return redreturn
 
 
-# ## Truncate templates
-
-
-
-
-# ## Error choice
-
-
-def error_obj(kind, lam, obj_path):
+def error_obj(kind, lam,object_to_fit):
     
     
     
@@ -100,7 +95,8 @@ def error_obj(kind, lam, obj_path):
     
     
 
-    object_spec = np.loadtxt(obj_path)
+    object_spec = np.loadtxt(object_to_fit)
+
     object_spec[:,1] = object_spec[:,1]/np.nanmedian(object_spec[:,1])
     
     if kind == 'included' and len(object_spec[1,:]) > 2:
@@ -129,7 +125,6 @@ def error_obj(kind, lam, obj_path):
         object_err_interp =  interpolate.interp1d(error[:,0],  error[:,1],  bounds_error=False, fill_value='nan')
                        
         sigma             =  object_err_interp(lam)
-    
     
     return sigma
 
@@ -201,7 +196,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     kind      = kwargs['kind']
     original  = kwargs['original']
-    chose_overlap=kwargs['chose_overlap']
+    minimum_overlap=kwargs['minimum_overlap']
 
 
     int_obj = obj_name_int(original, lam, resolution)[1]
@@ -235,7 +230,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     times = len(lam) - times
     
     # True if overlap is valid
-    overlap = times/len(lam) > chose_overlap
+    overlap = times/len(lam) > minimum_overlap
     
     # Obtain and reduce chi2    
     chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
@@ -253,16 +248,13 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
     
     reduchi2_1d = reduchi2.ravel()
-    #lnprob_1d = lnprob.ravel()
     
     index = np.argsort(reduchi2_1d)
-    #index = np.argsort(-lnprob_1d)
-    
 
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(50):
+    for i in range(30):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]
@@ -294,10 +286,8 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
         ii = supernova_file.rfind(':')
         the_phase = supernova_file[ii+1:-1]
-        #print(the_phase)
-
         the_band = supernova_file[-1]
-        #print(the_band)
+       
         
      
         output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx] ,the_band, the_phase]), 
@@ -359,7 +349,6 @@ def plotting(values, lam, original, number, resolution, **kwargs):
 
     int_obj = obj_name_int(original, lam, resolution)[1]
     nova   = np.loadtxt(sn_name)
-    #print(sn_name)
     
     hg_name = 'bank/binnings/'+str(resolution)+'A/gal/'+hg_name
     nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
@@ -381,20 +370,16 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
+    sn_type = short_name[:short_name.find('/')]
 
-    #Plot 
+    hg_name = hg_name[hg_name.rfind('/')+1:]
 
-    j       = short_name.find('/')
-    sn_type = short_name[:j]
-
-
-    i       = hg_name.rfind('/')
-    hg_name = hg_name[i+1:]
-
-   
-    subclass = short_name[j+1:short_name.rfind('/')]
+    subclass = short_name[short_name.find('/')+1:short_name.rfind('/')]
+    
     phase = str(short_name[short_name.rfind(':')+1:-1])
   
+
+
     plt.figure(figsize=(8*np.sqrt(2), 8))
     
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
@@ -419,13 +404,13 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     
 
         
-    return 
+    return result
 
 
 
 
 
-def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=3, plot=False, **kwargs):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=1, plot=False, **kwargs):
 
     
     '''
@@ -540,8 +525,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     result.sort('CHI2/dof2')
 
-    #ascii.write(result, save + binned_name + '_result.csv', format='csv', fast_writer=False, overwrite=True)  
-
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
 
     end   = time.time()
@@ -550,7 +533,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     df = pd.read_csv(save + binned_name + '.csv')
     
 
-    # Plot the first n results (default set to 3)
+    # Plot the first n results (default set to 1)
     
     if plot: 
         for i in range(0,n):
@@ -558,8 +541,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
             row = df.iloc[i]
          
             plotting(row, lam , original, i, resolution, save=save, show=show)
-
-
     
     return result
 

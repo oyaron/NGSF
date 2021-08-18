@@ -48,18 +48,16 @@ else:
     z_num = int((z_end - z_start)/z_int)+1
     redshift      =    np.linspace(z_start, z_end,z_num)
 
-
-
-redshift      =    np.linspace(z_start, z_end,z_num)
+#redshift      =    np.linspace(z_start, z_end,z_num)
 
 
 # To truncate epochs
 epoch_high = data['epoch_high']
-epoch_low = data['epoch_low']
+epoch_low  = data['epoch_low']
 
 
 # Chose minimum overlap
-chose_overlap =  data['chose_overlap']
+minimum_overlap =  data['minimum_overlap']
 
 
 # Number of steps for A_v (do not change)
@@ -75,8 +73,8 @@ temp_sn_tr  = data['temp_sn_tr']
 
 
 resolution = data['resolution']
-upper     = data['upper_lam']
-lower     = data['lower_lam']
+upper      = data['upper_lam']
+lower      = data['lower_lam']
 
 
 if upper == lower: 
@@ -88,6 +86,7 @@ if upper == lower:
     lam        =     np.linspace(lower, upper, interval)
 
 else:
+
     upper     = data['upper_lam']
     lower     = data['lower_lam']
     interval   = int((upper - lower)/resolution)

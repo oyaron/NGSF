@@ -7,8 +7,6 @@ import json
 import warnings
 warnings.filterwarnings('ignore')
 
-
-
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
 
@@ -16,26 +14,21 @@ with open("parameters.json", "r") as read_file:
 original = data['object_to_fit']
 spectrum = np.loadtxt(original)
 
-
-
 idx=original.rfind('/')
 filename=original[idx+1:]
 
 try:
     binned_name= obj_name_int(original, lam, resolution)[3]
     print('Running optimization for spectrum file: {0} with resolution = {1} Ang'.format(binned_name,resolution))
-    #Obtaining the binned file name (obj to be analyzed)
     save_bin = save_bin_path + binned_name
     #Calling the original file, getting rid of the header and binning it (default set to 20A)
     kill_header_and_bin(original,resolution, save_bin = save_bin)
     #Core superfit function on the binned file, default to plot and save n fits
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, chose_overlap=chose_overlap)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap)
 except:
     resolution=30
     print('Failed. Retrying with resolution = {0} Ang'.format(resolution))
-
-    #Obtaining the binned file name (obj to be analyzed)
     try:
         save_bin = save_bin_path + binned_name
     except: 
@@ -44,4 +37,5 @@ except:
     kill_header_and_bin(original,resolution, save_bin = save_bin)
     #Core superfit function on the binned file, default to plot and save n fits
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, chose_overlap=chose_overlap)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap
+    )

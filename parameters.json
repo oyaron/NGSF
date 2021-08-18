@@ -1,8 +1,8 @@
 {   
-    "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+    "object_to_fit" : "SN2021jmm_2020-05-13_00-00-00_MMT_BINOSPEC_TNS.txt",
 
 
-    "z_start": 0.02,
+    "z_start": 0,
     "z_end": 0,
     "z_int": 0,
     
@@ -32,9 +32,9 @@
     
     
     "show_plot" : 1,
-    "how_many_plots" : 1,
+    "how_many_plots" : 3,
 
-    "chose_overlap": 0.7,
+    "minimum_overlap": 0.7,
 
     "epoch_high": 0,
     "epoch_low" : 0  
