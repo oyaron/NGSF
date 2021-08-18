@@ -24,40 +24,44 @@ The user must download the full superfit folder and place the bank inside of it,
 
 The user must only change the parameters of the fit from the parameters.json file, the file looks like this (the template for this example is included in the git)
 
-
-
+  
     "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
 
 
-    "z_start": 0.02,
-    "z_end": 0.1,
+    "z_start": 0,
+    "z_end": 0,
     "z_int": 0,
-    
-    
+
    
-    "temp_gal_tr" : ["/E","/S0","/Sa","/Sb","/SB1","/SB2","/SB3","/SB4","/SB5","/SB6","/Sc"],
     "temp_sn_tr"  : ["IIb-flash", "computed", "Ia 02es-like", "Ia-02cx like", "TDE He", "Ca-Ia", 
-                     "Ia-CSM-(ambigious)", "II", "super_chandra", "SLSN-II", "IIn", "FBOT", "Ibn", 
-                     "SLSN-IIn", "Ia 91T-like", "IIb", "TDE H", "SN - Imposter", "II-flash", "ILRT", 
-                     "Ia 99aa-like", "Ic", "SLSN-I", "Ia-pec", "Ib", "Ia-CSM", "Ia-norm", "SLSN-Ib", 
-                     "TDE H+He", "Ia 91bg-like", "Ca-Ib", "Ia-rapid", "Ic-BL", "Ic-pec", "SLSN-IIb"],
-    
-    
+                    "Ia-CSM-(ambigious)", "II", "super_chandra", "SLSN-II", "IIn", "FBOT", "Ibn", 
+                    "SLSN-IIn", "Ia 91T-like", "IIb", "TDE H", "SN - Imposter", "II-flash", "ILRT", 
+                    "Ia 99aa-like", "Ic", "SLSN-I", "Ia-pec", "Ib", "Ia-CSM", "Ia-norm", "SLSN-Ib", 
+                    "TDE H+He", "Ia 91bg-like", "Ca-Ib", "Ia-rapid", "Ic-BL", "Ic-pec", "SLSN-IIb"],
+
+    "temp_gal_tr" : ["/E","/S0","/Sa","/Sb","/SB1","/SB2","/SB3","/SB4","/SB5","/SB6","/Sc"],
     
           
     "resolution": 10,
 
-    "error_spectrum" : "SG",
+    "lower_lam": 0,
+    "upper_lam": 0,
+    
 
+    "error_spectrum" : "SG",
     "saving_results_path" : "",
 
     
     
     "show_plot" : 1,
-    "how_many_plots" : 3 
+    "how_many_plots" : 3,
 
+    "minimum_overlap": 0.7,
 
+    "epoch_high": 0,
+    "epoch_low" : 0  
 
+    
 
 `"object_to_fit"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
 
