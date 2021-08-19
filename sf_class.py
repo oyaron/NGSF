@@ -26,23 +26,17 @@ class superfit_class:
             
         def linear_error(self):
             
-            original= obj_name_int(object_to_fit, lam, resolution)[0]
-            #binned_name= obj_name_int(original, lam, resolution)[3]
-            flux_int = obj_name_int(original, lam, resolution)[1]
-            error = error_obj('linear', lam, original)
+            error=linear_error(self.spectrum)[:,1]
             plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.fill_between(lam,flux_int - error, flux_int+error)
-            plt.plot(lam,flux_int,'k')
+            plt.fill_between(self.lamda,(self.flux - error)/np.median(self.flux), (self.flux+error)/np.median(self.flux), color='r')
+            plt.plot(self.lamda,self.flux/np.median(self.flux),'k')
 
         def sg_error(self):
 
-            original= obj_name_int(object_to_fit, lam, resolution)[0]
-            #binned_name= obj_name_int(original, lam, resolution)[3]
-            flux_int = obj_name_int(original, lam, resolution)[1]
-            error = error_obj('SG', lam, original)
+            error=savitzky_golay(self.spectrum)[:,1]
             plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.fill_between(lam,flux_int - error, flux_int+error)
-            plt.plot(lam,flux_int,'k')
+            plt.fill_between(self.lamda,self.flux/np.median(self.flux) - error, self.flux/np.median(self.flux)+error, color='r')
+            plt.plot(self.lamda,self.flux/np.median(self.flux),'k')
 
         def superfit(self):
             
@@ -50,11 +44,9 @@ class superfit_class:
                 resolution=10
                 binned_name= obj_name_int(self.name, lam, resolution)[3]
                 print('Running optimization for spectrum file: {0} with resolution = {1} Å'.format(binned_name,resolution))
-                
                 save_bin = save_bin_path + binned_name
                 
                 kill_header_and_bin(self.name,resolution, save_bin = save_bin)
-
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
                 lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
             
@@ -62,11 +54,9 @@ class superfit_class:
                 resolution=30
                 print('Superfit failed at 10 Å. Retrying for resolution = {0} Å'.format(resolution))
                 binned_name= obj_name_int(self.name, lam, resolution)[3]
-                
                 save_bin = save_bin_path + binned_name
                
                 kill_header_and_bin(self.name,resolution, save_bin = save_bin)
-
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
                 lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
 
