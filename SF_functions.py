@@ -254,7 +254,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(30):
+    for i in range(10):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]

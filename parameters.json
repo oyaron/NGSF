@@ -32,7 +32,7 @@
     
     
     "show_plot" : 1,
-    "how_many_plots" : 3,
+    "how_many_plots" : 1,
 
     "minimum_overlap": 0.7,
 
