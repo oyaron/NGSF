@@ -125,7 +125,7 @@ In the `run.py` file we find the main function which looks like this:
 ```ruby
 
 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show)
+    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap)
 
 ```
     
@@ -142,10 +142,7 @@ The inputs of the function are updated in the `run.py` file from the json file, 
 - `plot:` Either 1 or 0, to either plot or not plot. 
 - `kind:` Corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
 by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `SG`
-
-
-The `templates_sn_trunc` and `templates_sn_trunc` are updated by changing the `temp_gal_tr` and `temp_sn_tr` lists on the `params.py` file, to what the user is
-interested in seeing (default is full library).
+- `minimum_overlap:` Corresponds to minimum percentage overlap between the template and the object of interest
 
 
 The rest the inputs correspond to the paths mentioned above. 
