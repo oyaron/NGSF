@@ -1,14 +1,7 @@
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy import interpolate
-from scipy import stats
-import scipy.optimize
-from astropy import table
 from astropy.io import ascii
-import sys 
 import os
-import params 
 import pandas as pd
 import csv
 from params import * 

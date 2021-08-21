@@ -1,15 +1,7 @@
 import glob
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy import interpolate
-from scipy import stats
-import scipy.optimize
-from astropy import table
-from astropy.io import ascii
 import sys 
-import pandas as pd
 from auxiliary import *
-import os
 import json
 from auxiliary import kill_header
 
@@ -32,9 +24,10 @@ object_to_fit = data['object_to_fit']
 
 original_bank_path = path + 'bank/original_resolution/sne/'
 
+mask_galaxy_lines=data['mask_galaxy_lines']
 #--------------------------------------------------------------------------------------------------
 
-# Select a range and number of steps for z
+# Redshift
 
 z_start  = data['z_start'] 
 z_end    = data['z_end']
@@ -48,10 +41,10 @@ else:
     z_num = int((z_end - z_start)/z_int)+1
     redshift      =    np.linspace(z_start, z_end,z_num)
 
-#redshift      =    np.linspace(z_start, z_end,z_num)
+if mask_galaxy_lines == 1 and len(redshift) != 1:
+    raise Exception('Make sure to pick an exact value for z in order to mask the host lines accordingly!')
 
-
-# To truncate epochs
+# Epochs
 epoch_high = data['epoch_high']
 epoch_low  = data['epoch_low']
 
@@ -66,7 +59,7 @@ extconstant   =    np.linspace(-2,2,alam_num)
 
 
 
-# What part of the library do you want to look at?  
+# Library to look at
 
 temp_gal_tr = data['temp_gal_tr']
 temp_sn_tr  = data['temp_sn_tr']
@@ -96,10 +89,10 @@ else:
 # Kind of error spectrum ('SG', 'linear' or 'included')
 kind = data['error_spectrum']
 
-# To show plot? 
+# Show plot? 
 show = data['show_plot']   
 
-# How many top results to plot? 
+# How many results to plot? 
 n = data['how_many_plots']
 #--------------------------------------------------------------------------------------------------
 

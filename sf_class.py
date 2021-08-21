@@ -1,10 +1,11 @@
 from SF_functions import *
 from Header_Binnings import *
 from params import *
-import json
-from Header_Binnings import *
-import pandas as pd
 import warnings
+from PyAstronomy import pyasl
+import matplotlib.pyplot as plt 
+from PyAstronomy import * 
+
 warnings.filterwarnings('ignore')
 
 class superfit_class:
@@ -22,8 +23,49 @@ class superfit_class:
             plt.ylabel('Flux',fontsize = 16)
             plt.xlabel('Lamda',fontsize = 16)
             plt.plot(self.lamda,self.flux,'k')
-                     
-            
+        
+        def mask_line(self):
+
+            Data=np.loadtxt(self.name)
+            #If the objectis in the bank then z=0
+            z_obj=redshift 
+            if len(z_obj) > 1:
+                raise Exception('Make sure to pick an exact value for z in order to mask the host lines!')
+            print('At redshift:' +  str(z_obj) )
+
+            host_lines=np.array([
+                 6564.61        
+                ,4862.69        
+                ,3726.09        
+                ,3729.88        
+                ,5008.24        
+                ,4960.30        
+                ,6549.84        
+                ,6585.23        
+                ,6718.32        
+                ,6732.71])
+
+            host_lines_air=(1+z_obj)*pyasl.airtovac2(host_lines)
+            host_range_air=np.column_stack([host_lines_air,host_lines_air])
+            z_disp=4e2/3e5
+            host_range_air[:,0]=host_range_air[:,0]*(1-z_disp)
+            host_range_air[:,1]=host_range_air[:,1]*(1+z_disp)
+
+            func=lambda x,y: (x<y[1])&(x>y[0])
+            cum_mask=np.array([True]*len(Data[:,0]))
+            for i in range(len(host_lines_air)):
+                mask=np.array(list(map(lambda x: ~func(x,host_range_air[i]),Data[:,0])))
+                cum_mask=cum_mask & mask
+
+            Data_masked = Data[cum_mask]
+
+            plt.figure()
+            plt.figure(figsize=(7*np.sqrt(2), 7))
+            plt.plot(Data[:,0],Data[:,1],'r')
+            plt.plot(Data_masked[:,0],Data_masked[:,1],'b')
+            plt.show()
+
+
         def linear_error(self):
             
             error=linear_error(self.spectrum)[:,1]
@@ -52,7 +94,8 @@ class superfit_class:
             
                 binned_res=np.loadtxt(save_bin)
                 result = np.array([data,binned_res])
-                ascii.write(result, save_bin, format='csv', fast_writer=False, overwrite=True)     
+                ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
+                #np.savetxt('ff' ,result,fmt='%s')
 
             except:
                 resolution=30
@@ -67,8 +110,8 @@ class superfit_class:
                 
                 binned_res=np.loadtxt(save_bin)
                 result = np.array([data,binned_res])
-                ascii.write(result, save_bin, format='csv', fast_writer=False, overwrite=True)     
-
+                ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
+                #np.savetxt('ff' ,result,fmt='%s,overwrite=True')
                 return save_results_path
 
 

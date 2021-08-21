@@ -1,7 +1,5 @@
 import numpy as np 
 from PyAstronomy import pyasl
-from astropy.io import ascii
-from astropy.table import table
 import matplotlib.pyplot as plt 
 Data=np.genfromtxt('/home/idoi/Dropbox/superfit/ZTF20aawbzlo_20200527_P200_v2.ascii')
 z_obj=0.034
@@ -30,9 +28,6 @@ for i in range(len(host_lines_air)):
      cum_mask=cum_mask & mask
 
 Data_masked = Data[cum_mask]
-
-np.savetxt('/home/idoi/Dropbox/superfit/ZTF20aawbzlo_20200527_P200_v2_host_line_masked.ascii',Data_masked)
-
 
 plt.figure()
 plt.plot(Data[:,0],Data[:,1],'r')

@@ -2,13 +2,6 @@ import numpy as np
 from astropy import table
 from scipy import stats
 import matplotlib.pyplot as plt
-import scipy
-from scipy import interpolate
-from scipy.optimize import curve_fit
-import time
-from scipy.interpolate import interp1d
-from astropy.io import ascii
-#from SF_functions import *
 from PyAstronomy import pyasl
 from astropy.table import table
 
@@ -106,8 +99,6 @@ def bin_spectrum(spectrum, resolution):
         bin_wavelength = [ (bin_edge[i] + bin_edge[i+1]) / 2 for i in range(len(bin_edge)-1) ]
         
         # This is the condition I had to add to get rid of the NaNs, but I still don’t know why flux_bin has NaNs in the first place
-        #flux_bin = np.nan_to_num(flux_bin)
-        
         
         if fluxerror is not None:
             fluxerror_bin = []
@@ -167,8 +158,6 @@ def kill_header_and_bin(original, resolution =10, **kwargs):
     """
 
 
-    
-
     saving_path = kwargs['save_bin']
    
 
@@ -226,9 +215,6 @@ def bin_spectrum_bank(spectrum, resolution):
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
         flux_bin, bin_edge, index = stats.binned_statistic(lam, flux, statistic = 'median', range=(lam.min(), lam.max()), bins = number_of_bins)
         bin_wavelength = [ (bin_edge[i] + bin_edge[i+1]) / 2 for i in range(len(bin_edge)-1) ]
-        
-     
-    
      
         bin_wavelength = np.array(bin_wavelength)
         flux_bin = np.array(flux_bin)
@@ -287,10 +273,5 @@ def mask_lines_bank(Data):
     
     Data_masked = Data[cum_mask]
 
-    
-    #plt.figure()
-    #plt.plot(Data[:,0],Data[:,1],'r')
-    #plt.plot(Data_masked[:,0],Data_masked[:,1],'.b')
-    #plt.show()
     
     return Data_masked

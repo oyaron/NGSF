@@ -1,8 +1,3 @@
-from scipy import interpolate
-from scipy import stats
-import scipy.optimize
-import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
 import statistics 
 from matplotlib.pyplot import show, plot
 import numpy as np
@@ -46,26 +41,6 @@ def linear_error(spec_object):
         y = m[n]*lam_new[n]+b[n]
           
         r = flux_new - y
-        
-        '''
-        
-        plt.plot(lam_new[n], flux_new[n], '.' )
-        plt.plot(lam_new[n], y)
-        plt.plot(lam_new[n], flux_new[n]-y, 'r', markersize=1)
-
-       
-        plt.plot(lam_new[n], y)
-        plt.fill_between(lam_new[n],  flux_new[n]-y,  flux_new[n]+y)
-        plt.show()
-        '''
-
-
-        #plt.title('For n*10th Entry')
-        #plt.ylabel('Flux')
-        #plt.xlabel('Lamda')
-        
-
-
     for i in r: 
         s = statistics.stdev(i)
         sigma.append(s)

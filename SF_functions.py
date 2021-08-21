@@ -1,26 +1,22 @@
-import glob
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
-import scipy
-from scipy import stats
-import scipy.optimize
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
-import time
-import statistics 
 from extinction import ccm89, apply
 from astropy import table
 from astropy.io import ascii 
 from scipy.optimize import least_squares
-import scipy.signal as mf 
 from matplotlib.pyplot import show, plot
 import itertools
 from error_routines import *
 import  get_metadata
-import json
 import pandas as pd
-from params import * 
+from params import *
+from PyAstronomy import pyasl
+from PyAstronomy import * 
+
+     
 
 
 def obj_name_int(original, lam, resolution):
@@ -32,25 +28,19 @@ def obj_name_int(original, lam, resolution):
 
   
     name = original[index1+1:index2]
-
-  
     path = original[0:index1+1]
+    if mask_galaxy_lines==1:
+        object_spec=mask_gal_lines(original,redshift)
+    elif mask_galaxy_lines==0:
+        object_spec=np.loadtxt(original)
 
-
-    #Binned name 
-    name_bin = name 
-
-
-    #Interpolate    
-    object_spec =  np.loadtxt(original)
     object_spec[:,1]=object_spec[:,1]/np.nanmedian(object_spec[:,1])
     int_obj = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
-
     int_obj = int_obj(lam)
 
 
 
-    return original, int_obj, path, name_bin
+    return original, int_obj, path, name
 
 
 
@@ -67,7 +57,6 @@ def Alam(lamin):
     
     flux = np.ones(len(lamin))
     redreturn = apply(ccm89(lamin, A_v, R_v), flux)
-    #redreturn  =  A_v*extinction.a_lambda_cardelli_fast(lamin*1e-4,R_v)
     return redreturn
 
 
@@ -192,11 +181,10 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     
     """
 
-
     
-    kind      = kwargs['kind']
-    original  = kwargs['original']
-    minimum_overlap=kwargs['minimum_overlap']
+    kind            = kwargs['kind']
+    original        = kwargs['original']
+    minimum_overlap = kwargs['minimum_overlap']
 
 
     int_obj = obj_name_int(original, lam, resolution)[1]
@@ -216,7 +204,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
 
     b[b < 0] = np.nan
     d[d < 0] = np.nan
-
 
     #Add new axis in order to compute chi2
     sn_b = b[:, :, np.newaxis]
@@ -296,8 +283,6 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
                     
         dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'f','f','f','f','f','S200','S200'))
         
-        
-
 
         all_tables.append(output)
        
@@ -391,6 +376,7 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     plt.ylabel('Flux arbitrary',fontsize = 14)
     
     plt.xlabel('Lamda',fontsize = 14)
+
     
     plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
     
@@ -406,9 +392,41 @@ def plotting(values, lam, original, number, resolution, **kwargs):
         
     return result
 
+def mask_gal_lines(name,z_obj):
 
+    Data=np.loadtxt(name)
 
+    #If the object is in the bank then z=0
+    z_obj=redshift 
+    #print('At redshift:' +  str(z_obj) )
 
+    host_lines=np.array([
+         6564.61        
+        ,4862.69        
+        ,3726.09        
+        ,3729.88        
+        ,5008.24        
+        ,4960.30        
+        ,6549.84        
+        ,6585.23        
+        ,6718.32        
+        ,6732.71])
+
+    host_lines_air=(1+z_obj)*pyasl.airtovac2(host_lines)
+    host_range_air=np.column_stack([host_lines_air,host_lines_air])
+    z_disp=4e2/3e5
+    host_range_air[:,0]=host_range_air[:,0]*(1-z_disp)
+    host_range_air[:,1]=host_range_air[:,1]*(1+z_disp)
+
+    func=lambda x,y: (x<y[1])&(x>y[0])
+    cum_mask=np.array([True]*len(Data[:,0]))
+    for i in range(len(host_lines_air)):
+        mask=np.array(list(map(lambda x: ~func(x,host_range_air[i]),Data[:,0])))
+        cum_mask=cum_mask & mask
+
+    Data_masked = Data[cum_mask]
+
+    return Data_masked
 
 def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=1, plot=False, **kwargs):
 
@@ -475,7 +493,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     global path_dict
     path_dict={}
 
-
+    
 
     all_bank_files=[str(x) for x in get_metadata.dictionary_all_trunc_objects.values()] 
 
@@ -483,11 +501,16 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     for i in range(0, len(all_bank_files)):
       
         one_sn           =  np.loadtxt(all_bank_files[i]) #this is an expensive line
-        one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
+        
+        if mask_galaxy_lines ==1:
+            one_sn = mask_gal_lines(all_bank_files[i],0)
+        elif mask_galaxy_lines ==0:
+            one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
+        
+        
         idx=all_bank_files[i].rfind("/")+1
         filename=all_bank_files[i][idx:]
         
-       
         short_name = str(get_metadata.shorhand_dict[filename])
     
         path_dict[short_name]=all_bank_files[i]
