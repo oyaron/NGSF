@@ -68,7 +68,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 
 `"object_to_fit"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
 
-`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make "z_int" equal to 0 and "z_start" into the desired z value.
+`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make `"z_int"` equal to 0 and `"z_start"` into the desired z value.
 
 `"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
 
@@ -85,6 +85,14 @@ The user must only change the parameters of the fit from the parameters.json fil
  
   `"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
 
+  `"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
+  
+  `"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
+  
+  `"epoch_low"`: Lower bound epoch for phase truncation.
+  
+  `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice. 
+  
 
 
 ## To Run
