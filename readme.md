@@ -59,7 +59,10 @@ The user must only change the parameters of the fit from the parameters.json fil
     "minimum_overlap": 0.7,
 
     "epoch_high": 0,
-    "epoch_low" : 0  
+    "epoch_low" : 0,
+    
+    "mask_galaxy_lines":0
+
 
     
 
