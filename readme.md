@@ -1,6 +1,6 @@
 # Welcome to Superfit in Python! :dizzy: :bomb: :boom:
 
-Superfit in python (pySF) is a software for the spectral classification of Supernovae of all major types 
+Superfit in python is a software for the spectral classification of Supernovae of all major types accompanied by a host galaxy 
 
 ## Requierments
 
@@ -9,8 +9,8 @@ Superfit in python (pySF) is a software for the spectral classification of Super
 - `astropy`
 - `astropy extinction`
 - `PyAstronomy`
-- `pathlib`
-
+- `Pandas`
+- `matplotlib` 
 
 
 # To run one object  
@@ -160,19 +160,3 @@ The results are: an astropy table that is saved as a csv file, and the best fit 
 
 The plot shows the input object in red, the SN and Host Galaxy combined templates in green. The legend shows the SN type, HG type and percentage contribution from the SN template to the fit. On top of the plot the redshift value is indicated.
 
-
-
-## To run for multiple objects 
-
-SuPyFit has the option of multithreading to make running large data sets an easier and faster task. 
-
-To achieve this task the files needed are: 
-
-- `Template bank of chosen resolution`
-- `Header_binnings.py`
-- `error_routines.py`
-- `SF_functions.py`
-- `params_multi_object.py`
-- `run_multi_object.py`
-
-Just like in the individual object case the user must enter the disered parameters for the analysis on the `params_multi_object.py`, then in the `run_multi_object.py` file the user enters the path for the object list that he is interested in. 
