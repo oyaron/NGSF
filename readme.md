@@ -63,7 +63,7 @@ The user must only change the parameters of the fit from the parameters.json fil
     
     "mask_galaxy_lines":0
     
-    "masl_telluric":0
+    "mask_telluric":0
 
     
 
@@ -94,7 +94,7 @@ The user must only change the parameters of the fit from the parameters.json fil
   
   `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice. 
   
-
+`"mask_telluric"`: Either 1 or 0, masks the flux within the wavelength range from 7594 to 7680 in the observer's frame.
 
 ## To Run
 
