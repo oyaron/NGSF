@@ -1,12 +1,13 @@
 from SF_functions import *
 from Header_Binnings import *
 from params import *
-import warnings
+#import warnings
 from PyAstronomy import pyasl
 import matplotlib.pyplot as plt 
 from PyAstronomy import * 
+from scipy.ndimage import gaussian_filter1d
+#warnings.filterwarnings('ignore')
 
-warnings.filterwarnings('ignore')
 
 class superfit_class:
     
@@ -14,6 +15,7 @@ class superfit_class:
             self.name    = name
             self.spectrum = kill_header(name)
             self.lamda, self.flux = self.spectrum[:,0] , self.spectrum[:,1]
+            self.binned_name = name[: name.rfind('.')]
 
             
         def plot(self):
@@ -24,14 +26,24 @@ class superfit_class:
             plt.xlabel('Lamda',fontsize = 16)
             plt.plot(self.lamda,self.flux,'k')
         
-        def mask_line(self):
+        def mask_telluric(self):
+            
+            masked_spectrum = remove_telluric( kill_header(self.name) )
+            plt.figure(figsize=(7*np.sqrt(2), 7))
+            plt.title('Masked Telluric for '+str(self.name),fontsize=17)
+            plt.ylabel('Flux',fontsize = 16)
+            plt.xlabel('Lamda',fontsize = 16)
+            plt.plot(masked_spectrum[:,0],masked_spectrum[:,1],'k')
+
+
+        def mask_galaxy_lines(self):
 
             Data=np.loadtxt(self.name)
-            #If the objectis in the bank then z=0
+            #If the object is in the bank then z=0
             z_obj=redshift 
             if len(z_obj) > 1:
                 raise Exception('Make sure to pick an exact value for z in order to mask the host lines!')
-            print('At redshift:' +  str(z_obj) )
+            
 
             host_lines=np.array([
                  6564.61        
@@ -58,11 +70,15 @@ class superfit_class:
                 cum_mask=cum_mask & mask
 
             Data_masked = Data[cum_mask]
+            self.masked_galaxy_lines = Data_masked
 
-            plt.figure()
             plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.plot(Data[:,0],Data[:,1],'r')
-            plt.plot(Data_masked[:,0],Data_masked[:,1],'b')
+            plt.ylabel('Flux arbitrary',fontsize = 14)
+            plt.xlabel('Lamda',fontsize = 14)
+            plt.title('Galaxy lines masked at z=' + str(z_obj[0]), fontsize = 15, fontweight='bold')
+            plt.plot(Data[:,0],Data[:,1],'r',label=str(self.name) )
+            plt.plot(Data_masked[:,0],Data_masked[:,1],'b',label='Masked object')
+            plt.legend(framealpha=1, frameon=True, fontsize = 12)
             plt.show()
 
 
@@ -70,21 +86,47 @@ class superfit_class:
             
             error=linear_error(self.spectrum)[:,1]
             plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.fill_between(self.lamda,(self.flux - error)/np.median(self.flux), (self.flux+error)/np.median(self.flux), color='r')
-            plt.plot(self.lamda,self.flux/np.median(self.flux),'k')
 
+            plt.ylabel('Flux arbitrary',fontsize = 14)
+            plt.xlabel('Lamda',fontsize = 14)
+            plt.title('Linear error estimation', fontsize = 15, fontweight='bold')
+            plt.fill_between(self.lamda,(self.flux - error)/np.median(self.flux), (self.flux+error)/np.median(self.flux), color='#FF4500', label = 'error')
+            plt.plot(self.lamda,self.flux/np.median(self.flux),'k',label=str(self.name) )
+            plt.legend(framealpha=1, frameon=True, fontsize = 12)
+            plt.show()
+        
         def sg_error(self):
 
             error=savitzky_golay(self.spectrum)[:,1]
-            plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.fill_between(self.lamda,self.flux/np.median(self.flux) - error, self.flux/np.median(self.flux)+error, color='r')
-            plt.plot(self.lamda,self.flux/np.median(self.flux),'k')
 
+            plt.figure(figsize=(7*np.sqrt(2), 7))
+            plt.ylabel('Flux arbitrary',fontsize = 14)
+            plt.xlabel('Lamda',fontsize = 14)
+            plt.title('Savitzky-Golay error estimation', fontsize = 15, fontweight='bold')
+    
+            plt.fill_between(self.lamda,self.flux/np.median(self.flux) - error, self.flux/np.median(self.flux)+error, color='#FF4500' ,label = 'error')
+            plt.plot(self.lamda,self.flux/np.median(self.flux),'k',label=str(self.name) )
+            plt.legend(framealpha=1, frameon=True, fontsize = 12)
+            
+ 
+        def mask_gal_lines_and_telluric(self):
+            
+            Data_masked=self.masked_galaxy_lines         
+            masked_spectrum = remove_telluric(Data_masked)
+
+            plt.figure(figsize=(7*np.sqrt(2), 7))
+            plt.title('Masked Telluric and Galaxy lines',fontsize=17)
+            plt.ylabel('Flux',fontsize = 16)
+            plt.xlabel('Lamda',fontsize = 16)
+            plt.plot(masked_spectrum[:,0],masked_spectrum[:,1],'k',label = str(self.name))
+            plt.legend(framealpha=1, frameon=True, fontsize = 12)
+
+        
         def superfit(self):
             
             try:
                 resolution=10
-                binned_name= obj_name_int(self.name, lam, resolution)[3]
+                binned_name = self.binned_name
                 print('Running optimization for spectrum file: {0} with resolution = {1} Å'.format(binned_name,resolution))
                 save_bin = save_bin_path + binned_name
                 
@@ -95,12 +137,12 @@ class superfit_class:
                 binned_res=np.loadtxt(save_bin)
                 result = np.array([data,binned_res])
                 ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
-                #np.savetxt('ff' ,result,fmt='%s')
 
             except:
                 resolution=30
                 print('Superfit failed at 10 Å. Retrying for resolution = {0} Å'.format(resolution))
-                binned_name= obj_name_int(self.name, lam, resolution)[3]
+                binned_name = self.binned_name
+                #binned_name= obj_name_int(self.name, lam, resolution)[3]
                 save_bin = save_bin_path + binned_name
                
                 kill_header_and_bin(self.name,resolution, save_bin = save_bin)
@@ -111,28 +153,26 @@ class superfit_class:
                 binned_res=np.loadtxt(save_bin)
                 result = np.array([data,binned_res])
                 ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
-                #np.savetxt('ff' ,result,fmt='%s,overwrite=True')
                 return save_results_path
 
+        def convolution(self):
+       
+            obj_res=100
+            bin_res=30
 
-        def chi2(self):
+            obj_med=np.median(self.lamda)
+            width  = obj_med/obj_res
+            sig  = width/(2*np.sqrt(2*np.log(2)))
 
-            binned_name = obj_name_int(self.name, lam, resolution)[3]
-            binned_name = binned_name + '.csv'
-            
-            chi2s = pd.read_csv(binned_name)
-         
-            lnpro=np.log(chi2s['CHI2/dof'])
-            mean=np.mean(lnpro)
-            var=np.std(lnpro)**2
 
-            normalized=(lnpro-mean)/np.sqrt(var)
-            plt.hist(normalized, density=True, bins=10)
-            plt.title('$ {\chi}^2 distribution $')
-            _=plt.plot(normalized, stats.norm.pdf( normalized, 0, 1),'r.' )
-            
+            filtered = gaussian_filter1d(self.flux,sig)
+            unbinned_filtered = np.array([self.lamda,filtered]).T
+            binned = bin_spectrum_bank(unbinned_filtered,bin_res)
 
-            return _
+            plt.plot(self.lamda,filtered)
+            #plt.plot(binned['lam_bin'],binned['bin_flux'])
+
+
 
              
 

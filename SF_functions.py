@@ -2,12 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
 import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
+#from scipy.interpolate import interp1d
 from extinction import ccm89, apply
 from astropy import table
 from astropy.io import ascii 
-from scipy.optimize import least_squares
-from matplotlib.pyplot import show, plot
+#from scipy.optimize import least_squares
+#from matplotlib.pyplot import show, plot
 import itertools
 from error_routines import *
 import  get_metadata
@@ -19,28 +19,48 @@ from PyAstronomy import *
      
 
 
-def obj_name_int(original, lam, resolution):
+def name_and_interpolated_object(original, lam):
    
-
-
-    index1 = original.rfind("/")
-    index2 = original.rfind(".")
-
-  
-    name = original[index1+1:index2]
-    path = original[0:index1+1]
-    if mask_galaxy_lines==1:
+ 
+    if mask_galaxy_lines==1 and mask_telluric == 0:
         object_spec=mask_gal_lines(original,redshift)
-    elif mask_galaxy_lines==0:
+    if mask_galaxy_lines==1 and mask_telluric == 1:
+        object_spec=mask_gal_lines(original,redshift)
+        object_spec = remove_telluric(object_spec)
+    if mask_galaxy_lines==0 and mask_telluric==1 :
+        object_spec=np.loadtxt(original)
+        object_spec = remove_telluric(object_spec)
+    if mask_galaxy_lines==0 and mask_telluric==0 :
         object_spec=np.loadtxt(original)
 
     object_spec[:,1]=object_spec[:,1]/np.nanmedian(object_spec[:,1])
+    
+   
     int_obj = interpolate.interp1d(object_spec[:,0], object_spec[:,1],   bounds_error=False, fill_value='nan')
     int_obj = int_obj(lam)
 
 
 
-    return original, int_obj, path, name
+    return original, int_obj
+
+
+def remove_telluric(spectrum):
+    
+    lam  = spectrum[:,0]
+    flux = spectrum[:,1]
+    
+    for i in range(0,len(lam)):
+    
+        if 7594 <= lam[i] <= 7680:
+            
+          
+            flux[i] = -10000
+        
+    
+        array1 = flux
+        flux_no_tell = np.where(array1==-10000, np.nan, array1)
+    
+    return np.array([lam,flux_no_tell]).T
 
 
 
@@ -85,9 +105,10 @@ def error_obj(kind, lam,object_to_fit):
     
 
     object_spec = np.loadtxt(object_to_fit)
-
     object_spec[:,1] = object_spec[:,1]/np.nanmedian(object_spec[:,1])
     
+
+
     if kind == 'included' and len(object_spec[1,:]) > 2:
         
         error = object_spec[:,2]
@@ -155,7 +176,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
 
 
 
-def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
+def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
 
     """
     
@@ -187,9 +208,9 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     minimum_overlap = kwargs['minimum_overlap']
 
 
-    int_obj = obj_name_int(original, lam, resolution)[1]
+    int_obj = name_and_interpolated_object(original, lam)[1]
     
-    name    = obj_name_int(original, lam, resolution)[0]
+    name    = name_and_interpolated_object(original, lam)[0]
 
     sigma = error_obj(kind, lam, original)
 
@@ -241,7 +262,7 @@ def core_total(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolutio
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(10):
+    for i in range(50):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]
@@ -332,7 +353,7 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     sn_name = str(sn_name)   
       
 
-    int_obj = obj_name_int(original, lam, resolution)[1]
+    int_obj = name_and_interpolated_object(original, lam)[1]
     nova   = np.loadtxt(sn_name)
     
     hg_name = 'bank/binnings/'+str(resolution)+'A/gal/'+hg_name
@@ -363,7 +384,6 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     
     phase = str(short_name[short_name.rfind(':')+1:-1])
   
-
 
     plt.figure(figsize=(8*np.sqrt(2), 8))
     
@@ -398,7 +418,6 @@ def mask_gal_lines(name,z_obj):
 
     #If the object is in the bank then z=0
     z_obj=redshift 
-    #print('At redshift:' +  str(z_obj) )
 
     host_lines=np.array([
          6564.61        
@@ -481,7 +500,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     original  = kwargs['original']
     
   
-    binned_name = obj_name_int(original, lam, resolution)[0]
+    binned_name = name_and_interpolated_object(original, lam)[0]
     
     global templates_sn_trunc_dict
     templates_sn_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
@@ -496,13 +515,12 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
 
     all_bank_files=[str(x) for x in get_metadata.dictionary_all_trunc_objects.values()] 
-
     
     for i in range(0, len(all_bank_files)):
       
         one_sn           =  np.loadtxt(all_bank_files[i]) #this is an expensive line
         
-        if mask_galaxy_lines ==1:
+        if mask_galaxy_lines == 1:
             one_sn = mask_gal_lines(all_bank_files[i],0)
         elif mask_galaxy_lines ==0:
             one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
@@ -531,7 +549,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for element in itertools.product(redshift,extconstant):
          
-        a, _ = core_total(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution, **kwargs)
+        a, _ = core(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution, **kwargs)
 
       
         results.append(a)

@@ -33,7 +33,9 @@
     "epoch_high": 0,
     "epoch_low" : 0,
 
-    "mask_galaxy_lines":1
+    "mask_galaxy_lines":1,
+
+    "mask_telluric":0
 
     
 }

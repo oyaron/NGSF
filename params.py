@@ -25,6 +25,7 @@ object_to_fit = data['object_to_fit']
 original_bank_path = path + 'bank/original_resolution/sne/'
 
 mask_galaxy_lines=data['mask_galaxy_lines']
+mask_telluric=data['mask_telluric']
 #--------------------------------------------------------------------------------------------------
 
 # Redshift

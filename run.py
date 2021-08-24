@@ -4,20 +4,19 @@ from Header_Binnings import *
 from params import *
 import numpy as np 
 import json 
-import warnings
-warnings.filterwarnings('ignore')
+#import warnings
+#warnings.filterwarnings('ignore')
 
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
 
 
 original = data['object_to_fit']
-spectrum = np.loadtxt(original)
-idx=original.rfind('/')
-filename=original[idx+1:]
+idx=original.rfind('.')
+filename=original[:idx]
 
 try:
-    binned_name= obj_name_int(original, lam, resolution)[3]
+    binned_name = filename
     print('Running optimization for spectrum file: {0} with resolution = {1} Ang'.format(binned_name,resolution))
     save_bin = save_bin_path + binned_name
 

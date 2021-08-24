@@ -106,15 +106,15 @@ for folder in folders:
             
             
                 else:
-                    
+
                     if phase!='u' and phase >= epoch_low and phase <= epoch_high:
-                    
+                        
                         band = band_dictionary[sub]
 
                         shorhand_dict[spec_file]=sn_type + '/' + sub + '/' + wise['Instrument'][i]+' phase-band : '+ str(phase) + str(band)
 
                         short_path_dict[shorhand_dict[spec_file]]=spec_file
-
+                        
                         dictionary_all_trunc_objects[spec_file] = 'bank/binnings/'+str(resolution)+'A/sne/' + sn_type +'/'+ sub + '/' + spec_file
                         
                         
