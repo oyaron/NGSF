@@ -62,7 +62,8 @@ The user must only change the parameters of the fit from the parameters.json fil
     "epoch_low" : 0,
     
     "mask_galaxy_lines":0
-
+    
+    "masl_telluric":0
 
     
 
