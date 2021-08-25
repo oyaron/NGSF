@@ -5,7 +5,7 @@ from params import *
 import numpy as np 
 import json 
 import warnings
-warnings.filterwarnings('ignore')
+#warnings.filterwarnings('ignore')
 
 with open("parameters.json", "r") as read_file:
     data = json.load(read_file)
