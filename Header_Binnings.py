@@ -66,8 +66,6 @@ def kill_header(file_name):
 
 
 
-# In[3]:
-
 
 def bin_spectrum(spectrum, resolution):
     
@@ -91,7 +89,7 @@ def bin_spectrum(spectrum, resolution):
         fluxerror = spectrum[:,2]
     else:
         fluxerror = None
-    if lam[1]- lam[0] >= resolution:
+    if lam[15] - lam[16] > resolution:
         bin_spectra = spectrum
     else:
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
@@ -132,7 +130,6 @@ def bin_spectrum(spectrum, resolution):
             bin_spectra['bin_fluxerror'] = fluxerror_bin
         bin_spectra=bin_spectra[bin_spectra['bin_flux'] != np.nan]
         
-        #np.savetxt(saving_place ,bin_spectra,fmt='%s')  
         
         return bin_spectra
 
@@ -237,13 +234,13 @@ def bin_spectrum_bank(spectrum, resolution):
 
 
 
-def mask_lines_bank(Data):
+def mask_lines_bank(Data, z_obj=0):
 
 
 
     # The objects in the bank have a redshift of zero
 
-    z_obj = 0 
+    #z_obj = 0 
 
     #These lines are in rest frame
 

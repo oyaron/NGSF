@@ -2,12 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
 import matplotlib.pyplot as plt
-#from scipy.interpolate import interp1d
 from extinction import ccm89, apply
 from astropy import table
 from astropy.io import ascii 
-#from scipy.optimize import least_squares
-#from matplotlib.pyplot import show, plot
 import itertools
 from error_routines import *
 import  get_metadata
@@ -16,15 +13,11 @@ from params import *
 from PyAstronomy import pyasl
 from PyAstronomy import * 
 
-     
-
-
 def name_and_interpolated_object(original, lam):
    
- 
-    if mask_galaxy_lines==1 and mask_telluric == 0:
-        object_spec=mask_gal_lines(original,redshift)
     if mask_galaxy_lines==1 and mask_telluric == 1:
+        object_spec=mask_gal_lines(original,redshift)
+    if mask_galaxy_lines==1 and mask_telluric == 0:
         object_spec=mask_gal_lines(original,redshift)
         object_spec = remove_telluric(object_spec)
     if mask_galaxy_lines==0 and mask_telluric==1 :
@@ -42,6 +35,40 @@ def name_and_interpolated_object(original, lam):
 
 
     return original, int_obj
+
+
+
+def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
+    sn=[]
+    gal=[]
+    for i in range(0, len(templates_sn_trunc)): 
+
+        one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
+        a_lam_sn          =  alam_dict[templates_sn_trunc[i]]
+        redshifted_sn     =  one_sn[:,0]*(z+1)
+        extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * a_lam_sn)/(1+z) 
+        sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
+
+        sn.append(sn_interp)
+
+    
+    for i in range(0, len(templates_gal_trunc)): 
+        
+        one_gal            =  templates_gal_trunc_dict[templates_gal_trunc[i]]
+        gal_interp         =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),  left=np.nan,right=np.nan)
+        gal.append(gal_interp)
+
+    
+    # Redefine sn and gal by adding a new axis
+    
+    sn  = np.array(sn)
+    gal = np.array(gal)
+    
+    gal = gal[:, np.newaxis,:]
+    sn  = sn[np.newaxis,:,:]
+
+    
+    return sn, gal
 
 
 def remove_telluric(spectrum):
@@ -63,17 +90,12 @@ def remove_telluric(spectrum):
     return np.array([lam,flux_no_tell]).T
 
 
-
-
-def Alam(lamin):
+def Alam(lamin,A_v=1,R_v=3.1):
     '''
     Add extinction with R_v = 3.1 and A_v = 1, A_v = 1 in order 
     to find the constant of proportionality for
     the extinction law.
     '''
-    A_v = 1 
-    
-    R_v = 3.1
     
     flux = np.ones(len(lamin))
     redreturn = apply(ccm89(lamin, A_v, R_v), flux)
@@ -128,7 +150,7 @@ def error_obj(kind, lam,object_to_fit):
         sigma             =  object_err_interp(lam)
     
         
-    if kind == 'SG':
+    if kind == 'sg':
     
         error             =  savitzky_golay(object_spec)
         
@@ -137,42 +159,6 @@ def error_obj(kind, lam,object_to_fit):
         sigma             =  object_err_interp(lam)
     
     return sigma
-
-
-
-def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
-    sn=[]
-    gal=[]
-    for i in range(0, len(templates_sn_trunc)): 
-
-        one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
-        a_lam_sn          =  alam_dict[templates_sn_trunc[i]]
-        redshifted_sn     =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * a_lam_sn)/(1+z) 
-        sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
-
-        sn.append(sn_interp)
-
-    
-    for i in range(0, len(templates_gal_trunc)): 
-        
-        one_gal            =  templates_gal_trunc_dict[templates_gal_trunc[i]]
-        gal_interp         =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),  left=np.nan,right=np.nan)
-        gal.append(gal_interp)
-
-    
-    # Redefine sn and gal by adding a new axis
-    
-    sn  = np.array(sn)
-    gal = np.array(gal)
-    
-    gal = gal[:, np.newaxis,:]
-    sn  = sn[np.newaxis,:,:]
-
-    
-    return sn, gal
-
-
 
 
 
@@ -207,18 +193,17 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **k
     original        = kwargs['original']
     minimum_overlap = kwargs['minimum_overlap']
 
+    name    = name_and_interpolated_object(original, lam)[0]
 
     int_obj = name_and_interpolated_object(original, lam)[1]
     
-    name    = name_and_interpolated_object(original, lam)[0]
-
     sigma = error_obj(kind, lam, original)
 
     sn, gal = sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc) 
 
 
     # Apply linear algebra witchcraft
-    
+  
     c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
     b = c * (np.nansum(gal**2,2)*np.nansum(sn*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(gal*int_obj,2))
     d = c * (np.nansum(sn**2,2)*np.nansum(gal*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(sn*int_obj,2))
@@ -237,7 +222,6 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **k
     times = np.nansum(a,2)
     times = len(lam) - times
     
-    # True if overlap is valid
     overlap = times/len(lam) > minimum_overlap
     
     # Obtain and reduce chi2    
@@ -254,7 +238,6 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **k
 
     
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
-    
     reduchi2_1d = reduchi2.ravel()
     
     index = np.argsort(reduchi2_1d)
@@ -262,7 +245,7 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **k
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(50):
+    for i in range(10):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]
@@ -407,10 +390,10 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
     if show:
         plt.show()
-    
-
         
     return result
+
+
 
 def mask_gal_lines(name,z_obj):
 
@@ -446,6 +429,7 @@ def mask_gal_lines(name,z_obj):
     Data_masked = Data[cum_mask]
 
     return Data_masked
+
 
 def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=1, plot=False, **kwargs):
 
@@ -573,6 +557,8 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     df = pd.read_csv(save + binned_name + '.csv')
     
+
+
 
     # Plot the first n results (default set to 1)
     

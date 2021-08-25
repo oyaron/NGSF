@@ -4,8 +4,6 @@ import numpy as np
 import scipy.signal as mf 
 
 
-
-
 def linear_error(spec_object): 
 
     
@@ -58,12 +56,6 @@ def linear_error(spec_object):
 
 
 
-
-
-
-# ## Savitzky-Golay error
-
-
 def savitzky_golay(spec):
 
    
@@ -87,10 +79,20 @@ def savitzky_golay(spec):
         return ret[n - 1:] / n
     
     
-    
     mov_var = moving_average(resid**2, n=100)
     mov_var = np.concatenate((mov_var, [mov_var[-1]]* (resid.size-mov_var.size)))
     err_std = mov_var**(1/2)
  
+    
+    for i in range(0, len(err_std)):
+        if err_std[i] ==0:
+            err_std[i] = 1e-25
+    #x = [i+1e-10 for i in x if i==0]
+    #err_std = [i+1e-10 for i in err_std if i==0]
+    #err_std= [Decimal(i) for i in err_std if i==0]
+    #for i in range(0,len(x)):
+    #    if i==0:
+    #        x[i] = 'nan'
+
     return np.array([x,err_std]).T 
 

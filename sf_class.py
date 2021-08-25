@@ -1,12 +1,12 @@
 from SF_functions import *
 from Header_Binnings import *
 from params import *
-#import warnings
 from PyAstronomy import pyasl
 import matplotlib.pyplot as plt 
 from PyAstronomy import * 
 from scipy.ndimage import gaussian_filter1d
-#warnings.filterwarnings('ignore')
+import warnings
+warnings.filterwarnings('ignore')
 
 
 class superfit_class:
