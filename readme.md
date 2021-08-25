@@ -4,13 +4,13 @@ Superfit in python is a software for the spectral classification of Supernovae o
 
 ## Requierments
 
-- `numpy`
-- `scipy`
-- `astropy`
-- `astropy extinction`
-- `PyAstronomy`
-- `Pandas`
-- `matplotlib` 
+-`numpy` version >= 1.15.4 
+-`scipy` version >= 1.1.0
+-`matplotlib` version >= 3.0.2
+-`astropy` version >= 3.1
+-`Pandas` version >= 0.23.4
+-`PyAstronomy` version >= 0.13.0
+-`json` version >= 2.0.9
 
 
 # To run one object  
