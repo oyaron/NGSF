@@ -17,9 +17,9 @@ def name_and_interpolated_object(original, lam):
    
     if mask_galaxy_lines==1 and mask_telluric == 1:
         object_spec=mask_gal_lines(original,redshift)
+        object_spec = remove_telluric(object_spec)
     if mask_galaxy_lines==1 and mask_telluric == 0:
         object_spec=mask_gal_lines(original,redshift)
-        object_spec = remove_telluric(object_spec)
     if mask_galaxy_lines==0 and mask_telluric==1 :
         object_spec=np.loadtxt(original)
         object_spec = remove_telluric(object_spec)
