@@ -25,76 +25,76 @@ The user must download the full superfit folder and place the bank inside of it,
 The user must only change the parameters of the fit from the parameters.json file, the file looks like this (the template for this example is included in the git)
 
   
-    "object_to_fit" : "ZTF18abokyfk_20180925_P60_v1.ascii",
+    "object_to_fit" : "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
 
 
-    "z_start": 0,
+    "z_start": 0.127,
     "z_end": 0,
     "z_int": 0,
+    
+    "resolution":10,
 
-   
     "temp_sn_tr"  : ["IIb-flash", "computed", "Ia 02es-like", "Ia-02cx like", "TDE He", "Ca-Ia", 
                     "Ia-CSM-(ambigious)", "II", "super_chandra", "SLSN-II", "IIn", "FBOT", "Ibn", 
                     "SLSN-IIn", "Ia 91T-like", "IIb", "TDE H", "SN - Imposter", "II-flash", "ILRT", 
                     "Ia 99aa-like", "Ic", "SLSN-I", "Ia-pec", "Ib", "Ia-CSM", "Ia-norm", "SLSN-Ib", 
                     "TDE H+He", "Ia 91bg-like", "Ca-Ib", "Ia-rapid", "Ic-BL", "Ic-pec", "SLSN-IIb"],
 
-    "temp_gal_tr" : ["/E","/S0","/Sa","/Sb","/SB1","/SB2","/SB3","/SB4","/SB5","/SB6","/Sc"],
-    
-          
-    "resolution": 10,
-
+    "temp_gal_tr" : ["E","S0","Sa","Sb","SB1","SB2","SB3","SB4","SB5","SB6","Sc"],
+   
     "lower_lam": 0,
     "upper_lam": 0,
-    
 
-    "error_spectrum" : "SG",
+    "error_spectrum" : "sg",
     "saving_results_path" : "",
-
-    
     
     "show_plot" : 1,
-    "how_many_plots" : 3,
+    "how_many_plots" : 1,
+
+    "mask_galaxy_lines":1,
+    "mask_telluric":0,
 
     "minimum_overlap": 0.7,
 
     "epoch_high": 0,
     "epoch_low" : 0,
-    
-    "mask_galaxy_lines":0
-    
-    "mask_telluric":0
 
-    
+    "Alam_high": 2,
+    "Alam_low": -2,
+    "Alam_interval":0.2
 
-`"object_to_fit"` : the name or path of the object to analyze, thie should be located within the superfit folder. 
+
+
+`"object_to_fit"` : the object to analyze, should be located within the superfit folder. 
 
 `"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make `"z_int"` equal to 0 and `"z_start"` into the desired z value.
 
-`"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
-
-
 `"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å. 
 
+`"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is. 
 
+`"lower_lam"`: Lower bound for wavelength over which to perform the fit 
+`"upper_lam"`: Upper bound for wavelength over which to perform the fit, if this is equal to `"lower_lam"` then the wavelength range will be chosen automatically as that of the object to fit ± 300Å  
 
-`"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `SG` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
+`"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `sg` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended. 
 
 `"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder.
- 
- `"show_plot"` : to show the plotted fit or no, the default being 1, to show. 
- 
-  `"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
 
-  `"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
-  
-  `"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
-  
-  `"epoch_low"`: Lower bound epoch for phase truncation.
-  
-  `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice. 
-  
+`"show_plot"` : to show the plotted fit or no, the default being 1, to show. 
+`"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect. 
+
+`"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice. 
 `"mask_telluric"`: Either 1 or 0, masks the flux within the wavelength range from 7594 to 7680 in the observer's frame.
+
+`"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
+
+`"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
+`"epoch_low"`: Lower bound epoch for phase truncation.
+  
+`"Alam_high"`: High value for the extinction law constant 
+`"Alam_low"`: Lower value for the extinction law constant 
+`"Alam_interval"`: size of interval 
+
 
 ## To Run
 
