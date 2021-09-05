@@ -101,7 +101,7 @@ for folder in folders:
 
                     short_path_dict[shorhand_dict[spec_file]]=spec_file
 
-                    dictionary_all_trunc_objects[spec_file] = 'bank/binnings/'+str(resolution)+'A/sne/' + sn_type +'/'+ sub + '/' + spec_file
+                    dictionary_all_trunc_objects[spec_file] = 'bank/original_resolution/sne/' + sn_type +'/'+ sub + '/' + spec_file
             
             
             
@@ -115,7 +115,7 @@ for folder in folders:
 
                         short_path_dict[shorhand_dict[spec_file]]=spec_file
                         
-                        dictionary_all_trunc_objects[spec_file] = 'bank/binnings/'+str(resolution)+'A/sne/' + sn_type +'/'+ sub + '/' + spec_file
+                        dictionary_all_trunc_objects[spec_file] = 'bank/original_resolution/sne/' + sn_type +'/'+ sub + '/' + spec_file
                         
                         
                      

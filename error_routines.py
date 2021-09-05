@@ -86,7 +86,7 @@ def savitzky_golay(spec):
     
     for i in range(0, len(err_std)):
         if err_std[i] ==0:
-            err_std[i] = 1e-25
+            err_std[i] = 1e-50
     #x = [i+1e-10 for i in x if i==0]
     #err_std = [i+1e-10 for i in err_std if i==0]
     #err_std= [Decimal(i) for i in err_std if i==0]

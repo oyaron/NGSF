@@ -339,7 +339,8 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     int_obj = name_and_interpolated_object(original, lam)[1]
     nova   = np.loadtxt(sn_name)
     
-    hg_name = 'bank/binnings/'+str(resolution)+'A/gal/'+hg_name
+    #hg_name = 'bank/binnings/'+str(resolution)+'A/gal/'+hg_name
+    hg_name = 'bank/original_resolution/gal/' + hg_name
     nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
     host   = np.loadtxt(hg_name)
     host[:,1]=host[:,1]/np.nanmedian(host[:,1])
@@ -431,6 +432,9 @@ def mask_gal_lines(name,z_obj):
     return Data_masked
 
 
+
+from Header_Binnings import bin_spectrum_bank, mask_lines_bank
+
 def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=1, plot=False, **kwargs):
 
     
@@ -499,32 +503,59 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
     
 
     all_bank_files=[str(x) for x in get_metadata.dictionary_all_trunc_objects.values()] 
-    
-    for i in range(0, len(all_bank_files)):
-      
-        one_sn           =  np.loadtxt(all_bank_files[i]) #this is an expensive line
+ 
+
+    if resolution == 10 or 30:
         
-        if mask_galaxy_lines == 1:
-            one_sn = mask_gal_lines(all_bank_files[i],0)
-        elif mask_galaxy_lines ==0:
-            one_sn[:,1]=one_sn[:,1]/np.median(one_sn[:,1])
+        for i in range(0,len(all_bank_files)):
+            a=all_bank_files[i]
+            full_name=a[a.find('sne'):]
+            one_sn ='binnings/' + str(resolution) +'A/' + str(full_name)
+            one_sn = kill_header(all_bank_files[i])
+            one_sn = bin_spectrum_bank(one_sn, resolution)
+          
+            idx=all_bank_files[i].rfind("/")+1
+            filename=all_bank_files[i][idx:]
+                
+            short_name = str(get_metadata.shorhand_dict[filename])
+            
+            path_dict[short_name]=all_bank_files[i]
+            
+            templates_sn_trunc_dict[short_name]=one_sn
+            alam_dict[short_name]  = Alam(one_sn[:,0])
+
+
+
+    else:
+        print(resolution)
+        for i in range(0, len(all_bank_files)):
+            if mask_galaxy_lines == 1:
+                one_sn = kill_header(all_bank_files[i])
+                one_sn = mask_lines_bank(one_sn)
+                one_sn = bin_spectrum_bank(one_sn, resolution)
+            
+            elif mask_galaxy_lines ==0:
+                one_sn = kill_header(all_bank_files[i])
+                one_sn = bin_spectrum_bank(one_sn, resolution)
+
         
-        
-        idx=all_bank_files[i].rfind("/")+1
-        filename=all_bank_files[i][idx:]
-        
-        short_name = str(get_metadata.shorhand_dict[filename])
-    
-        path_dict[short_name]=all_bank_files[i]
-       
-        templates_sn_trunc_dict[short_name]=one_sn
-        alam_dict[short_name]  = Alam(one_sn[:,0])
+                idx=all_bank_files[i].rfind("/")+1
+                filename=all_bank_files[i][idx:]
+                
+                short_name = str(get_metadata.shorhand_dict[filename])
+            
+                path_dict[short_name]=all_bank_files[i]
+            
+                templates_sn_trunc_dict[short_name]=one_sn
+                alam_dict[short_name]  = Alam(one_sn[:,0])
+
+
 
 
     for i in range(0, len(templates_gal_trunc)):    
         
         one_gal           =  np.loadtxt(templates_gal_trunc[i])
-        one_gal[:,1]           =  one_gal[:,1] / np.nanmedian(one_gal[:,1])
+        one_gal = bin_spectrum_bank(one_gal,resolution)
         templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
     sn_spec_files=[x for x in path_dict.keys()]

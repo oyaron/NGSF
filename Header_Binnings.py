@@ -197,13 +197,13 @@ def bin_spectrum_bank(spectrum, resolution):
         resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
     
     """    
-  
+    #spectrum = np.loadtxt(spectrum)
     lam = spectrum[:,0]
     flux = spectrum[:,1]
     
     
     
-    if lam[15]- lam[14] >= resolution:
+    if lam[15]- lam[16] > resolution:
         bin_spectra = spectrum
    
    
@@ -225,10 +225,10 @@ def bin_spectrum_bank(spectrum, resolution):
         flux_bin = np.array(flux_bin)
         median_flux = np.nanmedian(flux_bin)
         flux_bin = flux_bin / median_flux
-        bin_spectra['lam_bin'] = bin_wavelength
-        bin_spectra['bin_flux'] = flux_bin
+        #bin_spectra['lam_bin'] = bin_wavelength
+        #bin_spectra['bin_flux'] = flux_bin
         
-        
+        bin_spectra=np.array([bin_wavelength,flux_bin]).T
             
         return bin_spectra
 

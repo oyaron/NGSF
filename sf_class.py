@@ -1,3 +1,6 @@
+from logging import raiseExceptions
+
+from astropy.utils import metadata
 from SF_functions import *
 from Header_Binnings import *
 from params import *
@@ -6,8 +9,9 @@ import matplotlib.pyplot as plt
 from PyAstronomy import * 
 from scipy.ndimage import gaussian_filter1d
 import warnings
-warnings.filterwarnings('ignore')
-
+#warnings.filterwarnings('ignore')
+from get_metadata import *
+from params import resolution
 
 class superfit_class:
     
@@ -21,7 +25,7 @@ class superfit_class:
         def plot(self):
             
             plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.title('Original: '+str(self.name),fontsize=17)
+            plt.title(str(self.name),fontsize=17)
             plt.ylabel('Flux',fontsize = 16)
             plt.xlabel('Lamda',fontsize = 16)
             plt.plot(self.lamda,self.flux,'k')
@@ -38,82 +42,57 @@ class superfit_class:
 
         def mask_galaxy_lines(self):
 
-            Data=np.loadtxt(self.name)
-            #If the object is in the bank then z=0
-            z_obj=redshift 
-            if len(z_obj) > 1:
-                raise Exception('Make sure to pick an exact value for z in order to mask the host lines!')
-            
-
-            host_lines=np.array([
-                 6564.61        
-                ,4862.69        
-                ,3726.09        
-                ,3729.88        
-                ,5008.24        
-                ,4960.30        
-                ,6549.84        
-                ,6585.23        
-                ,6718.32        
-                ,6732.71])
-
-            host_lines_air=(1+z_obj)*pyasl.airtovac2(host_lines)
-            host_range_air=np.column_stack([host_lines_air,host_lines_air])
-            z_disp=4e2/3e5
-            host_range_air[:,0]=host_range_air[:,0]*(1-z_disp)
-            host_range_air[:,1]=host_range_air[:,1]*(1+z_disp)
-
-            func=lambda x,y: (x<y[1])&(x>y[0])
-            cum_mask=np.array([True]*len(Data[:,0]))
-            for i in range(len(host_lines_air)):
-                mask=np.array(list(map(lambda x: ~func(x,host_range_air[i]),Data[:,0])))
-                cum_mask=cum_mask & mask
-
-            Data_masked = Data[cum_mask]
-            self.masked_galaxy_lines = Data_masked
-
+            Data = mask_gal_lines(self.name,z_obj=redshift)
             plt.figure(figsize=(7*np.sqrt(2), 7))
             plt.ylabel('Flux arbitrary',fontsize = 14)
             plt.xlabel('Lamda',fontsize = 14)
-            plt.title('Galaxy lines masked at z=' + str(z_obj[0]), fontsize = 15, fontweight='bold')
-            plt.plot(Data[:,0],Data[:,1],'r',label=str(self.name) )
-            plt.plot(Data_masked[:,0],Data_masked[:,1],'b',label='Masked object')
+            plt.title('Galaxy lines masked at z=' + str(redshift[0]), fontsize = 15, fontweight='bold')
+            plt.plot(self.lamda,self.flux/np.median(self.flux),'r',label=str(self.name))
+            plt.plot(Data[:,0],Data[:,1]/np.median(Data[:,1]),'b',label='Masked object' )
             plt.legend(framealpha=1, frameon=True, fontsize = 12)
-            plt.show()
-
-
-        def linear_error(self):
-            
-            error=linear_error(self.spectrum)[:,1]
-            plt.figure(figsize=(7*np.sqrt(2), 7))
-
-            plt.ylabel('Flux arbitrary',fontsize = 14)
-            plt.xlabel('Lamda',fontsize = 14)
-            plt.title('Linear error estimation', fontsize = 15, fontweight='bold')
-            plt.fill_between(self.lamda,(self.flux - error)/np.median(self.flux), (self.flux+error)/np.median(self.flux), color='#FF4500', label = 'error')
-            plt.plot(self.lamda,self.flux/np.median(self.flux),'k',label=str(self.name) )
-            plt.legend(framealpha=1, frameon=True, fontsize = 12)
-            plt.show()
-        
+            #plt.savefig(str(self.name) + '_masked.pdf' )
+           
         def sg_error(self):
-
-            error=savitzky_golay(self.spectrum)[:,1]
+            
+            if mask_galaxy_lines == 1:
+                Data =mask_gal_lines(self.name,z_obj=redshift)
+                error=savitzky_golay(Data)[:,1]
+            elif mask_galaxy_lines == 0:
+                Data = np.loadtxt(self.name)
+                error=savitzky_golay(self.spectrum)[:,1]
 
             plt.figure(figsize=(7*np.sqrt(2), 7))
             plt.ylabel('Flux arbitrary',fontsize = 14)
             plt.xlabel('Lamda',fontsize = 14)
             plt.title('Savitzky-Golay error estimation', fontsize = 15, fontweight='bold')
-    
-            plt.fill_between(self.lamda,self.flux/np.median(self.flux) - error, self.flux/np.median(self.flux)+error, color='#FF4500' ,label = 'error')
-            plt.plot(self.lamda,self.flux/np.median(self.flux),'k',label=str(self.name) )
+            plt.fill_between(Data[:,0],Data[:,1]/np.median(Data[:,1]) - error, Data[:,1]/np.median(Data[:,1])+error, color='#FF4500' ,label = 'error')
+            plt.plot(Data[:,0],Data[:,1]/np.median(Data[:,1]),'k',label=str(self.name) )    
             plt.legend(framealpha=1, frameon=True, fontsize = 12)
+            #plt.savefig(str(self.name) + '_sg.pdf' )
             
+
+        def linear_error(self):
+            
+            if mask_galaxy_lines == 1:
+                Data =mask_gal_lines(self.name,z_obj=redshift)
+                error=linear_error(Data)[:,1]
+            elif mask_galaxy_lines == 0:
+                Data = np.loadtxt(self.name)
+                error=linear_error(self.spectrum)[:,1]
+
+            plt.figure(figsize=(7*np.sqrt(2), 7))
+            plt.ylabel('Flux arbitrary',fontsize = 14)
+            plt.xlabel('Lamda',fontsize = 14)
+            plt.title('Linear error estimation', fontsize = 15, fontweight='bold')
+            plt.fill_between(Data[:,0],(Data[:,1] - error)/np.median(Data[:,1]), (Data[:,1]+error)/np.median(Data[:,1]), color='#03AC13' ,label = 'error')
+            plt.plot(Data[:,0],Data[:,1]/np.median(Data[:,1]),'k',label=str(self.name) )    
+            plt.legend(framealpha=1, frameon=True, fontsize = 12)
+            #plt.savefig(str(self.name) + '_linear.pdf' )
  
         def mask_gal_lines_and_telluric(self):
             
-            Data_masked=self.masked_galaxy_lines         
+            Data_masked=mask_gal_lines(self.name,z_obj=redshift)
             masked_spectrum = remove_telluric(Data_masked)
-
             plt.figure(figsize=(7*np.sqrt(2), 7))
             plt.title('Masked Telluric and Galaxy lines',fontsize=17)
             plt.ylabel('Flux',fontsize = 16)
@@ -121,11 +100,12 @@ class superfit_class:
             plt.plot(masked_spectrum[:,0],masked_spectrum[:,1],'k',label = str(self.name))
             plt.legend(framealpha=1, frameon=True, fontsize = 12)
 
-        
+
+
+
         def superfit(self):
-            
+            from params import resolution
             try:
-                resolution=10
                 binned_name = self.binned_name
                 print('Running optimization for spectrum file: {0} with resolution = {1} Å'.format(binned_name,resolution))
                 save_bin = save_bin_path + binned_name
@@ -140,7 +120,7 @@ class superfit_class:
 
             except:
                 resolution=30
-                print('Superfit failed at 10 Å. Retrying for resolution = {0} Å'.format(resolution))
+                print('Superfit failed. Retrying for resolution = {0} Å'.format(resolution))
                 binned_name = self.binned_name
                 #binned_name= obj_name_int(self.name, lam, resolution)[3]
                 save_bin = save_bin_path + binned_name
@@ -154,6 +134,85 @@ class superfit_class:
                 result = np.array([data,binned_res])
                 ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
                 return save_results_path
+
+        def results(self):
+
+            idx=str(self.name).rfind('.')
+
+            if os.path.isfile(str(self.name)[:idx]+'.csv') == True:
+                results=pd.read_csv(str(self.name)[:idx]+'.csv')
+
+            else:
+                raise Exception('Do the superfit! <( @_@'')> ')
+
+            return results
+
+
+        def top_result(self):
+
+            idx=str(self.name).rfind('.')
+            if os.path.isfile(str(self.name)[:idx]+'.csv') == True:
+
+                results=pd.read_csv(str(self.name)[:idx]+'.csv')
+                row = results.iloc[0]
+                print(row)
+              
+                obj_name   = row['OBJECT']
+                hg_name    = row['GALAXY']
+                short_name = row['SN']
+                bb         = row['CONST_SN']
+                dd         = row['CONST_GAL']
+                z          = row['Z']
+                extmag     = row['A_v']
+                sn_cont    = row['Frac(SN)']
+
+               #Get all names from the dictionary
+                full_names  =[str(x) for x in get_metadata.shorhand_dict.keys()] 
+                short_names =[str(x) for x in get_metadata.shorhand_dict.values()] 
+
+                for i in range(0,len(short_names)):
+                    if str(short_names[i]) == str(short_name):
+                        sn_best_fullname = full_names[i]
+                        sn_short_name    = short_names[i]
+                        idx=sn_short_name.rfind('/')
+                        subtype=sn_short_name[:idx]
+                    
+                sn_name = 'bank/original_resolution/sne/' + subtype + '/' + sn_best_fullname
+                int_obj = name_and_interpolated_object(self.name, lam)[1]
+                nova   = np.loadtxt(sn_name)
+                
+                hg_name = 'bank/original_resolution/gal/' + hg_name
+                nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
+                host   = np.loadtxt(hg_name)
+                host[:,1]=host[:,1]/np.nanmedian(host[:,1])
+
+                #Interpolate supernova and host galaxy 
+                redshifted_nova   =  nova[:,0]*(z+1)
+                extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
+                
+                reshifted_host    =  host[:,0]*(z+1)
+                reshifted_hostf   =  host[:,1]/(z+1)
+                
+                nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
+                host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
+                host_nova = bb*nova_int(lam) + dd*host_int(lam)
+                
+                sn_type = short_name[:short_name.find('/')]
+                hg_name = hg_name[hg_name.rfind('/')+1:]
+                subclass = short_name[short_name.find('/')+1:short_name.rfind('/')]
+                phase = str(short_name[short_name.rfind(':')+1:-1])
+            
+                plt.figure(figsize=(8*np.sqrt(2), 8))
+                plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
+                plt.plot(lam, host_nova,'g', label =  'SN: ' + sn_type  + ' - '+  subclass + ' - Phase: ' +phase + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
+                plt.legend(framealpha=1, frameon=True, fontsize = 12)
+                plt.ylabel('Flux arbitrary',fontsize = 14)
+                plt.xlabel('Lamda',fontsize = 14)
+                plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
+            
+            else:
+                raise Exception('Do the superfit! <( @_@'')> ')
+
 
         def convolution(self):
        
