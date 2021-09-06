@@ -12,6 +12,7 @@ import warnings
 #warnings.filterwarnings('ignore')
 from get_metadata import *
 from params import resolution
+from params import use_exact_z
 
 class superfit_class:
     
@@ -41,16 +42,19 @@ class superfit_class:
 
 
         def mask_galaxy_lines(self):
-
-            Data = mask_gal_lines(self.name,z_obj=redshift)
-            plt.figure(figsize=(7*np.sqrt(2), 7))
-            plt.ylabel('Flux arbitrary',fontsize = 14)
-            plt.xlabel('Lamda',fontsize = 14)
-            plt.title('Galaxy lines masked at z=' + str(redshift[0]), fontsize = 15, fontweight='bold')
-            plt.plot(self.lamda,self.flux/np.median(self.flux),'r',label=str(self.name))
-            plt.plot(Data[:,0],Data[:,1]/np.median(Data[:,1]),'b',label='Masked object' )
-            plt.legend(framealpha=1, frameon=True, fontsize = 12)
-            #plt.savefig(str(self.name) + '_masked.pdf' )
+            
+            if use_exact_z != 1:
+                raise Exception('Make sure to pick an exact value for z in order to mask the host lines accordingly!')
+            else:
+                Data = mask_gal_lines(self.name,z_obj=redshift)
+                plt.figure(figsize=(7*np.sqrt(2), 7))
+                plt.ylabel('Flux arbitrary',fontsize = 14)
+                plt.xlabel('Lamda',fontsize = 14)
+                plt.title('Galaxy lines masked at z=' + str(redshift[0]), fontsize = 15, fontweight='bold')
+                plt.plot(self.lamda,self.flux/np.median(self.flux),'r',label=str(self.name))
+                plt.plot(Data[:,0],Data[:,1]/np.median(Data[:,1]),'b',label='Masked object' )
+                plt.legend(framealpha=1, frameon=True, fontsize = 12)
+                #plt.savefig(str(self.name) + '_masked.pdf' )
            
         def sg_error(self):
             

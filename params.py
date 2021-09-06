@@ -24,23 +24,33 @@ object_to_fit = data['object_to_fit']
 
 original_bank_path = path + 'bank/original_resolution/sne/'
 
-mask_galaxy_lines=data['mask_galaxy_lines']
-mask_telluric=data['mask_telluric']
+
 #--------------------------------------------------------------------------------------------------
 
 # Redshift
 
-z_start  = data['z_start'] 
-z_end    = data['z_end']
-z_int    = data['z_int']
+use_exact_z   = data['use_exact_z']
+z_exact       = data['z_exact']
+z_range_begin = data['z_range_begin']
+z_range_end   = data['z_range_end']
+z_int         = data['z_int']
 
-if z_int == 0:
-    z_num = 1
-    redshift      =    np.linspace(z_start, z_end,z_num)
-else: 
+
+
+
+if use_exact_z == 1:
     
-    z_num = int((z_end - z_start)/z_int)+1
-    redshift      =    np.linspace(z_start, z_end,z_num)
+    redshift  = np.array([z_exact])
+
+else: 
+
+    z_num = int((z_range_end - z_range_begin)/z_int)+1
+    redshift      =    np.linspace(z_range_begin, z_range_end,z_num)
+
+
+
+mask_galaxy_lines=data['mask_galaxy_lines']
+mask_telluric=data['mask_telluric']
 
 if mask_galaxy_lines == 1 and len(redshift) != 1:
     raise Exception('Make sure to pick an exact value for z in order to mask the host lines accordingly!')

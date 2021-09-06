@@ -2,9 +2,13 @@
     "object_to_fit" : "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
 
 
-    "z_start": 0.127,
-    "z_end": 0,
-    "z_int": 0,
+    "use_exact_z": 1,
+    "z_exact": 0.127,
+
+
+    "z_range_begin": 0,
+    "z_range_end": 0.13,
+    "z_int": 0.01,
     
     "resolution":10,
 
@@ -25,13 +29,13 @@
     "show_plot" : 1,
     "how_many_plots" : 1,
 
-    "mask_galaxy_lines":1,
+    "mask_galaxy_lines":0,
     "mask_telluric":0,
 
     "minimum_overlap": 0.7,
 
-    "epoch_high": 0,
-    "epoch_low" : 0,
+    "epoch_high": 5,
+    "epoch_low" : -5,
 
     "Alam_high": 2,
     "Alam_low": -2,
