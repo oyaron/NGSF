@@ -72,6 +72,7 @@ The user must only change the parameters of the fit from the parameters.json fil
 `"object_to_fit"` : the object to analyze, should be located within the superfit folder. 
 
 `"use_exact_z"`: can be 1 (yes) or 0 (no). Determines wether the redshift will be an exact number or an array. 
+
 `"z_exact"`    : exact redshift value that will be used if `"use_exact_z"` = 1
 
 `"z_range_begin"`,`"z_range_end"`,`"z_int"`: redshift values from which to build an array over which to look for the best fit.
