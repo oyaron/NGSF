@@ -27,11 +27,15 @@ The user must only change the parameters of the fit from the parameters.json fil
   
     "object_to_fit" : "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
 
+    "use_exact_z": 1,
+    "z_exact": 0.127,
 
-    "z_start": 0.127,
-    "z_end": 0,
-    "z_int": 0,
+
+    "z_range_begin": 0,
+    "z_range_end": 0.13,
+    "z_int": 0.01,
     
+
     "resolution":10,
 
     "temp_sn_tr"  : ["IIb-flash", "computed", "Ia 02es-like", "Ia-02cx like", "TDE He", "Ca-Ia", 
@@ -67,7 +71,10 @@ The user must only change the parameters of the fit from the parameters.json fil
 
 `"object_to_fit"` : the object to analyze, should be located within the superfit folder. 
 
-`"z_start"`,`"z_end"`,`"z_int"`: redshift values over which to look for the fit, begining, end and the size of the of intervals in between. In the case of a specific redshift value the user should just make `"z_int"` equal to 0 and `"z_start"` into the desired z value.
+`"use_exact_z"`: can be 1 (yes) or 0 (no). Determines wether the redshift will be an exact number or an array. 
+`"z_exact"`    : exact redshift value that will be used if `"use_exact_z"` = 1
+
+`"z_range_begin"`,`"z_range_end"`,`"z_int"`: redshift values from which to build an array over which to look for the best fit.
 
 `"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å. 
 
