@@ -162,7 +162,7 @@ def error_obj(kind, lam,object_to_fit):
 
 
 
-def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **kwargs):
+def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, iterations, **kwargs):
 
     """
     
@@ -245,7 +245,7 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, **k
     redchi2 = [] 
     all_tables = [] 
 
-    for i in range(50):
+    for i in range(iterations):
 
         idx = np.unravel_index(index[i], reduchi2.shape)
         rchi2 = reduchi2[idx]
@@ -435,7 +435,7 @@ def mask_gal_lines(name,z_obj):
 
 from Header_Binnings import bin_spectrum_bank, mask_lines_bank
 
-def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, n=1, plot=False, **kwargs):
+def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution,iterations, n=1, plot=False, **kwargs):
 
     
     '''
@@ -572,7 +572,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     for element in itertools.product(redshift,extconstant):
          
-        a, _ = core(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution, **kwargs)
+        a, _ = core(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution,iterations, **kwargs)
 
       
         results.append(a)

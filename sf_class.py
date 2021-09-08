@@ -13,6 +13,7 @@ import warnings
 from get_metadata import *
 from params import resolution
 from params import use_exact_z
+from params import iterations
 
 class superfit_class:
     
@@ -116,7 +117,7 @@ class superfit_class:
                 
                 kill_header_and_bin(self.name,resolution, save_bin = save_bin)
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-                lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
+                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
             
                 binned_res=np.loadtxt(save_bin)
                 result = np.array([data,binned_res])
@@ -131,7 +132,7 @@ class superfit_class:
                
                 kill_header_and_bin(self.name,resolution, save_bin = save_bin)
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-                lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
+                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
                 
                 
                 binned_res=np.loadtxt(save_bin)

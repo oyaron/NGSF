@@ -110,6 +110,7 @@ show = data['show_plot']
 # How many results to plot? 
 n = data['how_many_plots']
 
+iterations = 10
 
 #--------------------------------------------------------------------------------------------------
 
