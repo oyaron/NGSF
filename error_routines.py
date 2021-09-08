@@ -64,15 +64,10 @@ def savitzky_golay(spec):
     
   
     # Find residuals from smooth line
-
-    
-    smooth = mf.savgol_filter(y, 31, 3 )
+    smooth = mf.savgol_filter(y, 31, 3, deriv=0, delta=1.0, axis=- 1, mode='nearest', cval=0.0)
     resid = y - smooth
-    
-    
+
     # Calculate the variance 
-    
-    
     def moving_average(a, n=3) :
         ret = np.cumsum(a, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
@@ -82,17 +77,18 @@ def savitzky_golay(spec):
     mov_var = moving_average(resid**2, n=100)
     mov_var = np.concatenate((mov_var, [mov_var[-1]]* (resid.size-mov_var.size)))
     err_std = mov_var**(1/2)
- 
+    #print(err_std)
     
     for i in range(0, len(err_std)):
         if err_std[i] ==0:
             err_std[i] = 1e-50
+
     #x = [i+1e-10 for i in x if i==0]
     #err_std = [i+1e-10 for i in err_std if i==0]
     #err_std= [Decimal(i) for i in err_std if i==0]
     #for i in range(0,len(x)):
     #    if i==0:
     #        x[i] = 'nan'
-
+   
     return np.array([x,err_std]).T 
 
