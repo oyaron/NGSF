@@ -7,7 +7,7 @@
 
 
     "z_range_begin": 0,
-    "z_range_end": 0.13,
+    "z_range_end": 0.127,
     "z_int": 0.01,
     
     "resolution":10,
@@ -34,8 +34,8 @@
 
     "minimum_overlap": 0.7,
 
-    "epoch_high": 5,
-    "epoch_low" : -5,
+    "epoch_high": 0,
+    "epoch_low" : 0,
 
     "Alam_high": 2,
     "Alam_low": -2,

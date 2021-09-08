@@ -504,16 +504,23 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     all_bank_files=[str(x) for x in get_metadata.dictionary_all_trunc_objects.values()] 
  
-
-    if resolution == 10 or 30:
-        
+   
+    if resolution == 10 or resolution == 30:
+   
         for i in range(0,len(all_bank_files)):
             a=all_bank_files[i]
+            
             full_name=a[a.find('sne'):]
-            one_sn ='binnings/' + str(resolution) +'A/' + str(full_name)
-            one_sn = kill_header(all_bank_files[i])
-            one_sn = bin_spectrum_bank(one_sn, resolution)
-          
+            one_sn ='bank/binnings/' + str(resolution) +'A/' + str(full_name)
+            
+
+            if mask_galaxy_lines == 1:
+                one_sn = np.loadtxt(one_sn)
+                one_sn = mask_lines_bank(one_sn)
+            else:
+                one_sn = np.loadtxt(one_sn)
+            
+            
             idx=all_bank_files[i].rfind("/")+1
             filename=all_bank_files[i][idx:]
                 
@@ -524,12 +531,13 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
             templates_sn_trunc_dict[short_name]=one_sn
             alam_dict[short_name]  = Alam(one_sn[:,0])
 
-
-
-    else:
-        print(resolution)
+  
+    elif resolution != 30 or resolution != 10 :   
+       
         for i in range(0, len(all_bank_files)):
+            
             if mask_galaxy_lines == 1:
+
                 one_sn = kill_header(all_bank_files[i])
                 one_sn = mask_lines_bank(one_sn)
                 one_sn = bin_spectrum_bank(one_sn, resolution)
@@ -539,17 +547,17 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
                 one_sn = bin_spectrum_bank(one_sn, resolution)
 
         
-                idx=all_bank_files[i].rfind("/")+1
-                filename=all_bank_files[i][idx:]
+            idx=all_bank_files[i].rfind("/")+1
+            filename=all_bank_files[i][idx:]
                 
-                short_name = str(get_metadata.shorhand_dict[filename])
+            short_name = str(get_metadata.shorhand_dict[filename])
             
-                path_dict[short_name]=all_bank_files[i]
+            path_dict[short_name]=all_bank_files[i]
             
-                templates_sn_trunc_dict[short_name]=one_sn
-                alam_dict[short_name]  = Alam(one_sn[:,0])
+            templates_sn_trunc_dict[short_name]=one_sn
+            alam_dict[short_name]  = Alam(one_sn[:,0])
 
-
+   
 
 
     for i in range(0, len(templates_gal_trunc)):    

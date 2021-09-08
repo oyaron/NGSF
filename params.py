@@ -109,25 +109,35 @@ show = data['show_plot']
 
 # How many results to plot? 
 n = data['how_many_plots']
+
+
 #--------------------------------------------------------------------------------------------------
 
 
 #Template library
 
-templates_gal = glob.glob(path + 'bank/original_resolution/gal/*')
-#templates_gal = glob.glob(path + 'bank/binnings/10A/gal/*')
-templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
-templates_gal = np.array(templates_gal)
-#print(templates_gal)
-#templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
-templates_sn = glob.glob(path + 'bank/original_resolution/sne/**/**/*')
-templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
-templates_sn = np.array(templates_sn)
+if resolution == 10 or resolution == 30:
 
+    
+    templates_gal = glob.glob(path + 'bank/binnings/'+str(resolution)+'A/gal/*')
+    templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
+    templates_gal = np.array(templates_gal)
+
+    templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
+    templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
+    templates_sn = np.array(templates_sn)
+
+
+else: 
+
+    templates_gal = glob.glob(path + 'bank/original_resolution/gal/*')
+    templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
+    templates_gal = np.array(templates_gal)
+   
+    templates_sn = glob.glob(path + 'bank/original_resolution/sne/**/**/*')
+    templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
+    templates_sn = np.array(templates_sn)
 
 
 templates_sn_trunc = select_templates(templates_sn, temp_sn_tr)
 templates_gal_trunc = select_templates(templates_gal, temp_gal_tr)
-
-#print(templates_sn_trunc)
-
