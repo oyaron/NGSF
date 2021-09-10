@@ -575,8 +575,7 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     end   = time.time()
     print('Runtime: {0: .2f}s '.format(end-start))
-
-    df = pd.read_csv(save + binned_name + '.csv')
+    #df = pd.read_csv(save + binned_name + '.csv')
     
    
     row=[]
