@@ -24,8 +24,7 @@ try:
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
     lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap)
     
-    binned_res=np.loadtxt(save_bin)
-    result = np.array([data,binned_res])
+    result = np.array([data])
     ascii.write(result, save_bin, format='csv', fast_writer=False, overwrite=True)     
 
 except:
@@ -39,7 +38,6 @@ except:
     all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
     lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap)
  
-    binned_res=np.loadtxt(save_bin)
-    result = np.array([data,binned_res])
+    result = np.array([data])
     ascii.write(result, save_bin, format='csv', fast_writer=False, overwrite=True)     
 

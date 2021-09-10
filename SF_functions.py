@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
 import matplotlib.pyplot as plt
+import extinction
 from extinction import ccm89, apply
 from astropy import table
 from astropy.io import ascii 
@@ -48,7 +49,7 @@ def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
         redshifted_sn     =  one_sn[:,0]*(z+1)
         extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * a_lam_sn)/(1+z) 
         sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
-
+        
         sn.append(sn_interp)
 
     
@@ -91,6 +92,7 @@ def remove_telluric(spectrum):
 
 
 def Alam(lamin,A_v=1,R_v=3.1):
+    
     '''
     Add extinction with R_v = 3.1 and A_v = 1, A_v = 1 in order 
     to find the constant of proportionality for
@@ -98,7 +100,10 @@ def Alam(lamin,A_v=1,R_v=3.1):
     '''
     
     flux = np.ones(len(lamin))
-    redreturn = apply(ccm89(lamin, A_v, R_v), flux)
+    flux = [float(x) for x in flux]
+    lamin=np.array([float(i) for i in lamin])
+    redreturn = apply(extinction.ccm89(lamin, A_v, R_v), flux)
+  
     return redreturn
 
 
@@ -260,7 +265,6 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, ite
         idxx = host_galaxy_file.rfind('/')
         host_galaxy_file=host_galaxy_file[idxx+1:]
 
-
         bb = b[idx[0]][idx[1]]
 
 
@@ -292,14 +296,13 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, ite
        
         outputs = table.vstack(all_tables)
 
-
     return outputs, redchi2
 
     
 
     
 
-def plotting(values, lam, original, number, resolution, **kwargs):
+def plotting(values, lam, original, number, **kwargs):
 
     """
     
@@ -317,8 +320,7 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     
     
     """
-
-
+   
     obj_name   = values[0]
     hg_name    = values[1]
     short_name = values[2]
@@ -326,7 +328,7 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     dd         = values[4]
     z          = values[5]
     extmag     = values[6] 
-    sn_cont    = values[7]
+    sn_cont    = values[4]/values[3]
 
     save = kwargs['save']
     show = kwargs['show']
@@ -339,13 +341,12 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     int_obj = name_and_interpolated_object(original, lam)[1]
     nova   = np.loadtxt(sn_name)
     
-    #hg_name = 'bank/binnings/'+str(resolution)+'A/gal/'+hg_name
-    hg_name = 'bank/original_resolution/gal/' + hg_name
+    hg_name = 'bank/original_resolution/gal/'+hg_name
     nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
     host   = np.loadtxt(hg_name)
     host[:,1]=host[:,1]/np.nanmedian(host[:,1])
     
-  
+    
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
@@ -360,35 +361,20 @@ def plotting(values, lam, original, number, resolution, **kwargs):
     host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
-    sn_type = short_name[:short_name.find('/')]
-
-    hg_name = hg_name[hg_name.rfind('/')+1:]
-
-    subclass = short_name[short_name.find('/')+1:short_name.rfind('/')]
-    
-    phase = str(short_name[short_name.rfind(':')+1:-1])
-  
-
+    hg_namee = hg_name[hg_name.rfind('/')+1:]
+   
     plt.figure(figsize=(8*np.sqrt(2), 8))
-    
-    plt.plot(lam, int_obj,'r', label = 'Input object: ' + obj_name)
-    
-    plt.plot(lam, host_nova,'g', label =  'SN: ' + sn_type  + ' - '+  subclass + ' - Phase: ' +phase + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
-    
+    plt.plot(lam, int_obj,'r', label = 'Input object: ' + str(obj_name))
+    plt.plot(lam, host_nova,'g', label =  'SN: ' + str(short_name) + '  Host:'+str(hg_namee) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
     plt.legend(framealpha=1, frameon=True, fontsize = 12)
-    
     plt.ylabel('Flux arbitrary',fontsize = 14)
-    
     plt.xlabel('Lamda',fontsize = 14)
-
-    
     plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
-    
     result = np.array([lam,int_obj,lam,host_nova])
 
     #np.savetxt(save + obj_name + '-' + str(number) + '-.txt', result)   
     
-    plt.savefig(save + obj_name + '_' + str(number) + '.pdf' )
+    plt.savefig(save + str(obj_name) + '_' + str(number) + '.pdf' )
     if show:
         plt.show()
         
@@ -506,13 +492,12 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
  
    
     if resolution == 10 or resolution == 30:
-   
+        
         for i in range(0,len(all_bank_files)):
             a=all_bank_files[i]
             
             full_name=a[a.find('sne'):]
             one_sn ='bank/binnings/' + str(resolution) +'A/' + str(full_name)
-            
 
             if mask_galaxy_lines == 1:
                 one_sn = np.loadtxt(one_sn)
@@ -526,12 +511,13 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
                 
             short_name = str(get_metadata.shorhand_dict[filename])
             
+            
             path_dict[short_name]=all_bank_files[i]
             
             templates_sn_trunc_dict[short_name]=one_sn
             alam_dict[short_name]  = Alam(one_sn[:,0])
-
-  
+            
+    
     elif resolution != 30 or resolution != 10 :   
        
         for i in range(0, len(all_bank_files)):
@@ -553,7 +539,6 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
             short_name = str(get_metadata.shorhand_dict[filename])
             
             path_dict[short_name]=all_bank_files[i]
-            
             templates_sn_trunc_dict[short_name]=one_sn
             alam_dict[short_name]  = Alam(one_sn[:,0])
 
@@ -567,27 +552,24 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
         templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
 
     sn_spec_files=[x for x in path_dict.keys()]
-
     results = []
 
     for element in itertools.product(redshift,extconstant):
          
         a, _ = core(element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution,iterations, **kwargs)
-
       
         results.append(a)
        
-
     result = table.vstack(results)
-        
-    
-   
+
 
     result.sort('CHI2/dof2')
+
     
     result = table.unique(result, keys='SN',keep='first')
 
     result.sort('CHI2/dof2')
+
 
     ascii.write(result, save + binned_name + '.csv', format='csv', fast_writer=False, overwrite=True)  
 
@@ -596,17 +578,14 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     df = pd.read_csv(save + binned_name + '.csv')
     
-
-
-
-    # Plot the first n results (default set to 1)
-    
+   
+    row=[]
+    for i in range(0,len(result[:][0])):
+        row.append(result[0][i])
+  
     if plot: 
         for i in range(0,n):
+            plotting(row, lam , original, i, save=save, show=show)
 
-            row = df.iloc[i]
-         
-            plotting(row, lam , original, i, resolution, save=save, show=show)
-    
     return result
 

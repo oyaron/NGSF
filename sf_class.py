@@ -8,12 +8,13 @@ from PyAstronomy import pyasl
 import matplotlib.pyplot as plt 
 from PyAstronomy import * 
 from scipy.ndimage import gaussian_filter1d
-import warnings
+#import warnings
 #warnings.filterwarnings('ignore')
 from get_metadata import *
 from params import resolution
 from params import use_exact_z
 from params import iterations
+
 
 class superfit_class:
     
@@ -119,9 +120,9 @@ class superfit_class:
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
                 lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
             
-                binned_res=np.loadtxt(save_bin)
-                result = np.array([data,binned_res])
-                ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
+                result = np.array([data])
+                
+                ascii.write(result, save_bin, fast_writer=False, overwrite=True)   
 
             except:
                 resolution=30
@@ -135,8 +136,7 @@ class superfit_class:
                 lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
                 
                 
-                binned_res=np.loadtxt(save_bin)
-                result = np.array([data,binned_res])
+                result = np.array([data])
                 ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
                 return save_results_path
 
