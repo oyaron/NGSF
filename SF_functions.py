@@ -285,11 +285,11 @@ def core(z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, ite
        
         
      
-        output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon,sn_cont,gal_cont, chi2[idx],reduchi2_once[idx],reduchi2[idx] ,the_band, the_phase]), 
+        output = table.Table(np.array([name, host_galaxy_file, supernova_file,  bb , dd, z, extcon, the_phase,the_band,sn_cont,gal_cont,reduchi2_once[idx],reduchi2[idx]]), 
                     
-        names  =  ('OBJECT', 'GALAXY', 'SN' ,'CONST_SN','CONST_GAL','Z','A_v','Frac(SN)','Frac(gal)','CHI2','CHI2/dof','CHI2/dof2', 'Band','Phase'), 
+        names  =  ('OBJECT', 'GALAXY', 'SN' ,'CONST_SN','CONST_GAL','Z','A_v','Phase','Band','Frac(SN)','Frac(gal)','CHI2/dof','CHI2/dof2'), 
                     
-        dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'f','f','f','f','f','S200','S200'))
+        dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'S200','S200','f','f','f','f'))
         
 
         all_tables.append(output)
@@ -346,23 +346,22 @@ def plotting(values, lam, original, number, **kwargs):
     host   = np.loadtxt(hg_name)
     host[:,1]=host[:,1]/np.nanmedian(host[:,1])
     
+
     
     #Interpolate supernova and host galaxy 
     
     redshifted_nova   =  nova[:,0]*(z+1)
     extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
-    
-    
     reshifted_host    =  host[:,0]*(z+1)
     reshifted_hostf   =  host[:,1]/(z+1)
-    
+
 
     nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
     host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
     host_nova = bb*nova_int(lam) + dd*host_int(lam)
     
+
     hg_namee = hg_name[hg_name.rfind('/')+1:]
-   
     plt.figure(figsize=(8*np.sqrt(2), 8))
     plt.plot(lam, int_obj,'r', label = 'Input object: ' + str(obj_name))
     plt.plot(lam, host_nova,'g', label =  'SN: ' + str(short_name) + '  Host:'+str(hg_namee) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
@@ -371,9 +370,9 @@ def plotting(values, lam, original, number, **kwargs):
     plt.xlabel('Lamda',fontsize = 14)
     plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
     result = np.array([lam,int_obj,lam,host_nova])
-
     #np.savetxt(save + obj_name + '-' + str(number) + '-.txt', result)   
     
+
     plt.savefig(save + str(obj_name) + '_' + str(number) + '.pdf' )
     if show:
         plt.show()
@@ -575,16 +574,13 @@ def all_parameter_space(redshift, extconstant, templates_sn_trunc, templates_gal
 
     end   = time.time()
     print('Runtime: {0: .2f}s '.format(end-start))
-    #df = pd.read_csv(save + binned_name + '.csv')
-    
    
-    row=[]
-    for i in range(0,len(result[:][0])):
-        row.append(result[0][i])
-  
+   
+
     if plot: 
         for i in range(0,n):
-            plotting(row, lam , original, i, save=save, show=show)
+        
+            plotting(result[:][i], lam , original, i, save=save, show=show)
 
     return result
 
