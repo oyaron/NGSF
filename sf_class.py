@@ -111,41 +111,42 @@ class superfit_class:
 
         def superfit(self):
             from params import resolution
+
+            self.results_name    = save_results_path + str(self.binned_name)
+            self.results_path = save_results_path + str(self.binned_name) + '.csv'
+
             try:
-                binned_name = self.binned_name
-                print('Running optimization for spectrum file: {0} with resolution = {1} Å'.format(binned_name,resolution))
-                save_bin = save_bin_path + binned_name
                 
-                kill_header_and_bin(self.name,resolution, save_bin = save_bin)
+                print('Running optimization for spectrum file: {0} with resolution = {1} Å'.format(self.binned_name,resolution))
+                
+                kill_header_and_bin(self.name,resolution, save_bin = self.binned_name)
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
+                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original= self.binned_name, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
             
                 result = np.array([data])
                 
-                ascii.write(result, save_bin, fast_writer=False, overwrite=True)   
+                ascii.write(result, str(self.results_name), fast_writer=False, overwrite=True)   
 
             except:
+                
                 resolution=30
                 print('Superfit failed. Retrying for resolution = {0} Å'.format(resolution))
-                binned_name = self.binned_name
-                #binned_name= obj_name_int(self.name, lam, resolution)[3]
-                save_bin = save_bin_path + binned_name
-               
-                kill_header_and_bin(self.name,resolution, save_bin = save_bin)
+    
+                kill_header_and_bin(self.name,resolution, save_bin = self.binned_name)
                 all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
+                lam, resolution,iterations, n=n, plot=plotting, kind=kind, original=self.binned_name, save=save_results_path, show=show,minimum_overlap=minimum_overlap)
                 
                 
                 result = np.array([data])
-                ascii.write(result, save_bin, fast_writer=False, overwrite=True)     
+                ascii.write(result, str(self.results_name), fast_writer=False, overwrite=True)     
+                
                 return save_results_path
 
         def results(self):
 
-            idx=str(self.name).rfind('.')
-
-            if os.path.isfile(str(self.name)[:idx]+'.csv') == True:
-                results=pd.read_csv(str(self.name)[:idx]+'.csv')
+            if os.path.isfile(self.results_path) == True:
+                
+                results=pd.read_csv(self.results_path)
 
             else:
                 raise Exception('Do the superfit! <( @_@'')> ')
@@ -155,10 +156,12 @@ class superfit_class:
 
         def top_result(self):
 
-            idx=str(self.name).rfind('.')
-            if os.path.isfile(str(self.name)[:idx]+'.csv') == True:
+            #idx=str(self.name).rfind('.')
+            #name = save_results_path + self.binned_name + '.csv'
+            if os.path.isfile(self.results_path) == True:
+            #if os.path.isfile(str(self.name)[:idx]+'.csv') == True:
 
-                results=pd.read_csv(str(self.name)[:idx]+'.csv')
+                results=pd.read_csv(self.results_path)
                 row = results.iloc[0]
                 print(row)
               

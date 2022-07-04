@@ -15,14 +15,14 @@ with open("parameters.json", "r") as read_file:
 
 path = data['saving_results_path']
 sys.path.insert(1,path)
-save_bin_path     = path 
+save_bin_path     = '' 
 save_results_path = path 
 
 object_to_fit = data['object_to_fit']
 
 # Path where original bank is located for metadata
 
-original_bank_path = path + 'bank/original_resolution/sne/'
+original_bank_path = 'bank/original_resolution/sne/'
 
 
 #--------------------------------------------------------------------------------------------------
@@ -120,22 +120,22 @@ iterations = 10
 if resolution == 10 or resolution == 30:
 
     
-    templates_gal = glob.glob(path + 'bank/binnings/'+str(resolution)+'A/gal/*')
+    templates_gal = glob.glob('bank/binnings/'+str(resolution)+'A/gal/*')
     templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
     templates_gal = np.array(templates_gal)
 
-    templates_sn = glob.glob(path + 'bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
+    templates_sn = glob.glob('bank/binnings/' + str(resolution) + 'A/sne/**/**/*')
     templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
     templates_sn = np.array(templates_sn)
 
 
 else: 
 
-    templates_gal = glob.glob(path + 'bank/original_resolution/gal/*')
+    templates_gal = glob.glob('bank/original_resolution/gal/*')
     templates_gal = [x for x in templates_gal if 'CVS' not in x and 'README' not in x]
     templates_gal = np.array(templates_gal)
    
-    templates_sn = glob.glob(path + 'bank/original_resolution/sne/**/**/*')
+    templates_sn = glob.glob('bank/original_resolution/sne/**/**/*')
     templates_sn = [x for x in templates_sn if 'wiserep_spectra.csv' not in x and 'info' not in  x and 'photometry' not in x and 'photometry.pdf' not in x]
     templates_sn = np.array(templates_sn)
 
