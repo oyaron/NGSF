@@ -24,13 +24,13 @@
     "upper_lam": 0,
 
     "error_spectrum" : "sg",
-    "saving_results_path" : "",
+    "saving_results_path" : "results/",
     
     "show_plot" : 1,
     "how_many_plots" : 1,
 
-    "mask_galaxy_lines":0,
-    "mask_telluric":0,
+    "mask_galaxy_lines":1,
+    "mask_telluric":1,
 
     "minimum_overlap": 0.7,
 
