@@ -24,7 +24,7 @@
     "upper_lam": 0,
 
     "error_spectrum" : "sg",
-    "saving_results_path" : "results/",
+    "saving_results_path" : "",
     
     "show_plot" : 1,
     "how_many_plots" : 1,
