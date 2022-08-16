@@ -1,4 +1,4 @@
-# Welcome to Superfit in Python! :dizzy: :bomb: :boom:
+# Welcome to SuPyFit - Superfit in Python! :dizzy: :bomb: :boom:
 
 Superfit in python is a software for the spectral classification of Supernovae of all major types accompanied by a host galaxy. The following list of versions are the minumum requierments for its use.
 
