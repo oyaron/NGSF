@@ -281,7 +281,7 @@ def core(int_obj, z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolu
 
 
 
-
+'''
 
 def plotting(int_obj,values, lam, original, number, **kwargs):
 
@@ -364,7 +364,7 @@ def plotting(int_obj,values, lam, original, number, **kwargs):
 
     return result
 
-
+'''
 
 
 def mask_gal_lines(Data,z_obj):
@@ -401,7 +401,7 @@ def mask_gal_lines(Data,z_obj):
 
 
 
-def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution,iterations, n, plot, **kwargs):
+def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, iterations, **kwargs):
 
 
     '''
@@ -560,11 +560,11 @@ def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templ
 
 
 
-    if plot==1:
+    #if plot==1:
         
-        for i in range(0,n):
+    #    for i in range(0,n):
 
-            plotting(int_obj,result[:][i], lam , original, i, save=save, show=show)
+    #        plotting(int_obj,result[:][i], lam , original, i, save=save, show=show)
 
     return 
 

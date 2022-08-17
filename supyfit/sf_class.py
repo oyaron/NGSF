@@ -139,7 +139,7 @@ class Superfit:
                 kill_header_and_bin(self.original_path_name,Parameters.resolution, save_bin = self.binned_name)
                 
                 all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Parameters.templates_sn_trunc,Parameters.templates_gal_trunc, 
-                Parameters.lam, Parameters.resolution,Parameters.iterations, n=Parameters.n, plot=Parameters.show, kind=Parameters.kind, 
+                Parameters.lam, Parameters.resolution,Parameters.iterations, kind=Parameters.kind, 
                 original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
 
@@ -150,7 +150,7 @@ class Superfit:
                 kill_header_and_bin(self.original_path_name,resolution, save_bin = self.binned_name)
                 
                 all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Parameters.templates_sn_trunc,Parameters.templates_gal_trunc, 
-                Parameters.lam, resolution,Parameters.iterations, n=Parameters.n, plot=Parameters.show, kind=Parameters.kind, 
+                Parameters.lam, resolution,Parameters.iterations, kind=Parameters.kind, 
                 original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
                 return Parameters.save_results_path
@@ -233,6 +233,13 @@ class Superfit:
                 plt.ylabel('Flux arbitrary',fontsize = 14)
                 plt.xlabel('Lamda',fontsize = 14)
                 plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
+
+
+                plt.savefig(self.results_name + '_' + str(j) + '.pdf' )
+
+                if Parameters.show == 1:
+                    plt.show()
+
             
             else:
                 raise Exception('Do the superfit! <( @_@'')> ')

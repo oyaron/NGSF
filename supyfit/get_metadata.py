@@ -14,7 +14,9 @@ def JD(mjd):
     return np.float(mjd) + 2400000.5
 
 mydict = {}
-mjd_max_brightness = glob.glob('**/mjd**')[0]
+#mjd_max_brightness = glob.glob('**/mjd**')[0]
+mjd_max_brightness = 'supyfit/mjd_of_maximum_brightness.csv'
+
 
 
 with open(mjd_max_brightness, mode='r') as inp:
