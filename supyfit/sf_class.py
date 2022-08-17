@@ -235,7 +235,11 @@ class Superfit:
                 plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
 
 
-                plt.savefig(self.results_name + '_' + str(j) + '.pdf' )
+                if Parameters.show_plot_png == True:
+                    plt.savefig(save + '_' + str(j) + '.png' )
+
+                else:
+                    plt.savefig(self.results_name + '_' + str(j) + '.pdf' )
 
                 if Parameters.show == 1:
                     plt.show()
