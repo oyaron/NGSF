@@ -236,13 +236,16 @@ class Superfit:
 
 
                 if Parameters.show_plot_png == True:
-                    plt.savefig(save + '_' + str(j) + '.png' )
+
+                    plt.savefig(self.results_name + '_' + str(j) + '.png' )
 
                 else:
                     plt.savefig(self.results_name + '_' + str(j) + '.pdf' )
 
                 if Parameters.show == 1:
                     plt.show()
+
+
 
             
             else:
