@@ -39,10 +39,10 @@ class Superfit:
             if Parameters.mask_galaxy_lines==1 and Parameters.mask_telluric == 0:
                 object_spec=mask_gal_lines(self.spectrum,Parameters.redshift)
             if Parameters.mask_galaxy_lines==0 and Parameters.mask_telluric==1 :
-                object_spec=np.loadtxt(original)
+                object_spec=np.loadtxt(self.original_path_name)
                 object_spec = remove_telluric(object_spec)
             if Parameters.mask_galaxy_lines==0 and Parameters.mask_telluric==0 :
-                object_spec=np.loadtxt(original)
+                object_spec=np.loadtxt(self.original_path_name)
 
             object_spec[:,1]=object_spec[:,1]/np.nanmedian(object_spec[:,1])
 
