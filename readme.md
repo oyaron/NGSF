@@ -128,7 +128,7 @@ The user has the option to create a bank with masked lines, meaning to mask host
 
 ## Main SuPyFit Function 
 
-In the `run.py` file we find the main function which looks like this:
+In the `sf_class.py` file we find the main function which looks like this:
 
 
 ```ruby
@@ -138,22 +138,21 @@ all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Para
                     original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
 ```
-    
-    
-The inputs of the function are updated in the `run.py` file from the json file, and are as follow: 
 
+
+
+The inputs of the function are updated in the `params.py` file from the json file, and are as follow: 
+- `self.int_obj`: interpolated object to fit
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize. 
 - `extconstant`: Array of values over which to optimize for the extinction constant. The user does not change this. 
 - `templates_sn_trunc:`  Truncated library of supernovae, aka: which SN types to look at when optimizing.
 - `templates_gal_trunc:` Truncated library of host galaxies, aka: which HG types to look at when optimizing.
 - `lam:` Lambda array over which to perform the fit. The default is from 3000 A to 10500 A. 
 - `resolution:` Resolution at which to bin and perform the fit. The default is 10 A. 
-- `n:` Corresponds to the number of plots to show and save as a result. 
-- `plot:` Either 1 or 0, to either plot or not plot. 
 - `kind:` Corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum 
-by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `SG`
+by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `sg`
+- `save:` Name of results file
 - `minimum_overlap:` Corresponds to minimum percentage overlap between the template and the object of interest
-
 
 The rest the inputs correspond to the paths mentioned above. 
     
