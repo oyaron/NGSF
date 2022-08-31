@@ -133,8 +133,9 @@ In the `run.py` file we find the main function which looks like this:
 
 ```ruby
 
-all_parameter_space(redshift,extconstant,templates_sn_trunc,templates_gal_trunc, 
-    lam, resolution, n=n, plot=plotting, kind=kind, original=save_bin, save=save_results_path, show=show, minimum_overlap=minimum_overlap)
+all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Parameters.templates_sn_trunc,
+Parameters.templates_gal_trunc, Parameters.lam, Parameters.resolution,Parameters.iterations, kind=Parameters.kind, 
+original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
 ```
     
