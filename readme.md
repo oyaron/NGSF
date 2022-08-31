@@ -142,7 +142,8 @@ all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Para
 
 
 
-The inputs of the function are updated in the `params.py` file from the json file, and are as follow: 
+The inputs of the function are updated in Parameters class within the `params.py` file, and are as follow: 
+
 - `self.int_obj`: interpolated object to fit
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize. 
 - `extconstant`: Array of values over which to optimize for the extinction constant. The user does not change this. 
@@ -155,7 +156,6 @@ by making linear fit every 10 points, and `included`: if the user wants to use t
 - `save:` Name of results file
 - `minimum_overlap:` Corresponds to minimum percentage overlap between the template and the object of interest
 
-The rest the inputs correspond to the paths mentioned above. 
     
 # Results
 
