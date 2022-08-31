@@ -250,7 +250,7 @@ class Superfit:
 
             if os.path.isfile(self.results_path) == True:
                 
-                results=pd.read_csv(self.results_path)
+                results=self.results
 
             else:
                 raise Exception('Do the superfit! <( @_@'')> ')
