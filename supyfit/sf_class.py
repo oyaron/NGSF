@@ -144,6 +144,7 @@ class Superfit:
 
 
             except:
+
                 resolution=30
                 print('Supyfit failed. Retrying for resolution = {0} Å'.format(resolution))
     
@@ -153,8 +154,96 @@ class Superfit:
                 Parameters.lam, resolution,Parameters.iterations, kind=Parameters.kind, 
                 original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
-                return Parameters.save_results_path
 
+  
+
+            self.results=pd.read_csv(self.results_path)            
+
+
+            result_number = 0
+
+            if Parameters.n > len(self.results):
+
+                result_number = result_number + len(self.results)
+
+            elif len(self.results) >= Parameters.n:
+
+                result_number = result_number + Parameters.n
+    
+            for j in range(result_number):
+            #if os.path.isfile(self.results_path) == True:
+
+                #results=pd.read_csv(self.results_path)
+                row = self.results.iloc[j]
+               
+                obj_name   = row['SPECTRUM']
+                hg_name    = row['GALAXY']
+                short_name = row['SN']
+                bb         = row['CONST_SN']
+                dd         = row['CONST_GAL']
+                z          = row['Z']
+                extmag     = row['A_v']
+                sn_cont    = row['Frac(SN)']
+
+               #Get all names from the dictionary
+                full_names  =[str(x) for x in supyfit.get_metadata.shorhand_dict.keys()] 
+                short_names =[str(x) for x in supyfit.get_metadata.shorhand_dict.values()] 
+
+                for i in range(0,len(short_names)):
+                    if str(short_names[i]) == str(short_name):
+                        sn_best_fullname = full_names[i]
+                        sn_short_name    = short_names[i]
+                        idx=sn_short_name.rfind('/')
+                        subtype=sn_short_name[:idx]
+                    
+                
+
+                int_obj = self.int_obj
+                
+                sn_name = 'bank/original_resolution/sne/' + subtype + '/' + sn_best_fullname
+                hg_name = 'bank/original_resolution/gal/' + hg_name
+                
+                nova = kill_header(sn_name)
+                nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
+                
+                
+                host   = np.loadtxt(hg_name)
+                host[:,1]=host[:,1]/np.nanmedian(host[:,1])
+
+                #Interpolate supernova and host galaxy 
+                redshifted_nova   =  nova[:,0]*(z+1)
+                extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
+                
+                reshifted_host    =  host[:,0]*(z+1)
+                reshifted_hostf   =  host[:,1]/(z+1)
+                
+                nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
+                host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
+                host_nova = bb*nova_int(Parameters.lam) + dd*host_int(Parameters.lam)
+                
+                sn_type = short_name[:short_name.find('/')]
+                hg_name = hg_name[hg_name.rfind('/')+1:]
+                subclass = short_name[short_name.find('/')+1:short_name.rfind('/')]
+                phase = str(short_name[short_name.rfind(':')+1:-1])
+            
+                plt.figure(figsize=(8*np.sqrt(2), 8))
+                plt.plot(Parameters.lam, int_obj,'r', label = 'Input object: ' + self.name)
+                plt.plot(Parameters.lam, host_nova,'g', label =  'SN: ' + sn_type  + ' - '+  subclass + ' - Phase: ' +phase + '\nHost: '+ str(hg_name) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
+                plt.legend(framealpha=1, frameon=True, fontsize = 12)
+                plt.ylabel('Flux arbitrary',fontsize = 14)
+                plt.xlabel('Lamda',fontsize = 14)
+                plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
+
+
+                if Parameters.show_plot_png == True:
+
+                    plt.savefig(self.results_name + '_' + str(j) + '.png' )
+
+                else:
+                    plt.savefig(self.results_name + '_' + str(j) + '.pdf' )
+
+                if Parameters.show == 1:
+                    plt.show()
 
 
         def results(self):
