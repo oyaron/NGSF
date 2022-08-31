@@ -142,7 +142,7 @@ all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Para
 
 
 
-The inputs of the function are updated in Parameters class within the `params.py` file, and are as follow: 
+The inputs of the function are called from the Parameters class within the `params.py` file, and are as follow: 
 
 - `self.int_obj`: interpolated object to fit
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize. 
