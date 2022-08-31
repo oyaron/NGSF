@@ -15,6 +15,7 @@ import  supyfit.get_metadata
 from supyfit.error_routines import *
 from supyfit.params import *
 from supyfit.Header_Binnings import bin_spectrum_bank, mask_lines_bank
+np.seterr(divide='ignore', invalid='ignore')
 
 
 Parameters = Parameters(data)
