@@ -12,6 +12,7 @@ from supyfit.get_metadata import *
 from supyfit.params import Parameters
 
 
+
 Parameters = Parameters(data)
 
 
@@ -155,10 +156,7 @@ class Superfit:
                 original= self.binned_name, save=self.results_name, show=show,minimum_overlap=Parameters.minimum_overlap)
 
 
-  
-
             self.results=pd.read_csv(self.results_path)            
-
 
             result_number = 0
 
@@ -171,9 +169,7 @@ class Superfit:
                 result_number = result_number + Parameters.n
     
             for j in range(result_number):
-            #if os.path.isfile(self.results_path) == True:
-
-                #results=pd.read_csv(self.results_path)
+           
                 row = self.results.iloc[j]
                
                 obj_name   = row['SPECTRUM']

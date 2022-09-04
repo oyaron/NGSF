@@ -4,6 +4,8 @@ import sys
 import json
 from sys import exit
 from supyfit.auxiliary import *
+from supyfit.Header_Binnings import kill_header
+
 
 
 

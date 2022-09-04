@@ -40,15 +40,18 @@ def kill_header(file_name):
 
     lines = [i for i in lines if i]
 
-    lines = [i for i in lines if i[0].isalpha() == False and i[0] != '#' and i[0] != '%']
+    lines = [i for i in lines if i[0].isalpha() == False and i[0] != '#' and i[0] != '%' and i[0] != '@']
 
     lines = [i for i in lines if i[0] != '\n']
     
     lines = [s.strip('\n') for s in lines] # remove empty lines
     
     lines = [s.replace('\n', '') for s in lines]  #replace with nothing
+
+    #print(lines)
     
     
+
     columns = [] 
     
     for line in lines:
