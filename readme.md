@@ -126,7 +126,7 @@ The user has the option to create a bank with masked lines, meaning to mask host
 
 
 
-## Main SuPyFit Function 
+## Main NGSF Function 
 
 In the `sf_class.py` file we find the main function which looks like this:
 
