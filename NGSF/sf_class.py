@@ -5,11 +5,11 @@ import json
 from PyAstronomy import pyasl
 from PyAstronomy import * 
 from scipy.ndimage import gaussian_filter1d
-from supyfit.SF_functions import *
-from supyfit.Header_Binnings import *
-from supyfit.error_routines import *
-from supyfit.get_metadata import *
-from supyfit.params import Parameters
+from NGSF.SF_functions import *
+from NGSF.Header_Binnings import *
+from NGSF.error_routines import *
+from NGSF.get_metadata import *
+from NGSF.params import Parameters
 
 
 
@@ -147,7 +147,7 @@ class Superfit:
             except:
 
                 resolution=30
-                print('Supyfit failed. Retrying for resolution = {0} Å'.format(resolution))
+                print('NGSF failed. Retrying for resolution = {0} Å'.format(resolution))
     
                 kill_header_and_bin(self.original_path_name,resolution, save_bin = self.binned_name)
                 
@@ -182,8 +182,8 @@ class Superfit:
                 sn_cont    = row['Frac(SN)']
 
                #Get all names from the dictionary
-                full_names  =[str(x) for x in supyfit.get_metadata.shorhand_dict.keys()] 
-                short_names =[str(x) for x in supyfit.get_metadata.shorhand_dict.values()] 
+                full_names  =[str(x) for x in NGSF.get_metadata.shorhand_dict.keys()] 
+                short_names =[str(x) for x in NGSF.get_metadata.shorhand_dict.values()] 
 
                 for i in range(0,len(short_names)):
                     if str(short_names[i]) == str(short_name):
@@ -268,8 +268,8 @@ class Superfit:
             sn_cont    = row['Frac(SN)']
 
             #Get all names from the dictionary
-            full_names  =[str(x) for x in supyfit.get_metadata.shorhand_dict.keys()] 
-            short_names =[str(x) for x in supyfit.get_metadata.shorhand_dict.values()]
+            full_names  =[str(x) for x in NGSF.get_metadata.shorhand_dict.keys()] 
+            short_names =[str(x) for x in NGSF.get_metadata.shorhand_dict.values()]
 
             for i in range(0,len(short_names)):
                 if str(short_names[i]) == str(short_name):

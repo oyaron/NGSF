@@ -4,7 +4,7 @@ from astropy.io import ascii
 import os
 import pandas as pd
 import csv
-from supyfit.params import *
+from NGSF.params import *
 
 
 Parameters = Parameters(data)
@@ -15,7 +15,7 @@ def JD(mjd):
 
 mydict = {}
 #mjd_max_brightness = glob.glob('**/mjd**')[0]
-mjd_max_brightness = 'supyfit/mjd_of_maximum_brightness.csv'
+mjd_max_brightness = 'NGSF/mjd_of_maximum_brightness.csv'
 
 
 

@@ -10,11 +10,11 @@ from PyAstronomy import pyasl
 from PyAstronomy import *
 import os 
 import pandas as pd
-import supyfit.error_routines 
-import  supyfit.get_metadata
-from supyfit.error_routines import *
-from supyfit.params import *
-from supyfit.Header_Binnings import bin_spectrum_bank, mask_lines_bank
+import NGSF.error_routines 
+import  NGSF.get_metadata
+from NGSF.error_routines import *
+from NGSF.params import *
+from NGSF.Header_Binnings import bin_spectrum_bank, mask_lines_bank
 np.seterr(divide='ignore', invalid='ignore')
 
 
@@ -447,7 +447,7 @@ def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templ
     '''
 
     import time
-    print('Supyfit started')
+    print('NGSF started')
     start = time.time()
 
     save = kwargs['save']
@@ -465,13 +465,13 @@ def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templ
     templates_gal_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
     global alam_dict
     alam_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:],)
-    sn_spec_files=[str(x) for x in supyfit.get_metadata.shorhand_dict.values()]
+    sn_spec_files=[str(x) for x in NGSF.get_metadata.shorhand_dict.values()]
     global path_dict
     path_dict={}
 
 
 
-    all_bank_files=[str(x) for x in supyfit.get_metadata.dictionary_all_trunc_objects.values()]
+    all_bank_files=[str(x) for x in NGSF.get_metadata.dictionary_all_trunc_objects.values()]
 
 
     if resolution == 10 or resolution == 30:
@@ -492,7 +492,7 @@ def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templ
             idx=all_bank_files[i].rfind("/")+1
             filename=all_bank_files[i][idx:]
 
-            short_name = str(supyfit.get_metadata.shorhand_dict[filename])
+            short_name = str(NGSF.get_metadata.shorhand_dict[filename])
 
 
             path_dict[short_name]=all_bank_files[i]
