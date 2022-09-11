@@ -26,6 +26,23 @@ class Superfit:
             
             
             self.spectrum         = kill_header(self.original_path_name)
+
+            obj_original_res = self.spectrum[:,0][-1]-self.spectrum[:,0][-2]
+
+            how_many_bins = 0
+
+            if obj_original_res > 10: 
+                how_many_bins =  + (self.spectrum[:,0][-1]-self.spectrum[:,0][0])/30
+
+            elif obj_original_res <= 10: 
+                 how_many_bins = + (self.spectrum[:,0][-1]-self.spectrum[:,0][0])/10
+
+            # Check if spectrum is short
+
+            if how_many_bins < 35:
+                raise TypeError("This spectrum is too short to fit!")
+
+
             self.lamda, self.flux = self.spectrum[:,0] , self.spectrum[:,1]
             
             self.binned_name     = Parameters.save_results_path + self.name_no_extension + '_binned.txt'
