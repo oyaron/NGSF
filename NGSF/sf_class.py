@@ -202,6 +202,8 @@ class Superfit:
                 full_names  =[str(x) for x in NGSF.get_metadata.shorhand_dict.keys()] 
                 short_names =[str(x) for x in NGSF.get_metadata.shorhand_dict.values()] 
 
+                #print(full_names)
+
                 for i in range(0,len(short_names)):
                     if str(short_names[i]) == str(short_name):
                         sn_best_fullname = full_names[i]
@@ -212,9 +214,12 @@ class Superfit:
                 
 
                 int_obj = self.int_obj
-                
-                sn_name = 'bank/original_resolution/sne/' + subtype + '/' + sn_best_fullname
-                hg_name = 'bank/original_resolution/gal/' + hg_name
+
+                sn_name = 'bank/binnings/10A/sne/' + subtype + '/' + sn_best_fullname
+                hg_name = 'bank/binnings/10A/gal/' + hg_name
+            
+     
+                #print(sn_name)
                 
                 nova = kill_header(sn_name)
                 nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
@@ -224,11 +229,20 @@ class Superfit:
                 host[:,1]=host[:,1]/np.nanmedian(host[:,1])
 
                 #Interpolate supernova and host galaxy 
+                #redshifted_nova   =  nova[:,0]*(z+1)
+                #extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
+                
+                #reshifted_host    =  host[:,0]*(z+1)
+                #reshifted_hostf   =  host[:,1]/(z+1)
+                
+
                 redshifted_nova   =  nova[:,0]*(z+1)
-                extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
+                extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(z+1)
                 
                 reshifted_host    =  host[:,0]*(z+1)
                 reshifted_hostf   =  host[:,1]/(z+1)
+                
+                
                 
                 nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
                 host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
@@ -298,8 +312,8 @@ class Superfit:
             
             int_obj = self.int_obj
             
-            sn_name = 'bank/original_resolution/sne/' + subtype + '/' + sn_best_fullname
-            hg_name = 'bank/original_resolution/gal/' + hg_name
+            sn_name = 'bank/binnings/10A/sne/' + subtype + '/' + sn_best_fullname
+            hg_name = 'bank/binnings/10A/gal/' + hg_name
             
             nova = kill_header(sn_name)
             nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
@@ -310,7 +324,7 @@ class Superfit:
 
             #Interpolate supernova and host galaxy 
             redshifted_nova   =  nova[:,0]*(z+1)
-            extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
+            extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(z+1)
             
             reshifted_host    =  host[:,0]*(z+1)
             reshifted_hostf   =  host[:,1]/(z+1)
