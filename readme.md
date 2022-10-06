@@ -124,6 +124,8 @@ The user must make sure to have this template bank or some alternative template 
 
 The user has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
 
+It is important to note that when you open the folder of the bank there are two main subfolders, one named "original_resolution" and one named "binnings". 
+The "original_resolution" folder contains the raw spectra from the bank, at the observers redshift. In the "binnings" folder we have the binned and redshift-corrected spectra from the "original_resolution" folder, and so the fits are done using the "binnings" folder. 
 
 
 ## Main NGSF Function 
