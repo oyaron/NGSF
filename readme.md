@@ -126,6 +126,7 @@ The user has the option to create a bank with masked lines, meaning to mask host
 
 It is important to note that when you open the folder of the bank there are two main subfolders, one named "original_resolution" and one named "binnings". 
 The "original_resolution" folder contains the raw spectra from the bank, at the observers redshift. In the "binnings" folder we have the binned and redshift-corrected spectra from the "original_resolution" folder, and so the fits are done using the "binnings" folder. 
+Within the object subfolders inside the "original_resolution" folder we will find the wiserep files containing the metadata for each object (name,redshift, observational date, etc.) we use this metadata during the fit, and so we keep the folder.
 
 
 ## Main NGSF Function 
