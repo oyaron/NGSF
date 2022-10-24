@@ -349,7 +349,7 @@ def plotting(int_obj,values, lam, original, number, **kwargs):
     plt.plot(lam, host_nova,'g', label =  'SN: ' + str(short_name) + '  Host:'+str(hg_namee) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
     plt.legend(framealpha=1, frameon=True, fontsize = 12)
     plt.ylabel('Flux arbitrary',fontsize = 14)
-    plt.xlabel('Lamda',fontsize = 14)
+    plt.xlabel('Wavelength [$\AA$]',fontsize = 14)
     plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
     result = np.array([lam,int_obj,lam,host_nova])
     #np.savetxt(save + obj_name + '-' + str(number) + '-.txt', result)
