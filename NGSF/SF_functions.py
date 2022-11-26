@@ -1,99 +1,108 @@
 import numpy as np
-import matplotlib.pyplot as plt
 from scipy import interpolate
 import extinction
-from extinction import ccm89, apply
+from extinction import apply
 from astropy import table
 from astropy.io import ascii
 import itertools
+import os
 from PyAstronomy import pyasl
-from PyAstronomy import *
-import os 
-import pandas as pd
-import NGSF.error_routines 
-import  NGSF.get_metadata
-from NGSF.error_routines import *
-from NGSF.params import *
-from NGSF.Header_Binnings import bin_spectrum_bank, mask_lines_bank
-np.seterr(divide='ignore', invalid='ignore')
+
+from NGSF.get_metadata import Metadata
+from NGSF.error_routines import savitzky_golay, linear_error
+from NGSF.params import Parameters, data
+from NGSF.Header_Binnings import bin_spectrum_bank, mask_lines_bank, kill_header
+
+np.seterr(divide="ignore", invalid="ignore")
 
 
-Parameters = Parameters(data)
+parameters = Parameters(data)
 
 
-def sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc):
-    sn=[]
-    gal=[]
+def sn_hg_arrays(
+    z,
+    extcon,
+    lam,
+    templates_sn_trunc,
+    templates_sn_trunc_dict,
+    templates_gal_trunc,
+    templates_gal_trunc_dict,
+    alam_dict,
+):
+
+    sn = []
+    gal = []
     for i in range(0, len(templates_sn_trunc)):
 
-        one_sn            =  templates_sn_trunc_dict[templates_sn_trunc[i]]
-        a_lam_sn          =  alam_dict[templates_sn_trunc[i]]
-        redshifted_sn     =  one_sn[:,0]*(z+1)
-        extinct_excon     =  one_sn[:,1]*10**(-0.4*extcon * a_lam_sn)/(1+z)
-        sn_interp         =  np.interp(lam, redshifted_sn,    extinct_excon,  left=np.nan,right=np.nan)
+        one_sn = templates_sn_trunc_dict[templates_sn_trunc[i]]
+        a_lam_sn = alam_dict[templates_sn_trunc[i]]
+        redshifted_sn = one_sn[:, 0] * (z + 1)
+        extinct_excon = one_sn[:, 1] * 10 ** (-0.4 * extcon * a_lam_sn) / (1 + z)
+        sn_interp = np.interp(
+            lam, redshifted_sn, extinct_excon, left=np.nan, right=np.nan
+        )
 
         sn.append(sn_interp)
 
-
     for i in range(0, len(templates_gal_trunc)):
 
-        one_gal            =  templates_gal_trunc_dict[templates_gal_trunc[i]]
-        gal_interp         =   np.interp(lam, one_gal[:,0]*(z+1),    one_gal[:,1]/(1+z),  left=np.nan,right=np.nan)
+        one_gal = templates_gal_trunc_dict[templates_gal_trunc[i]]
+        gal_interp = np.interp(
+            lam,
+            one_gal[:, 0] * (z + 1),
+            one_gal[:, 1] / (1 + z),
+            left=np.nan,
+            right=np.nan,
+        )
         gal.append(gal_interp)
-
 
     # Redefine sn and gal by adding a new axis
 
-    sn  = np.array(sn)
+    sn = np.array(sn)
     gal = np.array(gal)
 
-    gal = gal[:, np.newaxis,:]
-    sn  = sn[np.newaxis,:,:]
-
+    gal = gal[:, np.newaxis, :]
+    sn = sn[np.newaxis, :, :]
 
     return sn, gal
 
 
 def remove_telluric(spectrum):
 
-    lam  = spectrum[:,0]
-    flux = spectrum[:,1]
+    lam = spectrum[:, 0]
+    flux = spectrum[:, 1]
 
-    for i in range(0,len(lam)):
+    for i in range(0, len(lam)):
 
         if 7594 <= lam[i] <= 7680:
 
-
             flux[i] = -10000
 
-
         array1 = flux
-        flux_no_tell = np.where(array1==-10000, np.nan, array1)
+        flux_no_tell = np.where(array1 == -10000, np.nan, array1)
 
-    return np.array([lam,flux_no_tell]).T
+    return np.array([lam, flux_no_tell]).T
 
 
-def Alam(lamin,A_v=1,R_v=3.1):
+def Alam(lamin, A_v=1, R_v=3.1):
 
-    '''
+    """
     Add extinction with R_v = 3.1 and A_v = 1, A_v = 1 in order
     to find the constant of proportionality for
     the extinction law.
-    '''
+    """
 
     flux = np.ones(len(lamin))
     flux = [float(x) for x in flux]
-    lamin=np.array([float(i) for i in lamin])
+    lamin = np.array([float(i) for i in lamin])
     redreturn = apply(extinction.ccm89(lamin, A_v, R_v), flux)
 
     return redreturn
 
 
-def error_obj(kind, lam,object_to_fit):
+def error_obj(kind, lam, object_to_fit):
 
-
-
-    '''
+    """
     This function gives an error based on user input. The error can be obtained by either a Savitzky-Golay filter,
 
     a linear error approximation or it can come with the file itself.
@@ -109,47 +118,58 @@ def error_obj(kind, lam,object_to_fit):
 
     Error.
 
-    '''
-
-
+    """
 
     object_spec = np.loadtxt(object_to_fit)
-    object_spec[:,1] = object_spec[:,1]/np.nanmedian(object_spec[:,1])
+    object_spec[:, 1] = object_spec[:, 1] / np.nanmedian(object_spec[:, 1])
 
+    if kind == "included" and len(object_spec[1, :]) > 2:
 
+        error = object_spec[:, 2]
 
-    if kind == 'included' and len(object_spec[1,:]) > 2:
+        object_err_interp = interpolate.interp1d(
+            object_spec[:, 0], error, bounds_error=False, fill_value="nan"
+        )
 
-        error = object_spec[:,2]
+        sigma = object_err_interp(lam)
 
-        object_err_interp =  interpolate.interp1d(object_spec[:,0],  error,  bounds_error=False, fill_value='nan')
+    if kind == "linear":
 
-        sigma             =  object_err_interp(lam)
+        error = linear_error(object_spec)
 
+        object_err_interp = interpolate.interp1d(
+            error[:, 0], error[:, 1], bounds_error=False, fill_value="nan"
+        )
 
+        sigma = object_err_interp(lam)
 
-    if kind == 'linear':
+    if kind == "sg":
 
-        error             = linear_error(object_spec)
+        error = savitzky_golay(object_spec)
 
-        object_err_interp =  interpolate.interp1d(error[:,0],  error[:,1],  bounds_error=False, fill_value='nan')
+        object_err_interp = interpolate.interp1d(
+            error[:, 0], error[:, 1], bounds_error=False, fill_value="nan"
+        )
 
-        sigma             =  object_err_interp(lam)
-
-
-    if kind == 'sg':
-
-        error             =  savitzky_golay(object_spec)
-
-        object_err_interp =  interpolate.interp1d(error[:,0],  error[:,1],  bounds_error=False, fill_value='nan')
-
-        sigma             =  object_err_interp(lam)
+        sigma = object_err_interp(lam)
 
     return sigma
 
 
-
-def core(int_obj, z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolution, iterations, **kwargs):
+def core(
+    int_obj,
+    z,
+    extcon,
+    templates_sn_trunc,
+    templates_sn_trunc_dict,
+    templates_gal_trunc,
+    templates_gal_trunc_dict,
+    alam_dict,
+    lam,
+    resolution,
+    iterations,
+    **kwargs
+):
 
     """
 
@@ -175,54 +195,66 @@ def core(int_obj, z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolu
 
     """
 
-
-    kind            = kwargs['kind']
-    original        = kwargs['original']
-    minimum_overlap = kwargs['minimum_overlap']
-
-
+    kind = kwargs["kind"]
+    original = kwargs["original"]
+    minimum_overlap = kwargs["minimum_overlap"]
 
     name = os.path.basename(original)
 
     sigma = error_obj(kind, lam, original)
 
-    sn, gal = sn_hg_arrays(z, extcon, lam, templates_sn_trunc, templates_gal_trunc)
-
+    sn, gal = sn_hg_arrays(
+        z,
+        extcon,
+        lam,
+        templates_sn_trunc,
+        templates_sn_trunc_dict,
+        templates_gal_trunc,
+        templates_gal_trunc_dict,
+        alam_dict,
+    )
 
     # Apply linear algebra witchcraft
 
-    c = 1  /  ( np.nansum(sn**2,2) * np.nansum(gal**2,2) - np.nansum(gal*sn,2)**2 )
-    b = c * (np.nansum(gal**2,2)*np.nansum(sn*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(gal*int_obj,2))
-    d = c * (np.nansum(sn**2,2)*np.nansum(gal*int_obj,2) - np.nansum(gal*sn,2)*np.nansum(sn*int_obj,2))
+    c = 1 / (
+        np.nansum(sn**2, 2) * np.nansum(gal**2, 2) - np.nansum(gal * sn, 2) ** 2
+    )
+    b = c * (
+        np.nansum(gal**2, 2) * np.nansum(sn * int_obj, 2)
+        - np.nansum(gal * sn, 2) * np.nansum(gal * int_obj, 2)
+    )
+    d = c * (
+        np.nansum(sn**2, 2) * np.nansum(gal * int_obj, 2)
+        - np.nansum(gal * sn, 2) * np.nansum(sn * int_obj, 2)
+    )
 
     b[b < 0] = np.nan
     d[d < 0] = np.nan
 
-    #Add new axis in order to compute chi2
+    # Add new axis in order to compute chi2
     sn_b = b[:, :, np.newaxis]
     gal_d = d[:, :, np.newaxis]
 
     # Obtain number of degrees of freedom
 
-    a = (  (int_obj - (sn_b * sn + gal_d * gal))/sigma)**2
+    a = ((int_obj - (sn_b * sn + gal_d * gal)) / sigma) ** 2
     a = np.isnan(a)
-    times = np.nansum(a,2)
+    times = np.nansum(a, 2)
     times = len(lam) - times
 
-    overlap = times/len(lam) > minimum_overlap
+    overlap = times / len(lam) > minimum_overlap
 
     # Obtain and reduce chi2
-    chi2  =  np.nansum(  ((int_obj - (sn_b * sn + gal_d * gal))**2/(sigma)**2 ), 2)
+    chi2 = np.nansum(((int_obj - (sn_b * sn + gal_d * gal)) ** 2 / (sigma) ** 2), 2)
 
     # avoid short overlaps
-    chi2[~overlap]=np.inf
+    chi2[~overlap] = np.inf
 
-    reduchi2 = chi2/(times-2)**2
-    reduchi2 = np.where(reduchi2==0, 1e10, reduchi2)
+    reduchi2 = chi2 / (times - 2) ** 2
+    reduchi2 = np.where(reduchi2 == 0, 1e10, reduchi2)
 
-    reduchi2_once = chi2/(times-2)
+    reduchi2_once = chi2 / (times - 2)
     reduchi2_once = np.where(reduchi2_once == 0, 1e10, reduchi2_once)
-
 
     # Flatten the matrix out and obtain indices corresponding values of proportionality constants
     reduchi2_1d = reduchi2.ravel()
@@ -239,40 +271,77 @@ def core(int_obj, z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolu
 
         redchi2.append(rchi2)
 
-
-        supernova_file   = templates_sn_trunc[idx[1]]
+        supernova_file = templates_sn_trunc[idx[1]]
         host_galaxy_file = templates_gal_trunc[idx[0]]
 
-        host_galaxy_file  =str(host_galaxy_file)
-        idxx = host_galaxy_file.rfind('/')
-        host_galaxy_file=host_galaxy_file[idxx+1:]
+        host_galaxy_file = str(host_galaxy_file)
+        idxx = host_galaxy_file.rfind("/")
+        host_galaxy_file = host_galaxy_file[idxx + 1 :]
 
         bb = b[idx[0]][idx[1]]
 
-
         dd = d[idx[0]][idx[1]]
-        sn_flux  = sn[0,idx[1],:]
-        gal_flux  = gal[idx[0],0,:]
-        sn_cont = bb*np.nanmean(sn_flux*10**(-0.4*extcon * Alam(lam)))
-        gal_cont = dd*np.nanmean(gal_flux)
-        sum_cont = sn_cont+gal_cont
-        sn_cont  = sn_cont/sum_cont
-        gal_cont  = gal_cont/sum_cont
+        sn_flux = sn[0, idx[1], :]
+        gal_flux = gal[idx[0], 0, :]
+        sn_cont = bb * np.nanmean(sn_flux * 10 ** (-0.4 * extcon * Alam(lam)))
+        gal_cont = dd * np.nanmean(gal_flux)
+        sum_cont = sn_cont + gal_cont
+        sn_cont = sn_cont / sum_cont
+        gal_cont = gal_cont / sum_cont
 
-
-
-        ii = supernova_file.rfind(':')
-        the_phase = supernova_file[ii+1:-1]
+        ii = supernova_file.rfind(":")
+        the_phase = supernova_file[ii + 1 : -1]
         the_band = supernova_file[-1]
 
-
-
-        output = table.Table(np.array([os.path.basename(name), host_galaxy_file, supernova_file,  bb , dd, z, extcon, the_phase,the_band,sn_cont,gal_cont,reduchi2_once[idx],reduchi2[idx]]),
-
-        names  =  ('SPECTRUM', 'GALAXY', 'SN' ,'CONST_SN','CONST_GAL','Z','A_v','Phase','Band','Frac(SN)','Frac(gal)','CHI2/dof','CHI2/dof2'),
-
-        dtype  =  ('S200', 'S200', 'S200','f','f','f','f', 'S200','S200','f','f','f','f'))
-
+        output = table.Table(
+            np.array(
+                [
+                    os.path.basename(name),
+                    host_galaxy_file,
+                    supernova_file,
+                    bb,
+                    dd,
+                    z,
+                    extcon,
+                    the_phase,
+                    the_band,
+                    sn_cont,
+                    gal_cont,
+                    reduchi2_once[idx],
+                    reduchi2[idx],
+                ]
+            ),
+            names=(
+                "SPECTRUM",
+                "GALAXY",
+                "SN",
+                "CONST_SN",
+                "CONST_GAL",
+                "Z",
+                "A_v",
+                "Phase",
+                "Band",
+                "Frac(SN)",
+                "Frac(gal)",
+                "CHI2/dof",
+                "CHI2/dof2",
+            ),
+            dtype=(
+                "S200",
+                "S200",
+                "S200",
+                "f",
+                "f",
+                "f",
+                "f",
+                "S200",
+                "S200",
+                "f",
+                "f",
+                "f",
+                "f",
+            ),
+        )
 
         all_tables.append(output)
 
@@ -281,131 +350,55 @@ def core(int_obj, z,extcon, templates_sn_trunc, templates_gal_trunc, lam, resolu
     return outputs, redchi2
 
 
+def mask_gal_lines(Data, z_obj):
 
-'''
+    host_lines = np.array(
+        [
+            6564.61,
+            4862.69,
+            3726.09,
+            3729.88,
+            5008.24,
+            4960.30,
+            6549.84,
+            6585.23,
+            6718.32,
+            6732.71,
+        ]
+    )
 
-def plotting(int_obj,values, lam, original, number, **kwargs):
+    host_lines_air = (1 + z_obj) * pyasl.airtovac2(host_lines)
+    host_range_air = np.column_stack([host_lines_air, host_lines_air])
+    z_disp = 4e2 / 3e5
+    host_range_air[:, 0] = host_range_air[:, 0] * (1 - z_disp)
+    host_range_air[:, 1] = host_range_air[:, 1] * (1 + z_disp)
 
-    """
+    def func(x, y):
+        return (x < y[1]) & (x > y[0])
 
-    Inputs:
-    ------
-
-    Core function at a specific z and A_v.
-
-
-    Outputs:
-    --------
-
-    Plot of the object in interest and its corresponding best fit.
-
-
-
-    """
-
-    obj_name   = values[0]
-    hg_name    = values[1]
-    short_name = values[2]
-    bb         = values[3]
-    dd         = values[4]
-    z          = values[5]
-    extmag     = values[6]
-    sn_cont    = values[4]/values[3]
-
-    save = kwargs['save']
-    show = kwargs['show']
-
-
-    sn_name = path_dict[short_name]
-    sn_name = str(sn_name)
-
-
-    nova = kill_header(sn_name)
-    nova[:,1]=nova[:,1]/np.nanmedian(nova[:,1])
-    
-
-    hg_name = 'bank/original_resolution/gal/'+hg_name
-    host   = np.loadtxt(hg_name)
-    host[:,1]=host[:,1]/np.nanmedian(host[:,1])
-
-
-
-    #Interpolate supernova and host galaxy
-
-    redshifted_nova   =  nova[:,0]*(z+1)
-    extinct_nova      =  nova[:,1]*10**(-0.4*extmag * Alam(nova[:,0]))/(1+z)
-    reshifted_host    =  host[:,0]*(z+1)
-    reshifted_hostf   =  host[:,1]/(z+1)
-
-
-    nova_int = interpolate.interp1d(redshifted_nova , extinct_nova ,   bounds_error=False, fill_value='nan')
-    host_int = interpolate.interp1d(reshifted_host, reshifted_hostf,   bounds_error=False, fill_value='nan')
-    host_nova = bb*nova_int(lam) + dd*host_int(lam)
-
-
-    hg_namee = hg_name[hg_name.rfind('/')+1:]
-    plt.figure(figsize=(8*np.sqrt(2), 8))
-    plt.plot(lam, int_obj,'r', label = 'Input object: ' + str(os.path.basename(obj_name)) )
-    plt.plot(lam, host_nova,'g', label =  'SN: ' + str(short_name) + '  Host:'+str(hg_namee) +'\nSN contrib: {0: .1f}%'.format(100*sn_cont))
-    plt.legend(framealpha=1, frameon=True, fontsize = 12)
-    plt.ylabel('Flux arbitrary',fontsize = 14)
-    plt.xlabel('Lamda',fontsize = 14)
-    plt.title('Best fit for z = ' + str(z), fontsize = 15, fontweight='bold')
-    result = np.array([lam,int_obj,lam,host_nova])
-    #np.savetxt(save + obj_name + '-' + str(number) + '-.txt', result)
-
-
-    plt.savefig(save + '_' + str(number) + '.pdf' )
-    
-    if Parameters.show_plot_png == True:
-        plt.savefig(save + '_' + str(number) + '.png' )
-
-    if show:
-        plt.show()
-
-    return result
-
-'''
-
-
-def mask_gal_lines(Data,z_obj):
-
-
-    host_lines=np.array([
-         6564.61
-        ,4862.69
-        ,3726.09
-        ,3729.88
-        ,5008.24
-        ,4960.30
-        ,6549.84
-        ,6585.23
-        ,6718.32
-        ,6732.71])
-
-    host_lines_air=(1+z_obj)*pyasl.airtovac2(host_lines)
-    host_range_air=np.column_stack([host_lines_air,host_lines_air])
-    z_disp=4e2/3e5
-    host_range_air[:,0]=host_range_air[:,0]*(1-z_disp)
-    host_range_air[:,1]=host_range_air[:,1]*(1+z_disp)
-
-    func=lambda x,y: (x<y[1])&(x>y[0])
-    cum_mask=np.array([True]*len(Data[:,0]))
+    cum_mask = np.array([True] * len(Data[:, 0]))
     for i in range(len(host_lines_air)):
-        mask=np.array(list(map(lambda x: ~func(x,host_range_air[i]),Data[:,0])))
-        cum_mask=cum_mask & mask
+        mask = np.array(list(map(lambda x: ~func(x, host_range_air[i]), Data[:, 0])))
+        cum_mask = cum_mask & mask
 
     Data_masked = Data[cum_mask]
 
     return Data_masked
 
 
+def all_parameter_space(
+    int_obj,
+    redshift,
+    extconstant,
+    templates_sn_trunc,
+    templates_gal_trunc,
+    lam,
+    resolution,
+    iterations,
+    **kwargs
+):
 
-
-def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templates_gal_trunc, lam, resolution, iterations, **kwargs):
-
-
-    '''
+    """
 
     This function loops the core function of superfit over two user given arrays, one for redshift and one for
 
@@ -444,128 +437,117 @@ def all_parameter_space(int_obj,redshift, extconstant, templates_sn_trunc, templ
     set to the first three.
 
 
-    '''
+    """
 
     import time
-    print('NGSF started')
+
+    metadata = Metadata()
+
+    print("NGSF started")
     start = time.time()
 
-    save = kwargs['save']
-    show = kwargs['show']
+    save = kwargs["save"]
 
+    templates_sn_trunc_dict = {}
+    templates_gal_trunc_dict = {}
+    alam_dict = {}
+    sn_spec_files = [str(x) for x in metadata.shorhand_dict.values()]
+    path_dict = {}
 
-    original  = kwargs['original']
-   
-
-
-
-    global templates_sn_trunc_dict
-    templates_sn_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
-    global templates_gal_trunc_dict
-    templates_gal_trunc_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:,:],)
-    global alam_dict
-    alam_dict={}#Dict.empty(key_type=types.unicode_type, value_type=types.float64[:],)
-    sn_spec_files=[str(x) for x in NGSF.get_metadata.shorhand_dict.values()]
-    global path_dict
-    path_dict={}
-
-
-
-    all_bank_files=[str(x) for x in NGSF.get_metadata.dictionary_all_trunc_objects.values()]
-
+    all_bank_files = [str(x) for x in metadata.dictionary_all_trunc_objects.values()]
 
     if resolution == 10 or resolution == 30:
 
-        for i in range(0,len(all_bank_files)):
-            a=all_bank_files[i]
+        for i in range(0, len(all_bank_files)):
+            a = all_bank_files[i]
 
-            full_name=a[a.find('sne'):]
-            one_sn ='bank/binnings/' + str(resolution) +'A/' + str(full_name)
+            full_name = a[a.find("sne") :]
+            one_sn = "bank/binnings/" + str(resolution) + "A/" + str(full_name)
 
-            if Parameters.mask_galaxy_lines == 1:
+            if parameters.mask_galaxy_lines == 1:
                 one_sn = np.loadtxt(one_sn)
                 one_sn = mask_lines_bank(one_sn)
             else:
                 one_sn = np.loadtxt(one_sn)
 
+            idx = all_bank_files[i].rfind("/") + 1
+            filename = all_bank_files[i][idx:]
 
-            idx=all_bank_files[i].rfind("/")+1
-            filename=all_bank_files[i][idx:]
+            short_name = str(metadata.shorhand_dict[filename])
 
-            short_name = str(NGSF.get_metadata.shorhand_dict[filename])
+            path_dict[short_name] = all_bank_files[i]
 
+            templates_sn_trunc_dict[short_name] = one_sn
+            alam_dict[short_name] = Alam(one_sn[:, 0])
 
-            path_dict[short_name]=all_bank_files[i]
-
-            templates_sn_trunc_dict[short_name]=one_sn
-            alam_dict[short_name]  = Alam(one_sn[:,0])
-
-
-    elif Parameters.resolution != 30 or Parameters.resolution != 10 :
+    elif parameters.resolution != 30 or parameters.resolution != 10:
 
         for i in range(0, len(all_bank_files)):
 
-            if Parameters.mask_galaxy_lines == 1:
+            if parameters.mask_galaxy_lines == 1:
 
                 one_sn = kill_header(all_bank_files[i])
                 one_sn = mask_lines_bank(one_sn)
                 one_sn = bin_spectrum_bank(one_sn, resolution)
 
-            elif Parameters.mask_galaxy_lines ==0:
+            elif parameters.mask_galaxy_lines == 0:
                 one_sn = kill_header(all_bank_files[i])
                 one_sn = bin_spectrum_bank(one_sn, resolution)
 
+            idx = all_bank_files[i].rfind("/") + 1
+            filename = all_bank_files[i][idx:]
 
-            idx=all_bank_files[i].rfind("/")+1
-            filename=all_bank_files[i][idx:]
+            short_name = str(metadata.shorhand_dict[filename])
 
-            short_name = str(get_metadata.shorhand_dict[filename])
-
-            path_dict[short_name]=all_bank_files[i]
-            templates_sn_trunc_dict[short_name]=one_sn
-            alam_dict[short_name]  = Alam(one_sn[:,0])
-
-
-
+            path_dict[short_name] = all_bank_files[i]
+            templates_sn_trunc_dict[short_name] = one_sn
+            alam_dict[short_name] = Alam(one_sn[:, 0])
 
     for i in range(0, len(templates_gal_trunc)):
 
-        one_gal           =  np.loadtxt(templates_gal_trunc[i])
-        one_gal = bin_spectrum_bank(one_gal,resolution)
-        templates_gal_trunc_dict[templates_gal_trunc[i]]=one_gal
+        one_gal = np.loadtxt(templates_gal_trunc[i])
+        one_gal = bin_spectrum_bank(one_gal, resolution)
+        templates_gal_trunc_dict[templates_gal_trunc[i]] = one_gal
 
-    sn_spec_files=[x for x in path_dict.keys()]
+    sn_spec_files = [x for x in path_dict.keys()]
     results = []
 
-    for element in itertools.product(redshift,extconstant):
+    for element in itertools.product(redshift, extconstant):
 
-        a, _ = core(int_obj,element[0],element[1], sn_spec_files, templates_gal_trunc, lam, resolution,iterations, **kwargs)
+        a, _ = core(
+            int_obj,
+            element[0],
+            element[1],
+            sn_spec_files,
+            templates_sn_trunc_dict,
+            templates_gal_trunc,
+            templates_gal_trunc_dict,
+            alam_dict,
+            lam,
+            resolution,
+            iterations,
+            **kwargs
+        )
 
         results.append(a)
 
     result = table.vstack(results)
 
+    result.sort("CHI2/dof2")
 
-    result.sort('CHI2/dof2')
+    result = table.unique(result, keys="SN", keep="first")
 
+    result.sort("CHI2/dof2")
 
-    result = table.unique(result, keys='SN',keep='first')
+    ascii.write(result, save + ".csv", format="csv", fast_writer=False, overwrite=True)
 
-    result.sort('CHI2/dof2')
+    end = time.time()
+    print("Runtime: {0: .2f}s ".format(end - start))
 
+    # if plot==1:
 
-    ascii.write(result, save + '.csv', format='csv', fast_writer=False, overwrite=True)
-
-    end   = time.time()
-    print('Runtime: {0: .2f}s '.format(end-start))
-
-
-
-    #if plot==1:
-        
     #    for i in range(0,n):
 
     #        plotting(int_obj,result[:][i], lam , original, i, save=save, show=show)
 
-    return 
-
+    return
