@@ -116,7 +116,7 @@ class Metadata(object):
 
                         else:
 
-                            if phase!='u' and phase >= epoch_low and phase <= epoch_high:
+                            if phase!='u' and phase >= parameters.epoch_low and phase <= parameters.epoch_high:
 
                                 band = band_dictionary[sub]
 
