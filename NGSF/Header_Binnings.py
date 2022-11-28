@@ -45,7 +45,6 @@ def kill_header(file_name):
 
     lines = [s.replace("\n", "") for s in lines]  # replace with nothing
 
-    # print(lines)
 
     columns = []
 
