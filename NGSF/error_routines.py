@@ -76,11 +76,5 @@ def savitzky_golay(spec):
         if err_std[i] == 0:
             err_std[i] = 1e-50
 
-    # x = [i+1e-10 for i in x if i==0]
-    # err_std = [i+1e-10 for i in err_std if i==0]
-    # err_std= [Decimal(i) for i in err_std if i==0]
-    # for i in range(0,len(x)):
-    #    if i==0:
-    #        x[i] = 'nan'
 
     return np.array([x, err_std]).T
