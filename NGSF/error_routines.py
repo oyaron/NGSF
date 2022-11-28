@@ -70,7 +70,7 @@ def savitzky_golay(spec):
 
     mov_var = moving_average(resid**2, n=100)
     mov_var = np.concatenate((mov_var, [mov_var[-1]] * (resid.size - mov_var.size)))
-    err_std = mov_var ** (1 / 2)
+    err_std = np.sqrt(mov_var)
 
     for i in range(0, len(err_std)):
         if err_std[i] == 0:
