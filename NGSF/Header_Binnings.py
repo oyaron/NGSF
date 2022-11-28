@@ -112,7 +112,7 @@ def bin_spectrum(spectrum, resolution):
         bin_wavelength = np.array(bin_wavelength)
         flux_bin = np.array(flux_bin)
 
-        mask = [not (np.isnan(x)) for x in flux_bin]
+        mask = [not np.isnan(x) for x in flux_bin]
 
         bin_wavelength = bin_wavelength[mask]
         flux_bin = flux_bin[mask]
