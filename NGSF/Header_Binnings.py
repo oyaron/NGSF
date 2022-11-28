@@ -74,7 +74,6 @@ def bin_spectrum(spectrum, resolution):
     resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
 
     """
-    # spectrum = np.loadtxt(spectrum)
 
     lam = spectrum[:, 0]
     flux = spectrum[:, 1]
