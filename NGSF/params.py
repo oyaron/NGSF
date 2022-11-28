@@ -55,7 +55,7 @@ class Parameters:
         self.z_range_end = data["z_range_end"]
         self.z_int = data["z_int"]
 
-        if self.use_exact_z == 1:
+        if self.use_exact_z:
             self.redshift = np.array([self.z_exact])
         else:
             z_num = int((self.z_range_end - self.z_range_begin) / self.z_int) + 1
