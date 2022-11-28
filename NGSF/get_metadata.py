@@ -28,7 +28,6 @@ class Metadata(object):
 
         parameters = Parameters(data)
 
-        mydict = {}
         #mjd_max_brightness = glob.glob('**/mjd**')[0]
         mjd_max_brightness = 'NGSF/mjd_of_maximum_brightness.csv'
 
@@ -38,8 +37,6 @@ class Metadata(object):
             reader = csv.reader(inp)
             band_dictionary = {rows[0]:rows[2] for rows in reader}
 
-
-        mydict = {}
 
         with open(mjd_max_brightness, mode='r') as inp:
             reader = csv.reader(inp)
