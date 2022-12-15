@@ -14,10 +14,10 @@ Superfit in python is a software for the spectral classification of Supernovae o
 
 
 # To run one object  
-The user must make sure to have a template bank to look at. The new template bank can be downloaded from WISeREP [here](https://www.wiserep.org/content/wiserep-getting-started#supyfit)
+The user must make sure to have a template bank to look at. The new template bank can be downloaded from WISeREP [here](https://www.wiserep.org/content/wiserep-getting-started#supyfit).
 
 
-The user must download the full superfit folder and place the bank inside of it, also any spectra to be analized. The user only changes the parameters from the jason file already withing the folder, the following is an explanation of the parameters. 
+The user must download the full superfit folder and place the bank inside it, also any spectra to be analyzed. The user only changes the parameters from the json file already within the folder, the following is an explanation of the parameters. 
 
 
 ## The parameters of the fit 
@@ -162,7 +162,7 @@ by making linear fit every 10 points, and `included`: if the user wants to use t
     
 # Results
 
-The results are: an astropy table that is saved as a csv file, and the best fit plots saved as pdf files (they both save to the superfit folder or to the specified path)
+The results are: an astropy table that is saved as a csv file, and the best fit plots saved as pdf files (they both save to the superfit folder or to the specified `saving_results_path`)
 
 
 ## The output graphs look like this
