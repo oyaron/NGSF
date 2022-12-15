@@ -18,7 +18,12 @@ def test_fit():
     BANK_PATH = f"{SUPERFIT_PATH}/bank"
 
     if not os.path.isdir(BANK_PATH):
-        curl_command = f'curl -L -H "Content-Type: application/json" -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36" -o {NGSF_zip} {NGSF_bank}'
+        curl_command = (
+            'curl -L -H "Content-Type: application/json" -H '
+            '"User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) '
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            f'Chrome/62.0.3202.94 Safari/537.36" -o {NGSF_zip} {NGSF_bank}'
+        )
         os.system(curl_command)
 
         with zipfile.ZipFile(NGSF_zip, "r") as z:
