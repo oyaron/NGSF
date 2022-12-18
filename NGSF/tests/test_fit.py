@@ -44,9 +44,11 @@ def test_fit():
         stderr=subprocess.STDOUT,
     )
 
-    results_path = os.path.join(SUPERFIT_PATH, f"{filebase}.csv")
+    #results_path = os.path.join(SUPERFIT_PATH, f"{filebase}.csv")
+    results_path = os.path.join(SUPERFIT_PATH, params["saving_results_path"], f"{filebase}.csv")
     results = pd.read_csv(results_path)
     results.sort_values(by=["CHI2/dof"], inplace=True)
 
-    assert all([np.isclose(z, 0.127) for z in results["Z"]])
+    #assert all([np.isclose(z, 0.127) for z in results["Z"]])
+    assert all([np.isclose(z, params["z_exact"]) for z in results["Z"]])
     assert all([~np.isnan(chi2) for chi2 in results["CHI2/dof"]])
