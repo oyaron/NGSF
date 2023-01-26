@@ -40,6 +40,6 @@
     "Alam_low": -2,
     "Alam_interval":0.2,
 
-    "pkg_dir": "/Users/neill/Documents/Git/NGSF",
-    "bank_dir": "/Users/neill/sedm/classifiers/bank"
+    "pkg_dir": "/home/user/NGSF",
+    "bank_dir": "/home/user/NGSF/bank"
 }

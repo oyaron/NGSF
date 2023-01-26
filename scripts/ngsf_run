@@ -1,5 +1,6 @@
 #!/bin/bash
-NGSFPATH=$HOME/Documents/Git/NGSF
+# edit the line below to point to your installation of NGSF
+NGSFPATH=$HOME/NGSF
 
 if [ $PYTHONPATH ]
 then
