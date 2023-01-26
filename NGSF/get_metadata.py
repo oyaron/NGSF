@@ -2,7 +2,6 @@ import glob
 import numpy as np
 from astropy.io import ascii
 import os
-import pandas as pd
 import csv
 import json
 import NGSF_version
@@ -14,10 +13,6 @@ except KeyError:
     configfile = os.path.join(NGSF_version.CONFIG_DIR, "parameters.json")
 with open(configfile) as config_file:
     ngsf_cfg = json.load(config_file)
-
-
-def JD(mjd):
-    return np.float(mjd) + 2400000.5
 
 
 def list_folders(path):
@@ -47,7 +42,7 @@ class Metadata(object):
 
         with open(mjd_max_brightness, mode='r') as inp:
             reader = csv.reader(inp)
-            MJD_dictionary = {rows[0]: rows[1] for rows in reader}
+            mjd_dictionary = {rows[0]: rows[1] for rows in reader}
 
         sne_folder = os.path.join(parameters.bank_dir,
                                   'original_resolution', 'sne')
@@ -59,13 +54,13 @@ class Metadata(object):
         z_dic = {}
         path_dic = {}
         dictionary_all_trunc_objects = {}
-        JD_dic = {}
+        jd_dic = {}
         coord_dic = {}
         spec_file_dic = {}
         inst_dic = {}
         obs_date_dict = {}
         shorhand_dict = {}
-        Type_dic = {}
+        type_dic = {}
         subfolders = []
         short_path_dict = {}
         for folder in folders:
@@ -77,7 +72,7 @@ class Metadata(object):
                 subfolders.append(subpath)
                 idx2 = subpath[0:idx].rfind('/')
                 sn_type = subpath[idx2+1:idx]
-                Type_dic[sub] = sn_type
+                type_dic[sub] = sn_type
                 if os.path.exists(subpath+'/wiserep_spectra.csv'):
                     have_wiserep.append(subpath)
                     wise = ascii.read(subpath+'/wiserep_spectra.csv')
@@ -86,21 +81,20 @@ class Metadata(object):
                     coord_dic[sub] = np.array(list(wise['Obj. RA',
                                                         'Obj. DEC'][0]))
 
-                    JD_dic[sub] = np.array(wise['JD'][:])
+                    jd_dic[sub] = np.array(wise['JD'][:])
                     obs_date_dict[sub] = np.array(wise['Obs-date'][:])
                     spec_file_dic[sub] = np.array(wise['Ascii file'][:])
                     inst_dic[sub] = np.array(wise['Instrument'][:])
-                    lis = []
                     for i, spec_file in enumerate(spec_file_dic[sub]):
 
-                        if float(MJD_dictionary[sub]) == -1:
+                        if float(mjd_dictionary[sub]) == -1:
 
                             phase = 'u'
 
                         else:
 
-                            phase = float(wise['JD'][i]) - JD(
-                                float(MJD_dictionary[sub]))
+                            phase = float(wise['JD'][i]) - (
+                                float(mjd_dictionary[sub]) + 2400000.5)
 
                             phase = round(phase, 2)
 
@@ -122,23 +116,22 @@ class Metadata(object):
 
                         else:
 
-                            if phase != 'u' and phase >= parameters.epoch_low \
-                                    and phase <= parameters.epoch_high:
+                            if phase != 'u' and parameters.epoch_low <= phase \
+                                    <= parameters.epoch_high:
 
                                 band = band_dictionary[sub]
 
-                                shorhand_dict[
-                                    spec_file] = sn_type + '/' + sub + '/' + \
-                                                 wise['Instrument'][i] + \
-                                                 ' phase-band : '+ str(phase) \
-                                                 + str(band)
+                                shorhand_dict[spec_file] = \
+                                    sn_type + '/' + sub + '/' + \
+                                    wise['Instrument'][i] + ' phase-band : ' + \
+                                    str(phase) + str(band)
 
                                 short_path_dict[shorhand_dict[
-                                    spec_file]]=spec_file
+                                    spec_file]] = spec_file
 
-                                dictionary_all_trunc_objects[
-                                    spec_file] = sne_folder + sn_type + '/' + \
-                                                 sub + '/' + spec_file
+                                dictionary_all_trunc_objects[spec_file] = \
+                                    sne_folder + sn_type + '/' + sub + '/' + \
+                                    spec_file
 
                 else:
                     no_wiserep.append(subpath)

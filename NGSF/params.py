@@ -23,15 +23,18 @@ class Parameters:
         if self.use_exact_z:
             self.redshift = np.array([self.z_exact])
         else:
-            z_num = int((self.z_range_end - self.z_range_begin) / self.z_int) + 1
-            self.redshift = np.linspace(self.z_range_begin, self.z_range_end, z_num)
+            z_num = int((self.z_range_end -
+                         self.z_range_begin) / self.z_int) + 1
+            self.redshift = np.linspace(self.z_range_begin,
+                                        self.z_range_end, z_num)
 
         self.mask_galaxy_lines = data["mask_galaxy_lines"]
         self.mask_telluric = data["mask_telluric"]
 
         if self.mask_galaxy_lines == 1 and len(self.redshift) != 1:
             raise Exception(
-                "Make sure to pick an exact value for z in order to mask the host lines accordingly!"
+                "Make sure to pick an exact value for z in order to mask the "
+                "host lines accordingly!"
             )
 
         # Epochs
@@ -46,7 +49,8 @@ class Parameters:
         self.Alam_low = data["Alam_low"]
         self.Alam_interval = data["Alam_interval"]
 
-        alam_num = int((self.Alam_high - self.Alam_low) / self.Alam_interval) + 1
+        alam_num = int((self.Alam_high -
+                        self.Alam_low) / self.Alam_interval) + 1
         self.extconstant = np.linspace(self.Alam_low, self.Alam_high, alam_num)
 
         # Library to look at
