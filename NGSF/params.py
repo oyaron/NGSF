@@ -1,51 +1,16 @@
 import glob
+import os
 import numpy as np
-import sys
-import json
-from sys import exit
+
 from NGSF.auxiliary import select_templates
 from NGSF.Header_Binnings import kill_header
-
-
-def parseJsonString(myjson):
-    """
-    Check if JSON string
-    return JSON or False
-    """
-    try:
-        json.loads(myjson)
-    except ValueError:
-        return False
-    return json.loads(myjson)
-
-
-def parseJsonFile(file):
-    """
-    Check if JSON file
-    return JSON or False
-
-    """
-    try:
-        with open(file, "r") as read_file:
-            data = json.load(read_file)
-            return data
-    except Exception:
-        return False
-    return json.load(file)
-
-
-data = parseJsonString(sys.argv[1])
-
-if not data:
-    data = parseJsonFile(sys.argv[1])
-    if not data:
-        print("Error: Unable to parse JSON")
-        exit()
 
 
 class Parameters:
     def __init__(self, data):
 
+        self.pkg_dir = data["pkg_dir"]
+        self.bank_dir = data["bank_dir"]
         self.object_to_fit = data["object_to_fit"]
         self.save_results_path = data["saving_results_path"]
 
@@ -128,16 +93,16 @@ class Parameters:
 
         if self.resolution == 10 or self.resolution == 30:
             templates_gal = glob.glob(
-                "bank/binnings/" + str(self.resolution) + "A/gal/*"
-            )
+                os.path.join(self.bank_dir, "binnings",
+                             str(self.resolution) + "A", "gal", "*"))
             templates_gal = [
                 x for x in templates_gal if "CVS" not in x and "README" not in x
             ]
             templates_gal = np.array(templates_gal)
 
             templates_sn = glob.glob(
-                "bank/binnings/" + str(self.resolution) + "A/sne/**/**/*"
-            )
+                os.path.join(self.bank_dir, "binnings",
+                             str(self.resolution) + "A", "sne/**/**/*"))
             templates_sn = [
                 x
                 for x in templates_sn
@@ -149,13 +114,16 @@ class Parameters:
             templates_sn = np.array(templates_sn)
 
         else:
-            templates_gal = glob.glob("bank/original_resolution/gal/*")
+            templates_gal = glob.glob(
+                os.path.join(self.bank_dir, "original_resolution", "gal", "*"))
             templates_gal = [
                 x for x in templates_gal if "CVS" not in x and "README" not in x
             ]
             templates_gal = np.array(templates_gal)
 
-            templates_sn = glob.glob("bank/original_resolution/sne/**/**/*")
+            templates_sn = glob.glob(
+                os.path.join(self.bank_dir, "original_resolution",
+                             "sne/**/**/*"))
             templates_sn = [
                 x
                 for x in templates_sn
@@ -166,5 +134,7 @@ class Parameters:
             ]
             templates_sn = np.array(templates_sn)
 
-        self.templates_sn_trunc = select_templates(templates_sn, self.temp_sn_tr)
-        self.templates_gal_trunc = select_templates(templates_gal, self.temp_gal_tr)
+        self.templates_sn_trunc = select_templates(templates_sn,
+                                                   self.temp_sn_tr)
+        self.templates_gal_trunc = select_templates(templates_gal,
+                                                    self.temp_gal_tr)

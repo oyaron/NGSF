@@ -11,15 +11,24 @@ from NGSF.SF_functions import Alam, all_parameter_space, remove_telluric, mask_g
 from NGSF.Header_Binnings import kill_header, kill_header_and_bin
 from NGSF.error_routines import linear_error, savitzky_golay
 from NGSF.get_metadata import Metadata
-from NGSF.params import Parameters, data
+from NGSF.params import Parameters
+import NGSF_version
 
+try:
+    configfile = os.environ["NGSFCONFIG"]
+except KeyError:
+    configfile = os.path.join(NGSF_version.CONFIG_DIR, "parameters.json")
+with open(configfile) as config_file:
+    ngsf_cfg = json.load(config_file)
 
-parameters = Parameters(data)
+parameters = Parameters(ngsf_cfg)
 
 
 class Superfit:
-    def __init__(self):
+    def __init__(self, spec_file):
 
+        ngsf_cfg["object_to_fit"] = spec_file
+        parameters.object_to_fit = spec_file
         self.original_path_name = parameters.object_to_fit
         self.name = os.path.basename(self.original_path_name)
         self.name_no_extension = self.name[: self.name.rfind(".")]
@@ -31,10 +40,12 @@ class Superfit:
         how_many_bins = 0
 
         if obj_original_res > 10:
-            how_many_bins = +(self.spectrum[:, 0][-1] - self.spectrum[:, 0][0]) / 30
+            how_many_bins = +(self.spectrum[:,
+                              0][-1] - self.spectrum[:, 0][0]) / 30
 
         elif obj_original_res <= 10:
-            how_many_bins = +(self.spectrum[:, 0][-1] - self.spectrum[:, 0][0]) / 10
+            how_many_bins = +(self.spectrum[:,
+                              0][-1] - self.spectrum[:, 0][0]) / 10
 
         # Check if spectrum is short
 
@@ -43,10 +54,10 @@ class Superfit:
 
         self.lamda, self.flux = self.spectrum[:, 0], self.spectrum[:, 1]
 
-        self.binned_name = (
-            parameters.save_results_path + self.name_no_extension + "_binned.txt"
-        )
-        self.results_name = parameters.save_results_path + self.name_no_extension
+        self.binned_name = os.path.join(parameters.save_results_path,
+                                        self.name_no_extension + "_binned.txt")
+        self.results_name = os.path.join(parameters.save_results_path,
+                                         self.name_no_extension)
 
         self.results_path = self.results_name + ".csv"
 
@@ -71,8 +82,11 @@ class Superfit:
         self.metadata = Metadata()
 
         # Make json with the used parameters
-        with open(parameters.save_results_path + "parameters_used.json", "w") as fp:
-            json.dump(data, fp)
+        with open(
+                os.path.join(parameters.save_results_path,
+                             self.name_no_extension + "_pars_used.json"),
+                "w") as fp:
+            json.dump(ngsf_cfg, fp)
 
     def plot(self):
 
@@ -262,6 +276,8 @@ class Superfit:
 
             # print(full_names)
 
+            subtype = ""
+            sn_best_fullname = ""
             for i in range(0, len(short_names)):
                 if str(short_names[i]) == str(short_name):
                     sn_best_fullname = full_names[i]
@@ -271,8 +287,10 @@ class Superfit:
 
             int_obj = self.int_obj
 
-            sn_name = "bank/binnings/10A/sne/" + subtype + "/" + sn_best_fullname
-            hg_name = "bank/binnings/10A/gal/" + hg_name
+            sn_name = os.path.join(parameters.bank_dir, "binnings", "10A",
+                                   "sne",  subtype,  sn_best_fullname)
+            hg_name = os.path.join(parameters.bank_dir, "binnings", "10A",
+                                   "gal", hg_name)
 
             # print(sn_name)
 

@@ -1,0 +1,15 @@
+#!/bin/bash
+NGSFPATH=$HOME/Documents/Git/NGSF
+
+if [ $PYTHONPATH ]
+then
+    PYTHONPATH=${PYTHONPATH}:${NGSFPATH}
+else
+    PYTHONPATH=${NGSFPATH}
+fi
+
+export PYTHONPATH
+
+python ${NGSFPATH}/run.py $@
+
+exit

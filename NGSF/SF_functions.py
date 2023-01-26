@@ -6,17 +6,25 @@ from astropy import table
 from astropy.io import ascii
 import itertools
 import os
+import json
 from PyAstronomy import pyasl
 
 from NGSF.get_metadata import Metadata
 from NGSF.error_routines import savitzky_golay, linear_error
-from NGSF.params import Parameters, data
+from NGSF.params import Parameters
 from NGSF.Header_Binnings import bin_spectrum_bank, mask_lines_bank, kill_header
+import NGSF_version
+
+try:
+    configfile = os.environ["NGSFCONFIG"]
+except KeyError:
+    configfile = os.path.join(NGSF_version.CONFIG_DIR, "parameters.json")
+with open(configfile) as config_file:
+    ngsf_cfg = json.load(config_file)
+
+parameters = Parameters(ngsf_cfg)
 
 np.seterr(divide="ignore", invalid="ignore")
-
-
-parameters = Parameters(data)
 
 
 def sn_hg_arrays(
@@ -461,8 +469,9 @@ def all_parameter_space(
         for i in range(0, len(all_bank_files)):
             a = all_bank_files[i]
 
-            full_name = a[a.find("sne") :]
-            one_sn = "bank/binnings/" + str(resolution) + "A/" + str(full_name)
+            full_name = a[a.find("sne"):]
+            one_sn = os.path.join(parameters.bank_dir, "binnings",
+                                  str(resolution) + "A/", str(full_name))
 
             if parameters.mask_galaxy_lines == 1:
                 one_sn = np.loadtxt(one_sn)
