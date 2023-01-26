@@ -30,6 +30,7 @@ class Superfit:
 
         ngsf_cfg["object_to_fit"] = spec_file
         parameters.object_to_fit = spec_file
+        parameters.calc_lam()
         self.original_path_name = parameters.object_to_fit
         self.name = os.path.basename(self.original_path_name)
         self.name_no_extension = self.name[: self.name.rfind(".")]

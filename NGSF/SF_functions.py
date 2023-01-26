@@ -22,8 +22,6 @@ except KeyError:
 with open(configfile) as config_file:
     ngsf_cfg = json.load(config_file)
 
-parameters = Parameters(ngsf_cfg)
-
 np.seterr(divide="ignore", invalid="ignore")
 
 
@@ -398,6 +396,8 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
     """
 
     import time
+
+    parameters = Parameters(ngsf_cfg)
 
     metadata = Metadata()
 

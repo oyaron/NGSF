@@ -60,21 +60,7 @@ class Parameters:
         self.resolution = data["resolution"]
         self.upper = data["upper_lam"]
         self.lower = data["lower_lam"]
-
-        if self.upper == self.lower:
-
-            self.lower = kill_header(self.object_to_fit)[1][0] - 300
-            self.upper = kill_header(self.object_to_fit)[-1][0] + 300
-
-            interval = int((self.upper - self.lower) / self.resolution)
-            self.lam = np.linspace(self.lower, self.upper, interval)
-
-        else:
-
-            self.upper = data["upper_lam"]
-            self.lower = data["lower_lam"]
-            interval = int((self.upper - self.lower) / self.resolution)
-            self.lam = np.linspace(self.lower, self.upper, interval)
+        self.lam = None
 
         # Kind of error spectrum ('SG', 'linear' or 'included')
         self.kind = data["error_spectrum"]
@@ -142,3 +128,18 @@ class Parameters:
                                                    self.temp_sn_tr)
         self.templates_gal_trunc = select_templates(templates_gal,
                                                     self.temp_gal_tr)
+
+    def calc_lam(self):
+
+        if self.upper == self.lower:
+
+            self.lower = kill_header(self.object_to_fit)[1][0] - 300
+            self.upper = kill_header(self.object_to_fit)[-1][0] + 300
+
+            interval = int((self.upper - self.lower) / self.resolution)
+            self.lam = np.linspace(self.lower, self.upper, interval)
+
+        else:
+
+            interval = int((self.upper - self.lower) / self.resolution)
+            self.lam = np.linspace(self.lower, self.upper, interval)
