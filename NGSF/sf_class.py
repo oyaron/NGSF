@@ -371,9 +371,9 @@ class Superfit:
                       fontweight="bold")
 
             if parameters.show_plot_png:
-                plt.savefig(self.results_name + "_" + str(j) + ".png")
+                plt.savefig(self.results_name + "_ngsf" + str(j) + ".png")
             else:
-                plt.savefig(self.results_name + "_" + str(j) + ".pdf")
+                plt.savefig(self.results_name + "_ngsf" + str(j) + ".pdf")
 
             if parameters.show == 1:
                 plt.show()
