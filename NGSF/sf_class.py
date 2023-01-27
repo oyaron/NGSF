@@ -58,7 +58,8 @@ class Superfit:
         self.lamda, self.flux = self.spectrum[:, 0], self.spectrum[:, 1]
 
         self.binned_name = os.path.join(parameters.save_results_path,
-                                        self.name_no_extension + "_binned.txt")
+                                        self.name_no_extension +
+                                        "_binned.ascii")
         self.results_name = os.path.join(parameters.save_results_path,
                                          self.name_no_extension)
 
