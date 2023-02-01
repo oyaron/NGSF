@@ -18,8 +18,8 @@
 
     "temp_gal_tr" : ["E","S0","Sa","Sb","SB1","SB2","SB3","SB4","SB5","SB6","Sc"],
    
-    "lower_lam": 0,
-    "upper_lam": 0,
+    "lower_lam": 4000,
+    "upper_lam": 9500,
 
     "error_spectrum" : "sg",
     "saving_results_path" : "",
@@ -27,6 +27,8 @@
     "show_plot" : 0,
     "how_many_plots" : 1,
     "show_plot_png": 1,
+
+    "verbose": 0,
 
     "mask_galaxy_lines":0,
     "mask_telluric":1,
