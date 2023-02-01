@@ -94,7 +94,10 @@ the git repository).
 
     "Alam_high": 2,
     "Alam_low": -2,
-    "Alam_interval":0.2
+    "Alam_interval":0.2,
+
+    "pkg_dir": "/home/user/NGSF",
+    "bank_dir": "/home/user/NGSF/bank"
 
 
 
