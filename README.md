@@ -54,7 +54,7 @@ file, the file looks like this (the template for this example is included in
 the git repository).
 
 
-    "object_to_fit" : "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
+    "object_to_fit": "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
 
     "use_exact_z": 1,
     "z_exact": 0.127,
@@ -78,14 +78,17 @@ the git repository).
     "lower_lam": 0,
     "upper_lam": 0,
 
-    "error_spectrum" : "sg",
-    "saving_results_path" : "",
+    "error_spectrum": "sg",
+    "saving_results_path": "",
 
-    "show_plot" : 1,
-    "how_many_plots" : 1,
+    "show_plot": 1,
+    "how_many_plots": 1,
+    "show_plot_png": 1,
 
-    "mask_galaxy_lines":1,
-    "mask_telluric":0,
+    "verbose": 0,
+
+    "mask_galaxy_lines": 1,
+    "mask_telluric": 0,
 
     "minimum_overlap": 0.7,
 
@@ -94,7 +97,7 @@ the git repository).
 
     "Alam_high": 2,
     "Alam_low": -2,
-    "Alam_interval":0.2,
+    "Alam_interval": 0.2,
 
     "pkg_dir": "/home/user/NGSF",
     "bank_dir": "/home/user/NGSF/bank"
@@ -127,6 +130,8 @@ the git repository).
 
 `"show_plot_png"`: set to 1 to output a png plot, a zero value or no parameter defaults to a pdf plot.
 
+`"verbose"`: set to 1 for more output to screen.
+
 `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice.
 
 `"mask_telluric"`: Either 1 or 0, masks the flux within the wavelength range from 7594 to 7680 in the observer's frame.
@@ -156,8 +161,6 @@ only parameter.
 
 The file of the object to be analyzed no longer needs to be within the superfit
 folder.
-
-
 
 
 # Further details about the code
@@ -207,7 +210,7 @@ all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Para
 
 
 
-The inputs of the function are called from the Parameters class within the `params.py` file, and are as follow:
+The inputs of the function are called from the Parameters class within the `params.py` file, and are as follows:
 
 - `self.int_obj`: interpolated object to fit
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize.
@@ -215,7 +218,7 @@ The inputs of the function are called from the Parameters class within the `para
 - `templates_sn_trunc:`  Truncated library of supernovae, aka: which SN types to look at when optimizing.
 - `templates_gal_trunc:` Truncated library of host galaxies, aka: which HG types to look at when optimizing.
 - `lam:` Lambda array over which to perform the fit. The default is from 3000 A to 10500 A.
-- `resolution:` Resolution at which to bin and perform the fit. The default is 10 A.
+- `resolution:` Resolution at which to bin and perform the fit. The default for SEDM is 30 A.
 - `kind:` Corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum
 by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `sg`
 - `save:` Name of results file
