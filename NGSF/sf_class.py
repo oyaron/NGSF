@@ -88,12 +88,12 @@ class Superfit:
 
         self.metadata = Metadata()
 
-        # Make json with the used parameters
-        with open(
-                os.path.join(parameters.save_results_path,
-                             self.name_no_extension + "_pars_used.json"),
-                "w") as fp:
+        # Make json file with the used parameters
+        parfile = os.path.join(parameters.save_results_path,
+                               self.name_no_extension + "_pars_used.json")
+        with open(parfile, "w") as fp:
             json.dump(ngsf_cfg, fp)
+        print("\nParameters used written to: {}".format(parfile))
 
     def plot(self):
 
@@ -274,6 +274,7 @@ class Superfit:
             result_number = result_number + parameters.n
 
         for j in range(result_number):
+            print("Outputting result {}".format(j))
 
             row = self.results.iloc[j]
 

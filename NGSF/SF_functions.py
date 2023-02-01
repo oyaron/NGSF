@@ -399,6 +399,8 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
 
     parameters = Parameters(ngsf_cfg)
 
+    verbose = (parameters.verbose == 1)
+
     metadata = Metadata()
 
     print("NGSF started")
@@ -417,6 +419,7 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
     all_bank_files = [str(x) for x in
                       metadata.dictionary_all_trunc_objects.values()]
 
+    print("Reading SN templates", flush=True)
     if resolution == 10 or resolution == 30:
 
         for i in range(0, len(all_bank_files)):
@@ -467,6 +470,7 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
             templates_sn_trunc_dict[short_name] = one_sn
             alam_dict[short_name] = Alam(one_sn[:, 0])
 
+    print("Reading Galaxy templates", flush=True)
     for i in range(0, len(templates_gal_trunc)):
 
         one_gal = np.loadtxt(templates_gal_trunc[i])
@@ -476,7 +480,18 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
     sn_spec_files = [x for x in path_dict.keys()]
     results = []
 
+    if not verbose:
+        print("Probing redshifts: ", redshift)
+        print("Probing A_v: ", extconstant)
+    old_z = -999.0
     for element in itertools.product(redshift, extconstant):
+        if element[0] != old_z and verbose:
+            print("\nProbing z={:.2f}".format(element[0]), flush=True)
+            old_z = element[0]
+            print("A_v = ", end=" ", flush=True)
+
+        if verbose:
+            print("{:.2f}".format(element[1]), end=" ", flush=True)
 
         a, _ = core(
             int_obj,
@@ -494,6 +509,9 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
         )
 
         results.append(a)
+
+    if verbose:
+        print("\nDone.")
 
     result = table.vstack(results)
 

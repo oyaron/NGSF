@@ -77,6 +77,12 @@ class Parameters:
         # How many results to plot?
         self.n = data["how_many_plots"]
 
+        # Verbose?
+        if "verbose" in data:
+            self.verbose = data["verbose"]
+        else:
+            self.verbose = 0
+
         self.iterations = 10
 
         # Template library
