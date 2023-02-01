@@ -109,11 +109,12 @@ the git repository).
 
 `"z_range_begin"`,`"z_range_end"`,`"z_int"`: redshift values from which to build an array over which to look for the best fit.
 
-`"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å.
+`"resolution"`: the resolution of the fit, the default for SEDM is 30Å, however, if the spectra is of higher resolution then 10Å can be specified.
 
 `"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is.
 
 `"lower_lam"`: Lower bound for wavelength over which to perform the fit
+
 `"upper_lam"`: Upper bound for wavelength over which to perform the fit, if this is equal to `"lower_lam"` then the wavelength range will be chosen automatically as that of the object to fit ± 300Å
 
 `"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `sg` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended.
@@ -121,22 +122,29 @@ the git repository).
 `"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder.
 
 `"show_plot"` : to show the plotted fit or no, the default being 1, to show.
+
 `"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect.
+
 `"show_plot_png"`: set to 1 to output a png plot, a zero value or no parameter defaults to a pdf plot.
 
 `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice.
+
 `"mask_telluric"`: Either 1 or 0, masks the flux within the wavelength range from 7594 to 7680 in the observer's frame.
 
 `"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
 
 `"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
+
 `"epoch_low"`: Lower bound epoch for phase truncation.
 
 `"Alam_high"`: High value for the extinction law constant
+
 `"Alam_low"`: Lower value for the extinction law constant
+
 `"Alam_interval"`: size of interval
 
 `"pkg_dir"`: Full path to the top level of the software package
+
 `"bank_dir"`: Full path to the template bank
 
 
