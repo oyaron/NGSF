@@ -18,8 +18,8 @@
 
     "temp_gal_tr" : ["E","S0","Sa","Sb","SB1","SB2","SB3","SB4","SB5","SB6","Sc"],
    
-    "lower_lam": 4000,
-    "upper_lam": 9500,
+    "lower_lam": 0,
+    "upper_lam": 0,
 
     "error_spectrum" : "sg",
     "saving_results_path" : "",
@@ -40,6 +40,6 @@
     "Alam_low": -2,
     "Alam_interval":0.2,
 
-    "pkg_dir": "/Users/neill/Documents/Git/NGSF",
-    "bank_dir": "/Users/neill/sedm/classifiers/bank"
+    "pkg_dir": "/home/user/NGSF",
+    "bank_dir": "/home/user/NGSF/bank"
 }
