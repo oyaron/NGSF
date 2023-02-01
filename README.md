@@ -35,21 +35,21 @@ bank can be downloaded from WISeREP [here](https://www.wiserep.org/content/wiser
 
 
 The user must download the full superfit folder. The template bank may be placed
-anywhere, but the "bank_dir" variable in config/parameters.json must indicate
+anywhere, but the `"bank_dir"` variable in `config/parameters.json` must indicate
 the  path to the bank.  The user only changes the parameters from the json file
-already within the folder, the following is an explanation of the parameters.
+already within the folder.  An explanation of the parameters is below.
 
-The script ngsf_run takes a single argument, which is the spectrum text file:
+The script `ngsf_run` takes a single argument, which is the spectrum text file:
 
 `ngsf_run SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm`
 
-If you put the script ngsf_run in your path, you can run the fitter from any
+If you put the script `ngsf_run` in your path, you can run the fitter from any
 directory.
 
 
 ## The parameters of the fit
 
-The user must only change the parameters of the fit from the parameters.json
+The user must only change the parameters of the fit from the `parameters.json`
 file, the file looks like this (the template for this example is included in
 the git repository).
 
@@ -103,7 +103,7 @@ the git repository).
 
 `"object_to_fit"` : the object to analyze, default only.  Can be specified on the command line also.
 
-`"use_exact_z"`: can be 1 (yes) or 0 (no). Determines wether the redshift will be an exact number or an array.
+`"use_exact_z"`: can be 1 (yes) or 0 (no). Determines weather the redshift will be an exact number or an array.
 
 `"z_exact"`    : exact redshift value that will be used if `"use_exact_z"` = 1
 
@@ -133,7 +133,7 @@ the git repository).
 
 `"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
 
-`"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
+`"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is no phase truncation.
 
 `"epoch_low"`: Lower bound epoch for phase truncation.
 
@@ -170,7 +170,7 @@ rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated
 in different folders for more accurate classification. The default option for
 binning in 10A.
 The user must make sure to have this template bank or some alternative template
-bank of his own in order to run pySF, and please be mindful that pySF is only
+bank of his own in order to run NGSF, and please be mindful that NGSF is only
 as good as the template bank it uses.
 
 
@@ -226,7 +226,7 @@ by making linear fit every 10 points, and `included`: if the user wants to use t
 
 The results are: an astropy table that is saved as a csv file, and the best fit
 plots saved as pdf or png files (they both save to the folder where you execute
-the ngsf_run script or to the specified `saving_results_path`)
+the `ngsf_run` script or to the specified `saving_results_path`)
 
 
 ## The output graphs look like this
