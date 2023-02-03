@@ -207,9 +207,10 @@ class Superfit:
 
         try:
             print(
-                "Running optimization for spectrum file: {0} "
-                "with resolution = {1} Å".format(
-                    self.name_no_extension, parameters.resolution
+                "Running optimization for spectrum file: {0}\n"
+                "With resolution = {1} A, from {2} to {3} A".format(
+                    self.name, parameters.resolution,
+                    parameters.lower, parameters.upper
                 )
             )
 
