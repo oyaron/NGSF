@@ -481,7 +481,7 @@ def all_parameter_space(int_obj, redshift, extconstant, templates_sn_trunc,
     results = []
 
     if not verbose:
-        print("Probing redshifts: %.2f to %.2f with %.f2 sampling" %
+        print("Probing redshifts: %.2f to %.2f with %.2f sampling" %
               (redshift[0], redshift[-1], redshift[1] - redshift[0]), flush=True)
         print("Probing A_v: %.2f to %.2f with %.2f sampling" %
               (extconstant[0], extconstant[-1], extconstant[1] - extconstant[0]), flush=True)
