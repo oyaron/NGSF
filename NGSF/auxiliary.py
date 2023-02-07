@@ -1,15 +1,15 @@
 import numpy as np
 
 
-def select_templates(DATABASE, TYPES):
+def select_templates(database, types):
 
     """
 
 
     Selects templates of a given type(s) from a template database
 
-    Input: DATEBASE   list of templates
-           TYPES      which types should be selected
+    Input: database   list of templates
+           types      which types should be selected
 
     Output: array of templates of given type(s)
 
@@ -18,7 +18,7 @@ def select_templates(DATABASE, TYPES):
 
     database_trunc = list([])
 
-    for type in TYPES:
-        database_trunc += list([x for x in DATABASE if type in x])
+    for tp in types:
+        database_trunc += list([x for x in database if tp in x])
 
     return np.array(database_trunc)

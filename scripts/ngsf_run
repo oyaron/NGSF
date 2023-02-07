@@ -1,0 +1,16 @@
+#!/bin/bash
+# edit the line below to point to your installation of NGSF
+NGSFPATH=$HOME/NGSF
+
+if [ $PYTHONPATH ]
+then
+    PYTHONPATH=${PYTHONPATH}:${NGSFPATH}
+else
+    PYTHONPATH=${NGSFPATH}
+fi
+
+export PYTHONPATH
+
+python ${NGSFPATH}/run.py $@
+
+exit

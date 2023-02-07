@@ -25,10 +25,9 @@ def linear_error(spec_object):
     m = []
     b = []
     sigma = []
+    r = []
 
     for n in range(len(lam_new)):
-        r = []
-        error = []
 
         a = np.polyfit(lam_new[n], flux_new[n], 1)
         m.append(a[0])
@@ -40,7 +39,8 @@ def linear_error(spec_object):
         s = statistics.stdev(i)
         sigma.append(s)
 
-    # Here we make the error be the same size as the original lambda and then take the transpose
+    # Here we make the error be the same size as the original lambda and then
+    # take the transpose
 
     error = list(np.repeat(sigma, num))
     ls = [error[-1]] * c
@@ -66,15 +66,15 @@ def savitzky_golay(spec):
     def moving_average(a, n=3):
         ret = np.cumsum(a, dtype=float)
         ret[n:] = ret[n:] - ret[:-n]
-        return ret[n - 1 :] / n
+        return ret[n - 1:] / n
 
     mov_var = moving_average(resid**2, n=100)
-    mov_var = np.concatenate((mov_var, [mov_var[-1]] * (resid.size - mov_var.size)))
+    mov_var = np.concatenate((mov_var, [mov_var[-1]] * (resid.size -
+                                                        mov_var.size)))
     err_std = np.sqrt(mov_var)
 
     for i in range(0, len(err_std)):
         if err_std[i] == 0:
             err_std[i] = 1e-50
-
 
     return np.array([x, err_std]).T

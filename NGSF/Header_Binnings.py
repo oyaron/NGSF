@@ -7,25 +7,19 @@ from PyAstronomy import pyasl
 def kill_header(file_name):
 
     """
-    This function removes all entries beginning with '#' from a file with a header, keeping only the column
-
-    data and saving it into a file.
-
+    This function removes all entries beginning with '#' from a file with a
+    header, keeping only the column data and saving it into a file.
 
     parameters
     ----------
-
-    It takes one path (in the form of "/home/user/Dropbox/something") to pull and eliminate its header
-
+    It takes one path (in the form of "/home/user/Dropbox/something") to pull
+    and eliminate its header
 
     returns
     -------
-
     File without header.
 
     """
-
-    lines = []
 
     file = open(file_name, "r")
 
@@ -44,7 +38,6 @@ def kill_header(file_name):
     lines = [s.strip("\n") for s in lines]  # remove empty lines
 
     lines = [s.replace("\n", "") for s in lines]  # replace with nothing
-
 
     columns = []
 
@@ -67,11 +60,13 @@ def bin_spectrum(spectrum, resolution):
     """
 
     Returns a median normalized flux, binned in a resolution given by the user.
+
     Parameters:
     -----------
-    spectrum ‘array’: array of arrays containing the spectrum (with or without flux error).
-    First array must be the wavelength, second the flux, (third the error on the flux).
-    resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
+    spectrum ‘array’: array of arrays containing the spectrum (with or without
+    flux error). First array must be the wavelength, second the flux, (third
+    the error on the flux). resolution ’int: the desired resolution, must match
+    the units of wavelength in the spectrum file
 
     """
 
@@ -83,7 +78,8 @@ def bin_spectrum(spectrum, resolution):
     else:
         fluxerror = None
     if lam[15] - lam[16] > resolution:
-        bin_spectra = spectrum
+        pass
+        # bin_spectra = spectrum
     else:
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
         flux_bin, bin_edge, index = stats.binned_statistic(
@@ -94,17 +90,19 @@ def bin_spectrum(spectrum, resolution):
             bins=number_of_bins,
         )
         bin_wavelength = [
-            (bin_edge[i] + bin_edge[i + 1]) / 2 for i in range(len(bin_edge) - 1)
+            (bin_edge[i] + bin_edge[i + 1]) / 2 for i in
+            range(len(bin_edge) - 1)
         ]
 
-        # This is the condition I had to add to get rid of the NaNs, but I still don’t know why flux_bin has NaNs in the first place
-
+        # This is the condition I had to add to get rid of the NaNs,
+        # but I still don’t know why flux_bin has NaNs in the first place
+        fluxerror_bin = []
         if fluxerror is not None:
-            fluxerror_bin = []
             for i in range(len(bin_edge) - 1):
                 error_squared = []
+                error = 0.
                 for index, la in enumerate(lam):
-                    if la >= bin_edge[i] and la < bin_edge[i + 1]:
+                    if bin_edge[i] <= la < bin_edge[i + 1]:
                         error_squared.append(fluxerror[index] ** 2)
                     error = np.sqrt(np.sum(error_squared) / len(error_squared))
                 fluxerror_bin.append(error)
@@ -136,18 +134,16 @@ def kill_header_and_bin(original, resolution=10, **kwargs):
 
     """
 
-    Takes a path (in the form of "/home/user/Dropbox/something"), pulls a spectrum file that should consist of 2 or 3 columns (wavelength, flux and error)
+    Takes a path (in the form of "/home/user/Dropbox/something"), pulls a
+    spectrum file that should consist of 2 or 3 columns (wavelength, flux and
+    error) eliminates the header, bins the spectrum to a specific resolution
+    and saves the file in the same directory from the original path, it adds
+    "_binned.ascii" to the end of the file name
 
-    eliminates the header, bins the spectrum to a specific resolution and saves the file in the same directory from the original path, it adds "_binned.ascii"
-
-    to the end of the file name
-
-
+    Returns
     ----------
-
-    Outputs: astropy table with binned data, and saves file in the same path as the original with "_binned.ascii" in the name
-
-
+    Outputs: astropy table with binned data, and saves file in the same path as
+    the original with "_binned.ascii" in the name
 
     """
 
@@ -164,10 +160,9 @@ def kill_header_and_bin(original, resolution=10, **kwargs):
 
     if np.min(np.diff(spectrum[:, 0])) > resolution:
         raise Exception(
-            "The resolution you chose ({0} Ang) is less than a single bin ({1: .2f} ang). Decrease the resolution for this spectrum and try again".format(
-                resolution, np.min(np.diff(spectrum[:, 0]))
-            )
-        )
+            "The resolution you chose ({0} Ang) is less than a single bin "
+            "({1: .2f} ang). Decrease the resolution for this spectrum and try "
+            "again".format(resolution, np.min(np.diff(spectrum[:, 0]))))
 
     np.savetxt(saving_path, bin_spec, fmt="%s")
 
@@ -178,15 +173,16 @@ def bin_spectrum_bank(spectrum, resolution):
 
     """
 
-    Returns a median normalized flux, binned in a resolution given by the user. Modified to bin only
-    the template bank since no error is involved.
+    Returns a median normalized flux, binned in a resolution given by the user.
+    Modified to bin only the template bank since no error is involved.
 
 
     Parameters:
     -----------
-    spectrum ‘array’: array of arrays containing the spectrum (with or without flux error).
-    First array must be the wavelength, second the flux, (third the error on the flux).
-    resolution ’int: the desired resolution, must match the units of wavelength in the spectrum file
+    spectrum ‘array’: array of arrays containing the spectrum (with or without
+    flux error). First array must be the wavelength, second the flux, (third the
+    error on the flux). resolution ’int: the desired resolution, must match the
+    units of wavelength in the spectrum file
 
     """
     # spectrum = np.loadtxt(spectrum)
@@ -194,7 +190,8 @@ def bin_spectrum_bank(spectrum, resolution):
     flux = spectrum[:, 1]
 
     if lam[15] - lam[16] > resolution:
-        bin_spectra = spectrum
+        pass
+        # bin_spectra = spectrum
 
     else:
         number_of_bins = np.math.floor((lam[-1] - lam[0]) / resolution)
@@ -206,7 +203,8 @@ def bin_spectrum_bank(spectrum, resolution):
             bins=number_of_bins,
         )
         bin_wavelength = [
-            (bin_edge[i] + bin_edge[i + 1]) / 2 for i in range(len(bin_edge) - 1)
+            (bin_edge[i] + bin_edge[i + 1]) / 2 for i in
+            range(len(bin_edge) - 1)
         ]
 
         bin_wavelength = np.array(bin_wavelength)
@@ -217,7 +215,7 @@ def bin_spectrum_bank(spectrum, resolution):
         bin_wavelength = bin_wavelength[mask]
         flux_bin = flux_bin[mask]
 
-        bin_spectra = table.Table()
+        # bin_spectra = table.Table()
         flux_bin = np.array(flux_bin)
         median_flux = np.nanmedian(flux_bin)
         flux_bin = flux_bin / median_flux
@@ -229,7 +227,7 @@ def bin_spectrum_bank(spectrum, resolution):
         return bin_spectra
 
 
-def mask_lines_bank(Data, z_obj=0):
+def mask_lines_bank(data, z_obj=0):
 
     # The objects in the bank have a redshift of zero
 
@@ -261,11 +259,12 @@ def mask_lines_bank(Data, z_obj=0):
     def func(x, y):
         return (x < y[1]) & (x > y[0])
 
-    cum_mask = np.array([True] * len(Data[:, 0]))
+    cum_mask = np.array([True] * len(data[:, 0]))
     for i in range(len(host_lines_air)):
-        mask = np.array(list(map(lambda x: ~func(x, host_range_air[i]), Data[:, 0])))
+        mask = np.array(list(map(lambda x: ~func(x, host_range_air[i]),
+                                 data[:, 0])))
         cum_mask = cum_mask & mask
 
-    Data_masked = Data[cum_mask]
+    data_masked = data[cum_mask]
 
-    return Data_masked
+    return data_masked

@@ -1,6 +1,21 @@
 # Welcome to NGSF - Next Generation SuperFit in Python! :dizzy: :bomb: :boom:
 
-Superfit in python is a software for the spectral classification of Supernovae of all major types accompanied by a host galaxy. The following list of versions are the minumum requierments for its use.
+Superfit in python is a software for the spectral classification of Supernovae 
+of all major types accompanied by a host galaxy. The following list of versions 
+are the minumum requierments for its use.
+
+## SEDM version
+
+This version has been altered to run with the sedmpy pipeline on SEDM spectra.
+
+## Files to edit
+
+- `config/parameters.json`
+- `scripts/ngsf_run`
+
+Update appropriate paths in these files to point to the template bank and the
+NGSF package top directory.  You can also adjust the parameters for specific
+fitting.
 
 ## Requierments
 
@@ -11,21 +26,35 @@ Superfit in python is a software for the spectral classification of Supernovae o
 - `astropy version: 3.1`
 - `Pandas version: 0.23.4`
 - `PyAstronomy version: 0.13.0`
+- `extinction version: 0.4.6`
 
 
 # To run one object
-The user must make sure to have a template bank to look at. The new template bank can be downloaded from WISeREP [here](https://www.wiserep.org/content/wiserep-getting-started#supyfit).
+The user must make sure to have a template bank to look at. The new template
+bank can be downloaded from WISeREP [here](https://www.wiserep.org/content/wiserep-getting-started#supyfit).
 
 
-The user must download the full superfit folder and place the bank inside it, also any spectra to be analyzed. The user only changes the parameters from the json file already within the folder, the following is an explanation of the parameters.
+The user must download the full superfit folder. The template bank may be placed
+anywhere, but the `"bank_dir"` variable in `config/parameters.json` must indicate
+the  path to the bank.  The user only changes the parameters from the json file
+already within the folder.  An explanation of the parameters is below.
+
+The script `ngsf_run` takes a single argument, which is the spectrum text file:
+
+`ngsf_run SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm`
+
+If you put the script `ngsf_run` in your path, you can run the fitter from any
+directory.
 
 
 ## The parameters of the fit
 
-The user must only change the parameters of the fit from the parameters.json file, the file looks like this (the template for this example is included in the git)
+The user must only change the parameters of the fit from the `parameters.json`
+file, the file looks like this (the template for this example is included in
+the git repository).
 
 
-    "object_to_fit" : "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
+    "object_to_fit": "SN2021urb_2021-08-06_00-00-00_Keck1_LRIS_TNS.flm",
 
     "use_exact_z": 1,
     "z_exact": 0.127,
@@ -49,14 +78,17 @@ The user must only change the parameters of the fit from the parameters.json fil
     "lower_lam": 0,
     "upper_lam": 0,
 
-    "error_spectrum" : "sg",
-    "saving_results_path" : "",
+    "error_spectrum": "sg",
+    "saving_results_path": "",
 
-    "show_plot" : 1,
-    "how_many_plots" : 1,
+    "show_plot": 1,
+    "how_many_plots": 1,
+    "show_plot_png": 1,
 
-    "mask_galaxy_lines":1,
-    "mask_telluric":0,
+    "verbose": 0,
+
+    "mask_galaxy_lines": 1,
+    "mask_telluric": 0,
 
     "minimum_overlap": 0.7,
 
@@ -65,23 +97,27 @@ The user must only change the parameters of the fit from the parameters.json fil
 
     "Alam_high": 2,
     "Alam_low": -2,
-    "Alam_interval":0.2
+    "Alam_interval": 0.2,
+
+    "pkg_dir": "/home/user/NGSF",
+    "bank_dir": "/home/user/NGSF/bank"
 
 
 
-`"object_to_fit"` : the object to analyze, should be located within the superfit folder.
+`"object_to_fit"` : the object to analyze, default only.  Can be specified on the command line also.
 
-`"use_exact_z"`: can be 1 (yes) or 0 (no). Determines wether the redshift will be an exact number or an array.
+`"use_exact_z"`: can be 1 (yes) or 0 (no). Determines weather the redshift will be an exact number or an array.
 
 `"z_exact"`    : exact redshift value that will be used if `"use_exact_z"` = 1
 
 `"z_range_begin"`,`"z_range_end"`,`"z_int"`: redshift values from which to build an array over which to look for the best fit.
 
-`"resolution"`: the resolution of the fit, the default is 10Å, however, if the spectra is of lower quality then the fit will be performed automatically at 30Å.
+`"resolution"`: the resolution of the fit, the default for SEDM is 30Å, however, if the spectra is of higher resolution then 10Å can be specified.
 
 `"temp_gal_tr"`, `"temp_sn_tr"`: template library folders over which to look in order to find the fit. It is recommended that the user uses the full library as is.
 
 `"lower_lam"`: Lower bound for wavelength over which to perform the fit
+
 `"upper_lam"`: Upper bound for wavelength over which to perform the fit, if this is equal to `"lower_lam"` then the wavelength range will be chosen automatically as that of the object to fit ± 300Å
 
 `"error_spectrum"` : refers to the type of routine used to perform the calculation of the error spectrum. The recommended one is `sg` Savitzky-Golay, there is also the option of `linear` estimation and the option `included` in which the user can use the error spectrum that comes with an object if he wants to, however, this is not recommended.
@@ -89,28 +125,42 @@ The user must only change the parameters of the fit from the parameters.json fil
 `"saving_results_path"`: path in which to save the performed fits, the default one is the superfit folder.
 
 `"show_plot"` : to show the plotted fit or no, the default being 1, to show.
+
 `"how_many_plots"`: number of plots to show if the user wants to show, if the `"show"` is zero then `"n"` has no effect.
 
+`"show_plot_png"`: set to 1 to output a png plot, a zero value or no parameter defaults to a pdf plot.
+
+`"verbose"`: set to 1 for more output to screen.
+
 `"mask_galaxy_lines"` : Either 1 or 0, masks the galaxy lines for both the template bank and the object of interest. For this option to work the redshift must be one defined values and not at array of values, meaning `"z_int"` must be equal to zero and `"z_start"` must be the redshift of choice.
+
 `"mask_telluric"`: Either 1 or 0, masks the flux within the wavelength range from 7594 to 7680 in the observer's frame.
 
 `"minimum_overlap"`: minimum percentage overlap between the template and the object of interest. Recommendation is for this to stay near 0.7
 
-`"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is not phase truncation.
+`"epoch_high"`: Upper bound epoch for phase truncation. If this equals the `"epoch_low"` parameter then there is no phase truncation.
+
 `"epoch_low"`: Lower bound epoch for phase truncation.
 
 `"Alam_high"`: High value for the extinction law constant
+
 `"Alam_low"`: Lower value for the extinction law constant
+
 `"Alam_interval"`: size of interval
+
+`"pkg_dir"`: Full path to the top level of the software package
+
+`"bank_dir"`: Full path to the template bank
 
 
 ## To Run
 
-Once the parameters have been updated in the `parameters.json` file the user simply needs to run the script from the `run.py` file.
+Once the parameters have been updated in the `parameters.json` file the user
+simply needs to run the script `ngsf_run` with the spectrum to fit as the
+only parameter.
 
-It is important to note that the file of the object to be analyzed should be within the superfit folder.
-
-
+The file of the object to be analyzed no longer needs to be within the superfit
+folder.
 
 
 # Further details about the code
@@ -118,15 +168,30 @@ It is important to note that the file of the object to be analyzed should be wit
 
 ## New template bank
 
-The improved Superfit template bank contains major subclasses such as: calcium rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated in different folders for more accurate classification. The default option for binning in 10A.
-The user must make sure to have this template bank or some alternative template bank of his own in order to run pySF, and please be mindful that pySF is only as good as the template bank it uses.
+The improved Superfit template bank contains major subclasses such as: calcium
+rich supernovae, type II flashers, TDEs, SLSN-I and II, among others, separated
+in different folders for more accurate classification. The default option for
+binning in 10A.
+The user must make sure to have this template bank or some alternative template
+bank of his own in order to run NGSF, and please be mindful that NGSF is only
+as good as the template bank it uses.
 
 
-The user has the option to create a bank with masked lines, meaning to mask host galaxy lines that could be in the templates, this option is default to False. If the user is interested in seeing which lines are being masked he can access the `mask_lines_bank` function within the `Header_binnings.py` file.
+The user has the option to create a bank with masked lines, meaning to mask host
+galaxy lines that could be in the templates, this option is default to False.
+If the user is interested in seeing which lines are being masked he can access
+the `mask_lines_bank` function within the `Header_binnings.py` file.
 
-It is important to note that when you open the folder of the bank there are two main subfolders, one named "original_resolution" and one named "binnings".
-The "original_resolution" folder contains the raw spectra from the bank, with the wavelengths in observed frame. In the "binnings" folder we have the binned and redshift-corrected spectra from the "original_resolution" folder, and so the fits are done using the "binnings" folder.
-Within the object subfolders inside the "original_resolution" folder we will find the wiserep files containing the metadata for each object (name,redshift, observational date, etc.) we use this metadata during the fit, and so we keep the folder.
+It is important to note that when you open the folder of the bank there are two
+main subfolders, one named "original_resolution" and one named "binnings".
+The "original_resolution" folder contains the raw spectra from the bank, with
+the wavelengths in observed frame. In the "binnings" folder we have the binned
+and redshift-corrected spectra from the "original_resolution" folder, and so
+the fits are done using the "binnings" folder.
+Within the object subfolders inside the "original_resolution" folder we will
+find the wiserep files containing the metadata for each object (name,redshift,
+observational date, etc.) we use this metadata during the fit, and so we keep
+the folder.
 
 
 ## Main NGSF Function
@@ -145,7 +210,7 @@ all_parameter_space(self.int_obj,Parameters.redshift,Parameters.extconstant,Para
 
 
 
-The inputs of the function are called from the Parameters class within the `params.py` file, and are as follow:
+The inputs of the function are called from the Parameters class within the `params.py` file, and are as follows:
 
 - `self.int_obj`: interpolated object to fit
 - `redshift:` Can be an array or an individual number. These are the redshift values over which to optimize.
@@ -153,7 +218,7 @@ The inputs of the function are called from the Parameters class within the `para
 - `templates_sn_trunc:`  Truncated library of supernovae, aka: which SN types to look at when optimizing.
 - `templates_gal_trunc:` Truncated library of host galaxies, aka: which HG types to look at when optimizing.
 - `lam:` Lambda array over which to perform the fit. The default is from 3000 A to 10500 A.
-- `resolution:` Resolution at which to bin and perform the fit. The default is 10 A.
+- `resolution:` Resolution at which to bin and perform the fit. The default for SEDM is 30 A.
 - `kind:` Corresponds to the type of error spectrum the user prefers, the options are `SG`:Savitsky Golay, `linear`: for obtaining the error of the spectrum
 by making linear fit every 10 points, and `included`: if the user wants to use the error that comes with the object itself. The default is `sg`
 - `save:` Name of results file
@@ -162,7 +227,9 @@ by making linear fit every 10 points, and `included`: if the user wants to use t
 
 # Results
 
-The results are: an astropy table that is saved as a csv file, and the best fit plots saved as pdf files (they both save to the superfit folder or to the specified `saving_results_path`)
+The results are: an astropy table that is saved as a csv file, and the best fit
+plots saved as pdf or png files (they both save to the folder where you execute
+the `ngsf_run` script or to the specified `saving_results_path`)
 
 
 ## The output graphs look like this
@@ -171,4 +238,7 @@ The results are: an astropy table that is saved as a csv file, and the best fit 
 ![Output](ZTF18abokyfk_20180925_P60_v1_10_0.png)
 
 
-The plot shows the input object in red, the SN and Host Galaxy combined templates in green. The legend shows the SN type, HG type and percentage contribution from the SN template to the fit. On top of the plot the redshift value is indicated.
+The plot shows the input object in red, the SN and Host Galaxy combined
+templates in green. The legend shows the SN type, HG type and percentage
+contribution from the SN template to the fit. On top of the plot the redshift
+value is indicated.
